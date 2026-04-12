@@ -1,4 +1,30 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco Lab · Ecogreen · USET</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; background: #060d12; }
+    body { overflow: hidden; }
+
+    /* ── Responsive helpers ── */
+    .hide-portrait  { display: block; }
+    .show-portrait  { display: none;  }
+    @media (orientation: portrait), (max-width: 640px) {
+      .hide-portrait { display: none !important; }
+      .show-portrait { display: flex !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useRef, useCallback, useEffect } = React;
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -321,7 +347,7 @@ const LEADERBOARD_INITIAL = [
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
-export default function EcoLab() {
+function EcoLab() {
   const [activeField, setActiveField] = useState("electrical");
   const [activeTab, setActiveTab] = useState("lab");
   const [workspace, setWorkspace] = useState([]);
@@ -343,8 +369,24 @@ export default function EcoLab() {
   const [dragOver, setDragOver] = useState(false);
   const [projectName, setProjectName] = useState("My Eco Project");
   const [savedProjects, setSavedProjects] = useState([]);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem("or_api_key") || "");
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [keyDraft, setKeyDraft] = useState("");
   const workspaceRef = useRef(null);
   const simInterval = useRef(null);
+  const dragCounter = useRef(0);
+
+  // ── Responsive: detect portrait ──────────────────────────────────────────
+  const [winSize, setWinSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+  useEffect(() => {
+    const onResize = () => setWinSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const isPortrait = winSize.h > winSize.w;
+  const isMobile = winSize.w < 640;
+  const isCompact = isPortrait || isMobile;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fieldData = FIELDS[activeField];
   const allComponents = fieldData.components;
@@ -362,6 +404,7 @@ export default function EcoLab() {
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
+    dragCounter.current = 0;
     setDragOver(false);
     const data = e.dataTransfer.getData("component");
     if (!data) return;
@@ -432,6 +475,7 @@ export default function EcoLab() {
 
   const analyzeProject = useCallback(async () => {
     if (workspace.length === 0) { showToast("Add components first!", "warn"); return; }
+    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
     setAiLoading(true);
     const componentList = workspace.map(w => `${w.name} (${w.cat})`).join(", ");
     const renewableCount = workspace.filter(w => w.renewable).length;
@@ -456,55 +500,62 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
 }`;
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "anthropic/claude-3.5-sonnet",
           max_tokens: 1000,
           messages: [{ role: "user", content: prompt }]
         })
       });
       const data = await res.json();
-      const text = data.content?.map(b => b.text || "").join("");
+      if (data.error) throw new Error(data.error.message);
+      const text = data.choices?.[0]?.message?.content || "";
       let parsed;
       try { parsed = JSON.parse(text.replace(/```json|```/g, "").trim()); }
       catch { parsed = { sustainabilityScore: Math.min(100, 40 + renewableCount * 10 + connCount * 2), innovationScore: Math.min(100, 30 + workspace.length * 3), summary: "Your project shows strong engineering fundamentals.", strengths: ["Good component selection", "Renewable integration", "System connectivity"], improvements: ["Add more renewable sources", "Include energy storage", "Add monitoring sensors"], ecoTip: "Consider adding a smart controller to optimize energy flow.", verdict: "A solid eco-engineering project with room to grow!" }; }
       setScores(parsed);
       setChatMessages(prev => [...prev, { role: "assistant", content: `✅ **Analysis Complete!**\n\n📊 **Sustainability:** ${parsed.sustainabilityScore}/100\n🚀 **Innovation:** ${parsed.innovationScore}/100\n\n${parsed.summary}\n\n💡 *Eco Tip:* ${parsed.ecoTip}\n\n🏆 **Verdict:** ${parsed.verdict}` }]);
       showToast("Analysis complete!", "success");
-    } catch {
-      setChatMessages(prev => [...prev, { role: "assistant", content: "⚠️ Analysis temporarily unavailable. Your project looks promising — keep adding renewable components for a better score!" }]);
+    } catch (err) {
+      const msg = err.message?.includes("401") ? "Invalid API key. Check your OpenRouter key." : "⚠️ AI unavailable. Check your key and connection.";
+      setChatMessages(prev => [...prev, { role: "assistant", content: msg }]);
+      showToast(msg, "warn");
     }
     setAiLoading(false);
-  }, [workspace, connections, projectName, fieldData]);
+  }, [workspace, connections, projectName, fieldData, apiKey]);
 
   const sendChat = useCallback(async () => {
     if (!chatInput.trim()) return;
+    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
     const userMsg = chatInput.trim();
     setChatInput("");
     setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setAiLoading(true);
     const componentList = workspace.map(w => w.name).join(", ") || "none yet";
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "anthropic/claude-3.5-sonnet",
           max_tokens: 600,
-          system: `You are Ecogreen AI, a friendly sustainable engineering assistant for USET students in The Gambia. Current workspace has: ${componentList} in ${fieldData.label}. Be concise, helpful, and always encourage eco-friendly solutions. Use emojis sparingly.`,
-          messages: [{ role: "user", content: userMsg }]
+          messages: [
+            { role: "system", content: `You are Ecogreen AI, a friendly sustainable engineering assistant for USET students in The Gambia. Current workspace has: ${componentList} in ${fieldData.label}. Be concise, helpful, and always encourage eco-friendly solutions. Use emojis sparingly.` },
+            { role: "user", content: userMsg }
+          ]
         })
       });
       const data = await res.json();
-      const text = data.content?.map(b => b.text || "").join("") || "Great question! Keep exploring eco-engineering solutions.";
+      if (data.error) throw new Error(data.error.message);
+      const text = data.choices?.[0]?.message?.content || "Great question! Keep exploring eco-engineering solutions.";
       setChatMessages(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
-      setChatMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting. Try again in a moment!" }]);
+      setChatMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting. Check your API key and try again!" }]);
     }
     setAiLoading(false);
-  }, [chatInput, workspace, fieldData]);
+  }, [chatInput, workspace, fieldData, apiKey]);
 
   // ─── PROJECT SAVE/LOAD ───────────────────────────────────────────────────────
 
@@ -572,70 +623,16 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
 
   // ─── DRAGGABLE COMPONENT IN WORKSPACE ────────────────────────────────────────
 
-  function WorkspaceItem({ item }) {
-    const dragging = useRef(false);
-    const startPos = useRef({ x: 0, y: 0 });
-    const isSelected = selectedItem === item.uid;
-    const isConnecting = connecting === item.uid;
-    const sim = simData[item.uid];
-
-    const onMouseDown = (e) => {
-      if (e.target.closest(".ws-btn")) return;
-      e.preventDefault();
-      dragging.current = true;
-      startPos.current = { x: e.clientX, y: e.clientY };
-      const onMove = (ev) => {
-        if (!dragging.current) return;
-        moveItem(item.uid, ev.clientX - startPos.current.x, ev.clientY - startPos.current.y);
-        startPos.current = { x: ev.clientX, y: ev.clientY };
-      };
-      const onUp = () => { dragging.current = false; window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
-    };
-
-    return (
-      <div
-        style={{
-          position: "absolute", left: item.x, top: item.y,
-          width: 96, cursor: "grab",
-          zIndex: isSelected ? 20 : 10,
-        }}
-        onMouseDown={onMouseDown}
-        onClick={() => setSelectedItem(isSelected ? null : item.uid)}
-      >
-        <div style={{
-          background: isConnecting ? "rgba(0,229,160,0.25)" : isSelected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)",
-          border: isConnecting ? "2px solid #00e5a0" : isSelected ? "2px solid rgba(255,255,255,0.5)" : "1.5px solid rgba(255,255,255,0.12)",
-          borderRadius: 16, padding: "10px 6px 8px", textAlign: "center",
-          backdropFilter: "blur(8px)", transition: "all 0.2s",
-          boxShadow: isSelected ? "0 0 20px rgba(0,229,160,0.3)" : "0 4px 16px rgba(0,0,0,0.4)",
-        }}>
-          <div style={{ fontSize: 28, lineHeight: 1.2 }}>{item.icon}</div>
-          <div style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.2 }}>{item.name}</div>
-          {item.renewable && <div style={{ fontSize: 7, color: "#00e5a0", marginTop: 2 }}>♻ RENEWABLE</div>}
-          {sim && (
-            <div style={{ marginTop: 4, fontSize: 9, fontWeight: 700, color: sim.type === "gen" ? "#00e5a0" : sim.type === "load" ? "#f59e0b" : "#60a5fa", background: "rgba(0,0,0,0.3)", borderRadius: 6, padding: "2px 4px" }}>
-              {sim.value}{sim.unit}
-            </div>
-          )}
-          <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
-            <button className="ws-btn" onClick={e => { e.stopPropagation(); handleNodeClick(item.uid); }}
-              style={{ fontSize: 10, background: isConnecting ? "#00e5a0" : "rgba(0,229,160,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Connect">🔗</button>
-            <button className="ws-btn" onClick={e => { e.stopPropagation(); removeItem(item.uid); }}
-              style={{ fontSize: 10, background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Remove">✕</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // NOTE: WorkspaceItem is defined OUTSIDE EcoLab (see below the export) to prevent
+  // React from treating it as a new component type on every render, which breaks drop.
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: "100vh", background: "#060d12", color: "#e2e8f0", fontFamily: "'DM Sans', system-ui, sans-serif", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100dvh", height: "100dvh", background: "#060d12", color: "#e2e8f0", fontFamily: "'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        @font-face { font-family: 'DM Sans'; src: local('DM Sans'), local('DMSans'); }
+        @font-face { font-family: 'Space Grotesk'; src: local('Space Grotesk'), local('SpaceGrotesk'); }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0d1a22; } ::-webkit-scrollbar-thumb { background: #1e3a2f; border-radius: 4px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
@@ -643,7 +640,7 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
         .tab-btn:hover:not(.active) { color: #94a3b8; background: rgba(255,255,255,0.04); }
         .field-btn { border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #64748b; border-radius: 12px; padding: 8px 14px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
         .field-btn.active { border-color: #00e5a0; background: rgba(0,229,160,0.1); color: #00e5a0; }
-        .comp-card { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 10px 8px; cursor: grab; transition: all 0.18s; user-select: none; }
+        .comp-card { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 10px 8px; cursor: grab; transition: all 0.18s; user-select: none; -webkit-user-drag: element; touch-action: none; }
         .comp-card:hover { background: rgba(0,229,160,0.08); border-color: rgba(0,229,160,0.3); transform: translateY(-1px); }
         .comp-card:active { cursor: grabbing; transform: scale(0.97); }
         .action-btn { border: none; border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
@@ -656,40 +653,72 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
         @keyframes slideIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
         .sim-pulse { animation: pulse 1s ease-in-out infinite; }
         .slide-in { animation: slideIn 0.3s ease; }
+        .slide-up { animation: slideUp 0.3s ease; }
+        .bottom-drawer { position:fixed; bottom:0; left:0; right:0; z-index:200; background:#080f16; border-top:1px solid rgba(255,255,255,0.1); border-radius:16px 16px 0 0; max-height:65vh; display:flex; flex-direction:column; animation: slideUp 0.25s ease; }
+        .fab { position:fixed; bottom:16px; right:16px; z-index:300; width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,#00e5a0,#0ea5e9); border:none; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(0,229,160,0.4); }
+        .mobile-tab-bar { position:fixed; bottom:0; left:0; right:0; z-index:150; background:#080f16; border-top:1px solid rgba(255,255,255,0.08); display:flex; padding:6px 0 max(6px,env(safe-area-inset-bottom)); }
+        .mobile-tab-btn { flex:1; background:none; border:none; color:#475569; font-size:10px; cursor:pointer; padding:4px 2px; display:flex; flex-direction:column; align-items:center; gap:2px; transition:color 0.2s; }
+        .mobile-tab-btn.active { color:#00e5a0; }
+        .mobile-tab-btn span:first-child { font-size:18px; }
       `}</style>
 
       {/* HEADER */}
-      <header style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,13,18,0.95)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", gap: 16, flexShrink: 0, zIndex: 50 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #00e5a0, #0ea5e9)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌿</div>
-          <div>
+      <header style={{ padding: isCompact ? "8px 12px" : "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,13,18,0.95)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", gap: isCompact ? 8 : 16, flexShrink: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, #00e5a0, #0ea5e9)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🌿</div>
+          {!isCompact && <div>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 18, color: "#fff", letterSpacing: "-0.5px" }}>Eco Lab</div>
             <div style={{ fontSize: 9, color: "#00e5a0", fontWeight: 600, letterSpacing: "0.05em" }}>BY ECOGREEN · USET</div>
-          </div>
+          </div>}
+          {isCompact && <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 15, color: "#fff" }}>Eco Lab</div>}
         </div>
-        <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
+        {/* Tab bar — hidden on portrait (uses bottom bar instead) */}
+        {!isCompact && <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
           {["lab", "ai", "leaderboard", "projects", "templates"].map(t => (
             <button key={t} className={`tab-btn ${activeTab === t ? "active" : ""}`} onClick={() => setActiveTab(t)}>
               {{ lab: "🔬 Lab", ai: "🤖 AI", leaderboard: "🏆 Board", projects: "💾 Saved", templates: "⚡ Templates" }[t]}
             </button>
           ))}
-        </div>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-          <input value={projectName} onChange={e => setProjectName(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e2e8f0", padding: "5px 10px", fontSize: 12, width: 160 }} placeholder="Project name…" />
-          <button className="action-btn" onClick={saveProject} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0" }}>💾 Save</button>
-          <button className="action-btn" onClick={exportProject} style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>📤 Export</button>
+        </div>}
+        <div style={{ marginLeft: "auto", display: "flex", gap: isCompact ? 4 : 8, alignItems: "center" }}>
+          {!isCompact && <input value={projectName} onChange={e => setProjectName(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e2e8f0", padding: "5px 10px", fontSize: 12, width: 160 }} placeholder="Project name…" />}
+          {!isCompact && <button className="action-btn" onClick={saveProject} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0" }}>💾 Save</button>}
+          {!isCompact && <button className="action-btn" onClick={exportProject} style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>📤 Export</button>}
+          {isCompact && <button className="action-btn" onClick={saveProject} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0", padding: "6px 10px", fontSize: 11 }}>💾</button>}
+          <button className="action-btn" onClick={() => { setKeyDraft(apiKey); setShowKeyInput(v => !v); }} style={{ background: apiKey ? "rgba(0,229,160,0.1)" : "rgba(245,158,11,0.15)", color: apiKey ? "#00e5a0" : "#f59e0b", border: apiKey ? "1px solid rgba(0,229,160,0.3)" : "1px solid rgba(245,158,11,0.4)", padding: isCompact ? "6px 8px" : undefined, fontSize: isCompact ? 11 : undefined }} title="OpenRouter API Key">
+            {apiKey ? "🔑✓" : "🔑"}
+          </button>
         </div>
       </header>
 
-      {/* BODY */}
+      {/* API KEY PANEL */}
+      {showKeyInput && (
+        <div className="slide-in" style={{ background: "#0a1520", borderBottom: "1px solid rgba(245,158,11,0.25)", padding: "12px 20px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0, zIndex: 40 }}>
+          <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 600, whiteSpace: "nowrap" }}>🔑 OpenRouter API Key:</span>
+          <input
+            type="password"
+            value={keyDraft}
+            onChange={e => setKeyDraft(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); } }}
+            placeholder="sk-or-v1-…"
+            style={{ flex: 1, maxWidth: 420, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(245,158,11,0.35)", borderRadius: 8, color: "#e2e8f0", padding: "7px 12px", fontSize: 13, outline: "none", fontFamily: "monospace" }}
+          />
+          <button className="action-btn" onClick={() => { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); }} style={{ background: "rgba(0,229,160,0.15)", color: "#00e5a0" }}>Save</button>
+          {apiKey && <button className="action-btn" onClick={() => { setApiKey(""); localStorage.removeItem("or_api_key"); setKeyDraft(""); showToast("Key removed", "info"); }} style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}>Remove</button>}
+          <button className="action-btn" onClick={() => setShowKeyInput(false)} style={{ background: "rgba(255,255,255,0.05)", color: "#64748b" }}>✕</button>
+          <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#60a5fa", textDecoration: "none", whiteSpace: "nowrap" }}>Get a key →</a>
+        </div>
+      )}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
 
         {/* ── LAB TAB ── */}
         {activeTab === "lab" && (
           <>
-            {/* SIDEBAR */}
+            {/* LANDSCAPE: sidebar on left. PORTRAIT: sidebar hidden, shown as drawer */}
+            {!isCompact && (
             <div style={{ width: 260, background: "#080f16", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden" }}>
               {/* Field selector */}
               <div style={{ padding: "12px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -727,31 +756,33 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
                 {filtered.length} of {allComponents.length} components shown
               </div>
             </div>
+            )}
 
             {/* WORKSPACE */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
               {/* Toolbar */}
-              <div style={{ padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 8, alignItems: "center", background: "rgba(8,15,22,0.8)", flexShrink: 0 }}>
-                <button className="action-btn" onClick={runSimulation} style={{ background: simRunning ? "rgba(239,68,68,0.15)" : "rgba(0,229,160,0.12)", color: simRunning ? "#ef4444" : "#00e5a0" }}>
-                  {simRunning ? "⏹ Stop Sim" : "▶ Simulate"}
+              <div style={{ padding: isCompact ? "6px 10px" : "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: isCompact ? 4 : 8, alignItems: "center", background: "rgba(8,15,22,0.8)", flexShrink: 0, flexWrap: "wrap" }}>
+                <button className="action-btn" onClick={runSimulation} style={{ background: simRunning ? "rgba(239,68,68,0.15)" : "rgba(0,229,160,0.12)", color: simRunning ? "#ef4444" : "#00e5a0", fontSize: isCompact ? 11 : 12 }}>
+                  {simRunning ? "⏹" : "▶"}{!isCompact && (simRunning ? " Stop Sim" : " Simulate")}
                 </button>
-                {simRunning && <span className="sim-pulse" style={{ fontSize: 10, color: "#00e5a0" }}>● Running</span>}
-                <button className="action-btn" onClick={analyzeProject} style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa" }} disabled={aiLoading}>
-                  {aiLoading ? "⏳ Analyzing…" : "🤖 AI Analyze"}
+                {simRunning && <span className="sim-pulse" style={{ fontSize: 10, color: "#00e5a0" }}>●</span>}
+                <button className="action-btn" onClick={analyzeProject} style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", fontSize: isCompact ? 11 : 12 }} disabled={aiLoading}>
+                  {aiLoading ? "⏳" : "🤖"}{!isCompact && (aiLoading ? " Analyzing…" : " AI Analyze")}
                 </button>
-                <button className="action-btn" onClick={addToLeaderboard} style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}>🏆 Submit</button>
-                <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 11, color: "#475569" }}>{workspace.length} components · {connections.length} connections</span>
-                  {connecting && <span style={{ fontSize: 11, color: "#00e5a0", fontWeight: 700 }}>🔗 Select target…</span>}
-                  <button className="action-btn" onClick={clearWorkspace} style={{ background: "rgba(239,68,68,0.1)", color: "#f87171" }}>🗑 Clear</button>
+                {!isCompact && <button className="action-btn" onClick={addToLeaderboard} style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}>🏆 Submit</button>}
+                <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
+                  {!isCompact && <span style={{ fontSize: 11, color: "#475569" }}>{workspace.length} comp · {connections.length} conn</span>}
+                  {connecting && <span style={{ fontSize: 11, color: "#00e5a0", fontWeight: 700 }}>🔗 tap target…</span>}
+                  <button className="action-btn" onClick={clearWorkspace} style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", fontSize: isCompact ? 11 : 12 }}>🗑{!isCompact && " Clear"}</button>
                 </div>
               </div>
               {/* Canvas */}
               <div
                 ref={workspaceRef}
-                style={{ flex: 1, position: "relative", overflow: "hidden", background: dragOver ? "rgba(0,229,160,0.03)" : "transparent", transition: "background 0.2s" }}
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
+                style={{ flex: 1, position: "relative", overflow: "hidden", background: dragOver ? "rgba(0,229,160,0.03)" : "transparent", outline: dragOver ? "2px dashed rgba(0,229,160,0.4)" : "2px dashed transparent", outlineOffset: "-2px", transition: "background 0.2s, outline 0.2s" }}
+                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+                onDragEnter={e => { e.preventDefault(); dragCounter.current += 1; if (dragCounter.current === 1) setDragOver(true); }}
+                onDragLeave={e => { dragCounter.current -= 1; if (dragCounter.current === 0) setDragOver(false); }}
                 onDrop={handleDrop}
                 onClick={() => { setSelectedItem(null); if (connecting) setConnecting(null); }}
               >
@@ -781,12 +812,26 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
                 {workspace.length === 0 && (
                   <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                     <div style={{ fontSize: 64, opacity: 0.15 }}>🌿</div>
-                    <div style={{ fontSize: 16, color: "#334155", marginTop: 12, fontWeight: 600 }}>Drag components here</div>
+                    <div style={{ fontSize: 16, color: "#334155", marginTop: 12, fontWeight: 600 }}>
+                      {isCompact ? "Tap ＋ to add components" : "Drag components here"}
+                    </div>
                     <div style={{ fontSize: 12, color: "#1e293b", marginTop: 4 }}>Build your eco-engineering project</div>
                   </div>
                 )}
                 {/* Items */}
-                {workspace.map(item => <WorkspaceItem key={item.uid} item={item} />)}
+                {workspace.map(item => (
+                  <WorkspaceItem
+                    key={item.uid}
+                    item={item}
+                    selectedItem={selectedItem}
+                    setSelectedItem={setSelectedItem}
+                    connecting={connecting}
+                    simData={simData}
+                    moveItem={moveItem}
+                    handleNodeClick={handleNodeClick}
+                    removeItem={removeItem}
+                  />
+                ))}
               </div>
               {/* Detail panel */}
               {selectedItem && (() => {
@@ -810,6 +855,56 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
                 );
               })()}
             </div>
+          </>
+        )}
+
+        {/* ── PORTRAIT: FAB + Component Drawer ─────────────────────────────── */}
+        {isCompact && activeTab === "lab" && (
+          <>
+            {/* FAB */}
+            <button className="fab" onClick={() => setSidebarOpen(v => !v)} style={{ bottom: 72 }}>
+              {sidebarOpen ? "✕" : "＋"}
+            </button>
+            {/* Bottom drawer */}
+            {sidebarOpen && (
+              <div className="bottom-drawer" style={{ bottom: 56 }}>
+                {/* Handle */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 6px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: "0.08em" }}>ADD COMPONENT</div>
+                  <button onClick={() => setSidebarOpen(false)} style={{ background: "none", border: "none", color: "#475569", fontSize: 16, cursor: "pointer" }}>✕</button>
+                </div>
+                {/* Field selector */}
+                <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+                  <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}>
+                    {Object.entries(FIELDS).map(([key, f]) => (
+                      <button key={key} className={`field-btn ${activeField === key ? "active" : ""}`} onClick={() => { setActiveField(key); setCatFilter("All"); setSearchTerm(""); }} style={{ whiteSpace: "nowrap", fontSize: 11 }}>
+                        {f.icon} {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Search */}
+                <div style={{ padding: "8px 12px", flexShrink: 0 }}>
+                  <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="🔍 Search…" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "#e2e8f0", padding: "7px 10px", fontSize: 12, outline: "none" }} />
+                </div>
+                {/* Grid */}
+                <div style={{ flex: 1, overflowY: "auto", padding: "4px 10px 12px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                  {filtered.map(comp => (
+                    <div key={comp.id} className="comp-card" onClick={() => {
+                      const id = `${comp.id}_${Date.now()}`;
+                      const cx = Math.random() * Math.max(100, winSize.w - 200);
+                      const cy = Math.random() * Math.max(60, winSize.h * 0.35);
+                      setWorkspace(prev => [...prev, { ...comp, uid: id, x: cx, y: cy }]);
+                      showToast(`Added ${comp.name}`);
+                    }} style={{ cursor: "pointer" }}>
+                      <div style={{ fontSize: 20, textAlign: "center" }}>{comp.icon}</div>
+                      <div style={{ fontSize: 8, fontWeight: 600, color: "#94a3b8", marginTop: 3, textAlign: "center", lineHeight: 1.2 }}>{comp.name}</div>
+                      {comp.renewable && <div style={{ fontSize: 7, color: "#00e5a0", textAlign: "center" }}>♻</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -987,12 +1082,125 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
         )}
       </div>
 
+      {/* MOBILE BOTTOM TAB BAR — portrait/compact only */}
+      {isCompact && (
+        <nav className="mobile-tab-bar">
+          {[
+            { id: "lab",         icon: "🔬", label: "Lab"       },
+            { id: "ai",          icon: "🤖", label: "AI"        },
+            { id: "leaderboard", icon: "🏆", label: "Board"     },
+            { id: "projects",    icon: "💾", label: "Saved"     },
+            { id: "templates",   icon: "⚡", label: "Templates" },
+          ].map(t => (
+            <button key={t.id} className={`mobile-tab-btn ${activeTab === t.id ? "active" : ""}`}
+              onClick={() => { setActiveTab(t.id); setSidebarOpen(false); }}>
+              <span>{t.icon}</span>
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
+
       {/* TOAST */}
       {toast && (
-        <div className="slide-in" style={{ position: "fixed", bottom: 24, right: 24, background: toast.type === "success" ? "rgba(0,229,160,0.15)" : toast.type === "warn" ? "rgba(245,158,11,0.15)" : "rgba(96,165,250,0.15)", border: `1px solid ${toast.type === "success" ? "rgba(0,229,160,0.3)" : toast.type === "warn" ? "rgba(245,158,11,0.3)" : "rgba(96,165,250,0.3)"}`, borderRadius: 12, padding: "10px 18px", fontSize: 13, color: "#e2e8f0", backdropFilter: "blur(12px)", zIndex: 999, maxWidth: 300 }}>
+        <div className="slide-in" style={{ position: "fixed", bottom: isCompact ? 72 : 24, right: 16, background: toast.type === "success" ? "rgba(0,229,160,0.15)" : toast.type === "warn" ? "rgba(245,158,11,0.15)" : "rgba(96,165,250,0.15)", border: `1px solid ${toast.type === "success" ? "rgba(0,229,160,0.3)" : toast.type === "warn" ? "rgba(245,158,11,0.3)" : "rgba(96,165,250,0.3)"}`, borderRadius: 12, padding: "10px 18px", fontSize: 13, color: "#e2e8f0", backdropFilter: "blur(12px)", zIndex: 999, maxWidth: 280 }}>
           {toast.msg}
         </div>
       )}
     </div>
   );
 }
+
+// ─── WORKSPACE ITEM (defined outside EcoLab so React doesn't remount on re-render) ───
+// If defined INSIDE EcoLab, React sees a new function reference every render and
+// unmounts/remounts all items — destroying the drop target mid-drag.
+
+function WorkspaceItem({ item, selectedItem, setSelectedItem, connecting, simData, moveItem, handleNodeClick, removeItem }) {
+  const dragging = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+  const isSelected = selectedItem === item.uid;
+  const isConnecting = connecting === item.uid;
+  const sim = simData[item.uid];
+
+  const onMouseDown = (e) => {
+    if (e.target.closest(".ws-btn")) return;
+    e.preventDefault();
+    dragging.current = true;
+    startPos.current = { x: e.clientX, y: e.clientY };
+    const onMove = (ev) => {
+      if (!dragging.current) return;
+      moveItem(item.uid, ev.clientX - startPos.current.x, ev.clientY - startPos.current.y);
+      startPos.current = { x: ev.clientX, y: ev.clientY };
+    };
+    const onUp = () => {
+      dragging.current = false;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
+
+  const onTouchStart = (e) => {
+    if (e.target.closest(".ws-btn")) return;
+    e.stopPropagation();
+    const t = e.touches[0];
+    dragging.current = true;
+    startPos.current = { x: t.clientX, y: t.clientY };
+    const onMove = (ev) => {
+      if (!dragging.current) return;
+      ev.preventDefault();
+      const touch = ev.touches[0];
+      moveItem(item.uid, touch.clientX - startPos.current.x, touch.clientY - startPos.current.y);
+      startPos.current = { x: touch.clientX, y: touch.clientY };
+    };
+    const onUp = () => {
+      dragging.current = false;
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
+    };
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onUp);
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute", left: item.x, top: item.y,
+        width: 96, cursor: "grab",
+        zIndex: isSelected ? 20 : 10,
+        touchAction: "none",
+      }}
+      onMouseDown={onMouseDown}
+      onTouchStart={onTouchStart}
+      onClick={() => setSelectedItem(isSelected ? null : item.uid)}
+    >
+      <div style={{
+        background: isConnecting ? "rgba(0,229,160,0.25)" : isSelected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)",
+        border: isConnecting ? "2px solid #00e5a0" : isSelected ? "2px solid rgba(255,255,255,0.5)" : "1.5px solid rgba(255,255,255,0.12)",
+        borderRadius: 16, padding: "10px 6px 8px", textAlign: "center",
+        backdropFilter: "blur(8px)", transition: "all 0.2s",
+        boxShadow: isSelected ? "0 0 20px rgba(0,229,160,0.3)" : "0 4px 16px rgba(0,0,0,0.4)",
+      }}>
+        <div style={{ fontSize: 28, lineHeight: 1.2 }}>{item.icon}</div>
+        <div style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.2 }}>{item.name}</div>
+        {item.renewable && <div style={{ fontSize: 7, color: "#00e5a0", marginTop: 2 }}>♻ RENEWABLE</div>}
+        {sim && (
+          <div style={{ marginTop: 4, fontSize: 9, fontWeight: 700, color: sim.type === "gen" ? "#00e5a0" : sim.type === "load" ? "#f59e0b" : "#60a5fa", background: "rgba(0,0,0,0.3)", borderRadius: 6, padding: "2px 4px" }}>
+            {sim.value}{sim.unit}
+          </div>
+        )}
+        <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
+          <button className="ws-btn" onClick={e => { e.stopPropagation(); handleNodeClick(item.uid); }}
+            style={{ fontSize: 10, background: isConnecting ? "#00e5a0" : "rgba(0,229,160,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Connect">🔗</button>
+          <button className="ws-btn" onClick={e => { e.stopPropagation(); removeItem(item.uid); }}
+            style={{ fontSize: 10, background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Remove">✕</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+    ReactDOM.createRoot(document.getElementById('root')).render(<EcoLab />);
+  </script>
+</body>
+</html>
