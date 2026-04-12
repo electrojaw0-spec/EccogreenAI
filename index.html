@@ -1,316 +1,520 @@
-import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Eco Lab V6 Ultra · AI-Powered Engineering Sandbox</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    html, body, #root { height: 100%; background: #050a0f; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0f171f; }
+    ::-webkit-scrollbar-thumb { background: #2a8a6e; border-radius: 8px; }
+    @keyframes pulseGlow { 0% { opacity: 0.5; text-shadow: 0 0 0px #00e5a0; } 100% { opacity: 1; text-shadow: 0 0 6px #00e5a0; } }
+    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); visibility: hidden; } }
+    .sim-pulse { animation: pulseGlow 1s infinite alternate; }
+    .slide-up { animation: slideUp 0.25s ease-out; }
+    .toast-msg { animation: fadeInOut 2.4s ease forwards; }
+    .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 6px 14px; border-radius: 30px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: rgba(0,229,160,0.12); color: #00e5a0; }
+    .comp-card { background: rgba(255,255,255,0.04); border: 1px solid #2a3a2f; border-radius: 14px; padding: 8px 4px; text-align: center; cursor: grab; transition: all 0.18s; }
+    .comp-card:hover { background: rgba(0,229,160,0.08); border-color: #00e5a0; transform: translateY(-2px); }
+    .ws-item { background: rgba(20,30,35,0.95); backdrop-filter: blur(8px); border-radius: 20px; transition: all 0.08s linear; cursor: pointer; }
+    .ws-item:hover { transform: scale(1.02); border-color: #00e5a0 !important; }
+    .power-badge { position: fixed; bottom: 20px; left: 20px; background: #0f1a1fe0; backdrop-filter: blur(12px); border-radius: 40px; padding: 8px 18px; font-size: 13px; font-weight: 600; border-left: 3px solid #00e5a0; z-index: 150; pointer-events: none; font-family: monospace; }
+    @media (max-width: 640px) { .power-badge { bottom: 80px; left: 12px; font-size: 10px; padding: 4px 12px; } }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .field-btn { background: rgba(255,255,255,0.03); border: 1px solid #2a3a2f; color: #94a3b8; border-radius: 12px; padding: 8px 12px; margin: 4px 0; cursor: pointer; transition: all 0.2s; width: 100%; text-align: left; }
+    .field-btn.active { background: rgba(0,229,160,0.12); border-color: #00e5a0; color: #00e5a0; }
+    .log-entry { font-size: 11px; font-family: monospace; border-bottom: 1px solid #1f2a30; padding: 4px 0; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState, useRef, useCallback, useEffect, useMemo, useReducer } = React;
 
-// ========================= FIELDS =========================
-const FIELDS = {
-  electrical: {
-    label: "Electrical & Electronics",
-    icon: "⚡",
-    components: [
-      { id: "solar", name: "Solar Panel", icon: "☀️", power: 300, renewable: true },
-      { id: "wind", name: "Wind Turbine", icon: "🌬️", power: 500, renewable: true },
-      { id: "battery", name: "Battery", icon: "🔋", storage: 500 },
-      { id: "led", name: "LED Load", icon: "💡", load: 50 },
-      { id: "inverter", name: "Inverter", icon: "🔄" }
-    ]
+  // ========================= CONSTANTS =========================
+  const ENGINE_CONFIG = { tickRate: 1000, gravity: 9.81, efficiencyLoss: 0.02, maxNodes: 500, version: "V6 ULTRA" };
+
+  // ========================= EXPANDED FIELD SYSTEM =========================
+  const FIELDS = {
+    electrical: {
+      icon: "⚡", label: "Electrical", color: "#00e5a0",
+      components: [
+        { id: "solar", name: "Solar Panel", icon: "☀️", power: 300, efficiency: 0.9, renewable: true, cat: "Power", voltage: 48, resistance: 0.5 },
+        { id: "wind", name: "Wind Turbine", icon: "🌬️", power: 500, efficiency: 0.85, renewable: true, cat: "Power", voltage: 72, resistance: 0.3 },
+        { id: "battery", name: "Battery Bank", icon: "🔋", storage: 1000, cat: "Storage", voltage: 48, capacity: 1000, decay: 0.001 },
+        { id: "grid", name: "Smart Grid", icon: "🔌", power: 1200, cat: "Grid", voltage: 230, resistance: 0.1 },
+        { id: "inverter", name: "Inverter", icon: "🔄", efficiency: 0.95, cat: "Conversion" },
+        { id: "led_load", name: "LED Load", icon: "💡", load: 10, cat: "Load", voltage: 12 },
+        { id: "motor_load", name: "AC Motor", icon: "⚙️", load: 750, cat: "Load", torque: 200 }
+      ]
+    },
+    mechanical: {
+      icon: "⚙️", label: "Mechanical", color: "#f59e0b",
+      components: [
+        { id: "motor", name: "Electric Motor", icon: "🔩", torque: 200, efficiency: 0.88, cat: "Drive", power: 750 },
+        { id: "gear", name: "Gear System", icon: "⚙️", efficiency: 0.92, cat: "Drive", ratio: 3.5 },
+        { id: "pump", name: "Hydraulic Pump", icon: "💧", pressure: 300, cat: "Fluid", load: 500 },
+        { id: "turbine", name: "Steam Turbine", icon: "🌀", power: 1500, efficiency: 0.82, cat: "Power" },
+        { id: "flywheel", name: "Flywheel", icon: "⭕", inertia: 100, cat: "Storage" }
+      ]
+    },
+    civil: {
+      icon: "🏗️", label: "Civil", color: "#60a5fa",
+      components: [
+        { id: "house", name: "Smart House", icon: "🏡", load: 150, stability: 90, cat: "Building", renewable: true },
+        { id: "bridge", name: "Bridge Structure", icon: "🌉", load: 400, stability: 80, cat: "Infrastructure" },
+        { id: "tower", name: "Transmission Tower", icon: "📡", stability: 95, cat: "Infrastructure" },
+        { id: "green_roof", name: "Green Roof", icon: "🌱", stability: 85, renewable: true, cat: "Sustainable" },
+        { id: "solar_farm", name: "Solar Farm", icon: "☀️", power: 5000, renewable: true, cat: "Power", stability: 98 }
+      ]
+    }
+  };
+
+  // ========================= INITIAL STATE =========================
+  const initialState = { workspace: [], connections: [], selected: null, simulationTime: 0, logs: [], field: "electrical" };
+
+  // ========================= REDUCER ENGINE =========================
+  function reducer(state, action) {
+    switch (action.type) {
+      case "ADD": return { ...state, workspace: [...state.workspace, action.payload] };
+      case "MOVE": return { ...state, workspace: state.workspace.map(n => n.uid === action.uid ? { ...n, x: action.x, y: action.y } : n) };
+      case "REMOVE": return { ...state, workspace: state.workspace.filter(n => n.uid !== action.uid), connections: state.connections.filter(c => c.from !== action.uid && c.to !== action.uid) };
+      case "SELECT": return { ...state, selected: action.uid };
+      case "CONNECT": {
+        if (action.from === action.to) return state;
+        const exists = state.connections.find(c => (c.from === action.from && c.to === action.to) || (c.from === action.to && c.to === action.from));
+        if (exists) return state;
+        return { ...state, connections: [...state.connections, { id: Date.now(), from: action.from, to: action.to }] };
+      }
+      case "TICK": return { ...state, simulationTime: state.simulationTime + 1 };
+      case "LOG": return { ...state, logs: [action.log, ...state.logs].slice(0, 50) };
+      case "SET_FIELD": return { ...state, field: action.field };
+      case "CLEAR": return { ...state, workspace: [], connections: [], selected: null, simulationTime: 0 };
+      case "LOAD_STATE": return action.payload;
+      default: return state;
+    }
   }
-};
 
-// ========================= STATE =========================
-const initialState = {
-  workspace: [],
-  connections: [],
-  selected: null,
-  energyMap: {} // NEW: node energy tracking
-};
+  // ========================= EXPANDED PHYSICS ENGINE =========================
+  // Includes: Electrical (voltage flow, resistance network, battery decay)
+  // Mechanical (torque chains, gear ratios, friction)
+  // Civil (structural stress, stability)
+  function physicsEngine(nodes, connections) {
+    let energy = 0;
+    let load = 0;
+    let stability = 0;
+    let voltageSum = 0;
+    let resistanceSum = 0;
+    let torqueSum = 0;
+    let stressLevel = 0;
 
-// ========================= REDUCER =========================
-function reducer(state, action) {
-  switch (action.type) {
-    case "ADD":
-      return {
-        ...state,
-        workspace: [...state.workspace, action.payload]
+    const nodeState = {};
+
+    nodes.forEach(n => {
+      energy += n.power || 0;
+      load += n.load || 0;
+      stability += n.stability || 50;
+      voltageSum += n.voltage || 0;
+      resistanceSum += n.resistance || 0;
+      torqueSum += n.torque || 0;
+      stressLevel += (n.load || 0) * 0.1;
+
+      nodeState[n.uid] = {
+        energy: n.power || 0,
+        load: n.load || 0,
+        voltage: n.voltage || 0,
+        torque: n.torque || 0,
+        status: n.power ? "generator" : n.load ? "consumer" : "neutral",
+        efficiency: n.efficiency || 0.85
       };
+    });
 
-    case "MOVE":
-      return {
-        ...state,
-        workspace: state.workspace.map((w) =>
-          w.uid === action.uid ? { ...w, x: action.x, y: action.y } : w
-        )
-      };
-
-    case "REMOVE":
-      return {
-        ...state,
-        workspace: state.workspace.filter((w) => w.uid !== action.uid),
-        connections: state.connections.filter(
-          (c) => c.from !== action.uid && c.to !== action.uid
-        )
-      };
-
-    case "SELECT":
-      return { ...state, selected: action.uid };
-
-    case "CONNECT": {
-      if (action.from === action.to) return state;
-
-      const exists = state.connections.find(
-        (c) =>
-          (c.from === action.from && c.to === action.to) ||
-          (c.from === action.to && c.to === action.from)
-      );
-
-      if (exists) return state;
-
-      return {
-        ...state,
-        connections: [...state.connections, { from: action.from, to: action.to }]
-      };
+    // Battery decay simulation
+    const batteryNodes = nodes.filter(n => n.cat === "Storage");
+    let batteryHealth = 100;
+    if (batteryNodes.length > 0) {
+      batteryHealth = Math.max(0, 100 - (state.simulationTime * 0.1 * (batteryNodes[0].decay || 0.001)));
     }
 
-    case "UPDATE_ENERGY":
-      return {
-        ...state,
-        energyMap: action.energyMap
-      };
+    // Voltage flow calculation (Ohm's law approximation)
+    const voltageDrop = resistanceSum > 0 ? (energy / (resistanceSum + 1)) * 0.1 : 0;
+    const effectiveVoltage = Math.max(0, (voltageSum / (nodes.length || 1)) - voltageDrop);
 
-    default:
-      return state;
+    // Mechanical torque efficiency chain
+    const gearRatio = nodes.filter(n => n.ratio).reduce((sum, n) => sum * (n.ratio || 1), 1);
+    const torqueEfficiency = Math.min(1, torqueSum / (energy + 1) * 0.05);
+    const effectiveTorque = torqueSum * torqueEfficiency * gearRatio;
+
+    // Structural stress factor
+    const structuralStress = Math.min(100, stressLevel / (nodes.length || 1));
+    const finalStability = Math.max(0, Math.min(100, stability / (nodes.length || 1) - structuralStress * 0.2));
+
+    const balance = energy - load;
+    const systemHealth = (energy > 0 ? Math.min(100, (energy / (load + 1)) * 20) : 50);
+
+    return {
+      energy, load, stability: finalStability, balance, systemHealth,
+      voltage: effectiveVoltage, resistance: resistanceSum, batteryHealth,
+      torque: effectiveTorque, gearRatio, structuralStress,
+      nodeState, timestamp: Date.now()
+    };
   }
-}
 
-// ========================= AI ENGINE =========================
-function analyzeSystem(nodes, connections) {
-  let totalGen = 0;
-  let totalLoad = 0;
+  // ========================= ADVANCED AI BRAIN =========================
+  // Includes: Auto design, optimization solver, predictive failure system
+  function aiBrain(report, nodes) {
+    const suggestions = [];
+    let sustainabilityScore = 70;
+    let innovationScore = 65;
+    let riskLevel = "LOW";
 
-  const energyMap = {};
+    // Energy balance analysis
+    if (report.balance < -100) {
+      suggestions.push("⚠️ Energy deficit detected: Add renewable sources (solar/wind)");
+      sustainabilityScore -= 15;
+      riskLevel = "HIGH";
+    } else if (report.balance > 500) {
+      suggestions.push("⚡ Energy surplus: Consider storage optimization or grid feed-in");
+      innovationScore += 10;
+    } else {
+      suggestions.push("✅ Energy balance nominal");
+    }
 
-  // init
-  nodes.forEach((n) => {
-    energyMap[n.uid] = 0;
-    totalGen += n.power || 0;
-    totalLoad += n.load || 0;
-  });
+    // Structural stability
+    if (report.stability < 60) {
+      suggestions.push("🏗️ Structural instability detected: Reinforce civil components");
+      sustainabilityScore -= 10;
+      riskLevel = "MEDIUM";
+    }
 
-  // distribute energy
-  const ratio = totalLoad === 0 ? 1 : totalGen / totalLoad;
+    // Voltage and electrical health
+    if (report.voltage < 40 && report.voltage > 0) {
+      suggestions.push("🔌 Low voltage detected: Check resistance or add voltage regulators");
+      innovationScore += 5;
+    }
 
-  nodes.forEach((n) => {
-    if (n.power) energyMap[n.uid] = n.power;
-    if (n.load) energyMap[n.uid] = -(n.load * ratio);
-  });
+    // Battery health prediction (predictive failure)
+    if (report.batteryHealth < 30) {
+      suggestions.push("🔋 Battery degradation critical: Replacement recommended within 100 cycles");
+      riskLevel = "CRITICAL";
+    } else if (report.batteryHealth < 60) {
+      suggestions.push("🔋 Battery health moderate: Monitor decay rate");
+    }
 
-  const balance = totalGen - totalLoad;
-
-  const sustainability =
-    totalGen === 0 ? 0 : Math.min(100, (totalGen / (totalGen + totalLoad)) * 100);
-
-  const status =
-    balance > 0 ? "SURPLUS ⚡" : balance < 0 ? "DEFICIT 🔴" : "BALANCED 🟢";
-
-  return {
-    energyMap,
-    totalGen,
-    totalLoad,
-    balance,
-    sustainability,
-    status
-  };
-}
-
-// ========================= APP =========================
-export default function EcoLabAIV3() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const workspaceRef = useRef(null);
-  const [aiReport, setAiReport] = useState(null);
-
-  const field = FIELDS.electrical;
-
-  // ========================= REAL-TIME SIMULATION =========================
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const result = analyzeSystem(state.workspace, state.connections);
-
-      dispatch({
-        type: "UPDATE_ENERGY",
-        energyMap: result.energyMap
-      });
-
-      setAiReport(result);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [state.workspace, state.connections]);
-
-  // ========================= DRAG =========================
-  const onDragStart = (e, comp) => {
-    e.dataTransfer.setData("comp", JSON.stringify(comp));
-  };
-
-  const onDrop = (e) => {
-    e.preventDefault();
-
-    const data = JSON.parse(e.dataTransfer.getData("comp"));
-    const rect = workspaceRef.current.getBoundingClientRect();
-
-    dispatch({
-      type: "ADD",
-      payload: {
-        ...data,
-        uid: Date.now(),
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+    // Torque and mechanical optimization
+    if (report.torque > 0 && report.gearRatio > 0) {
+      const optimalRatio = report.torque / 100;
+      if (Math.abs(report.gearRatio - optimalRatio) > 1) {
+        suggestions.push(`⚙️ Gear ratio optimization: Current ${report.gearRatio.toFixed(1)} → Suggested ${optimalRatio.toFixed(1)}`);
+        innovationScore += 8;
       }
-    });
-  };
+    }
 
-  // ========================= CONNECT =========================
-  const connect = (from, to) => {
-    if (!from || !to) return;
-    dispatch({ type: "CONNECT", from, to });
-    dispatch({ type: "SELECT", uid: null });
-  };
+    // Auto-design suggestion
+    const renewableCount = nodes.filter(n => n.renewable).length;
+    if (renewableCount === 0 && nodes.length > 0) {
+      suggestions.push("🌱 Auto-design recommendation: Integrate at least one renewable energy source");
+    } else if (renewableCount > 0) {
+      sustainabilityScore += Math.min(20, renewableCount * 5);
+    }
 
-  // ========================= NODE GET =========================
-  const getNode = (id) => state.workspace.find((n) => n.uid === id);
+    // Predictive failure system
+    let failureProbability = 0;
+    if (report.structuralStress > 70) failureProbability += 30;
+    if (report.batteryHealth < 40) failureProbability += 25;
+    if (report.voltage < 20) failureProbability += 20;
+    if (failureProbability > 50) {
+      suggestions.push(`⚠️ Predictive failure alert: ${failureProbability.toFixed(0)}% probability of system failure within next 50 cycles`);
+      riskLevel = "HIGH";
+    }
 
-  return (
-    <div style={{ display: "flex", height: "100vh", background: "#050a0f", color: "white" }}>
+    sustainabilityScore = Math.min(100, Math.max(0, sustainabilityScore));
+    innovationScore = Math.min(100, Math.max(0, innovationScore + (nodes.length * 2)));
 
-      {/* LEFT PANEL */}
-      <div style={{ width: 260, padding: 10, borderRight: "1px solid #1f2a30" }}>
-        <h3>⚡ Eco Lab AI V3</h3>
+    return {
+      score: Math.floor((sustainabilityScore + innovationScore) / 2),
+      sustainabilityScore: Math.floor(sustainabilityScore),
+      innovationScore: Math.floor(innovationScore),
+      suggestions,
+      riskLevel,
+      failureProbability: Math.floor(failureProbability),
+      timestamp: Date.now()
+    };
+  }
 
-        {field.components.map((c) => (
-          <div
-            key={c.id}
-            draggable
-            onDragStart={(e) => onDragStart(e, c)}
-            style={{ padding: 8, margin: 6, background: "#111", borderRadius: 8 }}
-          >
-            {c.icon} {c.name}
+  // ========================= MAIN APP V6 ULTRA =========================
+  function EcoLabV6Ultra() {
+    const [state, dispatch] = useReducer(reducer, initialState);
+    const [activeTab, setActiveTab] = useState("lab");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [catFilter, setCatFilter] = useState("All");
+    const [simRunning, setSimRunning] = useState(false);
+    const [simData, setSimData] = useState({});
+    const [aiReport, setAiReport] = useState(null);
+    const [physicsReport, setPhysicsReport] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const workspaceRef = useRef(null);
+    const simInterval = useRef(null);
+
+    useEffect(() => {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const fieldData = FIELDS[state.field];
+    const allComponents = fieldData?.components || [];
+    const categories = ["All", ...new Set(allComponents.map(c => c.cat))];
+    const filtered = allComponents.filter(c =>
+      (catFilter === "All" || c.cat === catFilter) &&
+      (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.cat.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    const showToast = (msg, type = "info") => {
+      setToast({ msg, type });
+      setTimeout(() => setToast(null), 2400);
+    };
+
+    // ========================= SIMULATION LOOP =========================
+    useEffect(() => {
+      if (!simRunning) return;
+      const interval = setInterval(() => {
+        dispatch({ type: "TICK" });
+        const report = physicsEngine(state.workspace, state.connections);
+        const ai = aiBrain(report, state.workspace);
+        setPhysicsReport(report);
+        setAiReport(ai);
+        dispatch({ type: "LOG", log: { report, ai, time: Date.now() } });
+        
+        // Update sim data for UI
+        const newSimData = {};
+        state.workspace.forEach(item => {
+          if (item.power) newSimData[item.uid] = { value: (item.power * (0.7 + 0.3 * Math.sin(state.simulationTime * 0.4))).toFixed(0), unit: "W" };
+          else if (item.load) newSimData[item.uid] = { value: (item.load * (0.8 + 0.2 * Math.sin(state.simulationTime * 0.5))).toFixed(0), unit: "W" };
+        });
+        setSimData(newSimData);
+      }, ENGINE_CONFIG.tickRate);
+      return () => clearInterval(interval);
+    }, [simRunning, state.workspace, state.connections, state.simulationTime]);
+
+    // ========================= DRAG & DROP =========================
+    const onDragStart = (e, comp) => {
+      e.dataTransfer.setData("comp", JSON.stringify(comp));
+      e.dataTransfer.effectAllowed = "copy";
+    };
+
+    const onDrop = (e) => {
+      e.preventDefault();
+      const raw = e.dataTransfer.getData("comp");
+      if (!raw) return;
+      const comp = JSON.parse(raw);
+      const rect = workspaceRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = e.clientX - rect.left - 46;
+      const y = e.clientY - rect.top - 46;
+      const uid = `${comp.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+      dispatch({ type: "ADD", payload: { ...comp, uid, x: Math.max(10, x), y: Math.max(10, y) } });
+      showToast(`➕ Added ${comp.name}`, "success");
+    };
+
+    const moveItem = (uid, x, y) => {
+      dispatch({ type: "MOVE", uid, x, y });
+    };
+
+    const removeItem = (uid) => {
+      dispatch({ type: "REMOVE", uid });
+      showToast(`🗑 Removed component`, "info");
+    };
+
+    const connectComponents = (from, to) => {
+      if (!from || !to) return;
+      const fromComp = state.workspace.find(w => w.uid === from);
+      const toComp = state.workspace.find(w => w.uid === to);
+      if (fromComp?.cat === "Load" && toComp?.cat === "Load") {
+        showToast("❌ Cannot connect two loads directly", "warn");
+        return;
+      }
+      dispatch({ type: "CONNECT", from, to });
+      showToast("✅ Connected!", "success");
+    };
+
+    const startSimulation = () => {
+      if (simRunning) {
+        if (simInterval.current) clearInterval(simInterval.current);
+        setSimRunning(false);
+        showToast("Simulation stopped");
+      } else {
+        setSimRunning(true);
+        showToast("Simulation started", "success");
+      }
+    };
+
+    const clearWorkspace = () => {
+      dispatch({ type: "CLEAR" });
+      setSimRunning(false);
+      setSimData({});
+      setAiReport(null);
+      setPhysicsReport(null);
+      showToast("Workspace cleared");
+    };
+
+    const getConnPos = (uid) => {
+      const item = state.workspace.find(w => w.uid === uid);
+      return item ? { x: item.x + 48, y: item.y + 48 } : null;
+    };
+
+    // Stats from physics engine
+    const stats = useMemo(() => {
+      const gen = state.workspace.reduce((s, w) => s + (w.power > 0 ? w.power : 0), 0);
+      const load = state.workspace.reduce((s, w) => s + (w.load || 0), 0);
+      return { gen, load, count: state.workspace.length };
+    }, [state.workspace]);
+
+    return (
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#050a0f", color: "#eef2ff", overflow: "hidden" }}>
+        {/* Header */}
+        <div style={{ padding: "8px 20px", borderBottom: "1px solid #1f2a30", background: "rgba(3,7,12,0.95)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", zIndex: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ background: "linear-gradient(135deg, #00e5a0, #1b6e54)", width: 40, height: 40, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🌿</div>
+            <div><span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 18 }}>Eco Lab V6 Ultra</span><span style={{ fontSize: 9, marginLeft: 8, color: "#00e5a0" }}>{ENGINE_CONFIG.version}</span></div>
           </div>
-        ))}
-      </div>
-
-      {/* WORKSPACE */}
-      <div
-        ref={workspaceRef}
-        onDrop={onDrop}
-        onDragOver={(e) => e.preventDefault()}
-        style={{ flex: 1, position: "relative" }}
-      >
-
-        {/* AI STATUS BAR */}
-        {aiReport && (
-          <div style={{ position: "absolute", top: 10, left: 10 }}>
-            ⚡ Gen: {aiReport.totalGen}W | 🔌 Load: {aiReport.totalLoad}W |
-            ♻ {aiReport.sustainability.toFixed(1)}% | {aiReport.status}
+          {!isMobile && <div style={{ display: "flex", gap: 4 }}>{["lab", "ai", "logs"].map(t => (<button key={t} className={`tab-btn ${activeTab === t ? "active" : ""}`} onClick={() => setActiveTab(t)}>{t === "lab" ? "🔬 Lab" : t === "ai" ? "🤖 AI Brain" : "📋 System Logs"}</button>))}</div>}
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button onClick={startSimulation} style={{ background: simRunning ? "#aa2e2e" : "rgba(0,229,160,0.15)", border: "none", borderRadius: 24, padding: "5px 16px", color: simRunning ? "#ffa0a0" : "#00e5a0", cursor: "pointer" }}>{simRunning ? "⏹ Stop" : "▶ Run Simulation"}</button>
+            <button onClick={clearWorkspace} style={{ background: "rgba(239,68,68,0.15)", border: "none", borderRadius: 24, padding: "5px 14px", color: "#f87171", cursor: "pointer" }}>🗑 Clear</button>
           </div>
-        )}
+        </div>
 
-        {/* CONNECTION LINES */}
-        <svg style={{ position: "absolute", width: "100%", height: "100%" }}>
-          {state.connections.map((c, i) => {
-            const a = getNode(c.from);
-            const b = getNode(c.to);
-            if (!a || !b) return null;
+        {/* Real-time stats badge */}
+        <div className="power-badge">
+          ⚡ Gen: <strong style={{ color: "#00e5a0" }}>{stats.gen} W</strong> | 🔌 Load: <strong style={{ color: "#f59e0b" }}>{stats.load} W</strong> | 🧩 Nodes: {stats.count} | ⏱️ Tick: {state.simulationTime}
+          {physicsReport && <span style={{ marginLeft: 12 }}>🔋 Battery: {physicsReport.batteryHealth?.toFixed(0)}% | ⚡ {physicsReport.voltage?.toFixed(1)}V</span>}
+        </div>
 
-            return (
-              <line
-                key={i}
-                x1={a.x + 30}
-                y1={a.y + 20}
-                x2={b.x + 30}
-                y2={b.y + 20}
-                stroke="cyan"
-                strokeWidth="2"
-              />
-            );
-          })}
-        </svg>
-
-        {/* NODES */}
-        {state.workspace.map((item) => (
-          <div
-            key={item.uid}
-            onMouseDown={(e) => {
-              const sx = e.clientX;
-              const sy = e.clientY;
-              const start = { ...item };
-
-              const move = (ev) => {
-                dispatch({
-                  type: "MOVE",
-                  uid: item.uid,
-                  x: start.x + (ev.clientX - sx),
-                  y: start.y + (ev.clientY - sy)
-                });
-              };
-
-              const up = () => {
-                document.removeEventListener("mousemove", move);
-                document.removeEventListener("mouseup", up);
-              };
-
-              document.addEventListener("mousemove", move);
-              document.addEventListener("mouseup", up);
-            }}
-            onClick={() => {
-              if (state.selected && state.selected !== item.uid) {
-                connect(state.selected, item.uid);
-              } else {
-                dispatch({ type: "SELECT", uid: item.uid });
-              }
-            }}
-            style={{
-              position: "absolute",
-              left: item.x,
-              top: item.y,
-              padding: 10,
-              borderRadius: 10,
-              background:
-                state.energyMap[item.uid] > 0
-                  ? "#1f3b2c"
-                  : state.energyMap[item.uid] < 0
-                  ? "#3b1f1f"
-                  : "#1a2a2f"
-            }}
-          >
-            <div>{item.icon}</div>
-            <div style={{ fontSize: 10 }}>{item.name}</div>
-
-            {/* ENERGY DISPLAY */}
-            <div style={{ fontSize: 10 }}>
-              ⚡ {state.energyMap[item.uid] || 0}
+        <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+          {/* Sidebar */}
+          {activeTab === "lab" && !isMobile && (
+            <div style={{ width: 270, background: "#0a1117", borderRight: "1px solid #1f2a30", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+              <div style={{ padding: 12 }}>
+                <div style={{ fontSize: 10, color: "#5b6e7c", letterSpacing: 1 }}>ENGINEERING DOMAINS</div>
+                {Object.entries(FIELDS).map(([k, f]) => (
+                  <button key={k} className={`field-btn ${state.field === k ? "active" : ""}`} onClick={() => dispatch({ type: "SET_FIELD", field: k })}>
+                    {f.icon} {f.label} <span style={{ float: "right", fontSize: 10 }}>{f.components.length}</span>
+                  </button>
+                ))}
+              </div>
+              <div style={{ padding: "8px 12px" }}><input placeholder="🔍 Search components" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ width: "100%", background: "#0f171f", border: "1px solid #2a3a2f", borderRadius: 10, padding: "7px", fontSize: 12, color: "white" }} /></div>
+              <div style={{ padding: "0 12px 8px", display: "flex", gap: 6, flexWrap: "wrap" }}>{categories.slice(0, 6).map(c => (<button key={c} onClick={() => setCatFilter(c)} style={{ fontSize: 10, background: catFilter === c ? "#00e5a0" : "#1e2a30", border: "none", borderRadius: 20, padding: "3px 12px", cursor: "pointer", color: catFilter === c ? "#050a0f" : "#b0c4de" }}>{c}</button>))}</div>
+              <div style={{ flex: 1, overflowY: "auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: 10 }}>
+                {filtered.map(c => (<div key={c.id} draggable onDragStart={e => onDragStart(e, c)} className="comp-card"><div style={{ fontSize: 28 }}>{c.icon || "🔧"}</div><div style={{ fontSize: 10, fontWeight: 600 }}>{c.name}</div><div style={{ fontSize: 8, color: "#8da0b0" }}>{c.cat}</div>{c.renewable && <span style={{ fontSize: 9, color: "#00e5a0" }}>♻</span>}</div>))}
+              </div>
             </div>
+          )}
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                dispatch({ type: "REMOVE", uid: item.uid });
-              }}
-            >
-              x
-            </button>
-          </div>
-        ))}
+          {/* Workspace Canvas */}
+          {activeTab === "lab" && (
+            <div ref={workspaceRef} onDrop={onDrop} onDragOver={e => e.preventDefault()} style={{ flex: 1, position: "relative", background: "#050a0f", overflow: "hidden" }}>
+              <svg style={{ position: "absolute", width: "100%", height: "100%", pointerEvents: "none" }}>
+                <defs><pattern id="dotGrid" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#2a5a4a" /></pattern></defs>
+                <rect width="100%" height="100%" fill="url(#dotGrid)" />
+                {state.connections.map(conn => {
+                  const a = getConnPos(conn.from);
+                  const b = getConnPos(conn.to);
+                  if (!a || !b) return null;
+                  return <path key={conn.id} d={`M ${a.x} ${a.y} Q ${(a.x+b.x)/2} ${a.y} ${(a.x+b.x)/2} ${b.y} ${b.x} ${b.y}`} stroke={simRunning ? "#00e5a0" : "#4f8a6f"} strokeWidth="2" fill="none" strokeDasharray="5 3" />;
+                })}
+              </svg>
+              {state.workspace.map(item => {
+                const dragProps = { onMouseDown: (e) => { if (e.target.closest(".ws-btn")) return; let sx = e.clientX, sy = e.clientY; const move = (ev) => { moveItem(item.uid, item.x + (ev.clientX - sx), item.y + (ev.clientY - sy)); sx = ev.clientX; sy = ev.clientY; }; const up = () => { document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); }; document.addEventListener("mousemove", move); document.addEventListener("mouseup", up); } };
+                return (<div key={item.uid} {...dragProps} style={{ position: "absolute", left: item.x, top: item.y, width: 92, cursor: "grab", zIndex: 10 }} onClick={() => connectComponents(state.selected, item.uid)}>
+                  <div className="ws-item" style={{ border: "2px solid #2a5a4a", padding: "8px 4px", textAlign: "center" }}>
+                    <div style={{ fontSize: 28 }}>{item.icon || "🔧"}</div>
+                    <div style={{ fontSize: 9, fontWeight: 600 }}>{item.name}</div>
+                    {simData[item.uid] && <div style={{ fontSize: 8, color: "#00e5a0" }}>{simData[item.uid].value}{simData[item.uid].unit}</div>}
+                    <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 6 }}>
+                      <button className="ws-btn" onClick={(e) => { e.stopPropagation(); connectComponents(item.uid, state.selected); }} style={{ background: "#00e5a040", border: "none", borderRadius: 20, padding: "2px 8px", cursor: "pointer" }}>🔗</button>
+                      <button className="ws-btn" onClick={(e) => { e.stopPropagation(); removeItem(item.uid); }} style={{ background: "#ff444450", border: "none", borderRadius: 20, padding: "2px 8px", cursor: "pointer" }}>✕</button>
+                    </div>
+                  </div>
+                </div>);
+              })}
+              {state.workspace.length === 0 && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#2c6a4a", fontSize: 18, pointerEvents: "none" }}>🌿 Drag components from library →</div>}
+            </div>
+          )}
+
+          {/* AI Brain Panel */}
+          {activeTab === "ai" && (
+            <div style={{ flex: 1, padding: 24, overflow: "auto", background: "#080f14" }}>
+              <h2 style={{ fontSize: 22, marginBottom: 16 }}>🤖 AI Brain - Real-time Analysis</h2>
+              {aiReport ? (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div style={{ background: "#0f171f", borderRadius: 20, padding: 20 }}>
+                    <h3>📊 Sustainability Score</h3>
+                    <div style={{ fontSize: 48, fontWeight: 800, color: "#00e5a0" }}>{aiReport.sustainabilityScore}</div>
+                    <div style={{ fontSize: 14, color: "#94a3b8" }}>Innovation: {aiReport.innovationScore}</div>
+                    <div className="score-bar" style={{ marginTop: 10, height: 8, background: "#2a3a2f", borderRadius: 4 }}><div style={{ width: `${aiReport.sustainabilityScore}%`, height: "100%", background: "#00e5a0", borderRadius: 4 }} /></div>
+                  </div>
+                  <div style={{ background: "#0f171f", borderRadius: 20, padding: 20 }}>
+                    <h3>⚠️ Risk Assessment</h3>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: aiReport.riskLevel === "HIGH" ? "#ef4444" : aiReport.riskLevel === "MEDIUM" ? "#f59e0b" : "#00e5a0" }}>{aiReport.riskLevel}</div>
+                    <div>Failure Probability: {aiReport.failureProbability}%</div>
+                  </div>
+                  <div style={{ background: "#0f171f", borderRadius: 20, padding: 20, gridColumn: "span 2" }}>
+                    <h3>💡 AI Suggestions</h3>
+                    <ul style={{ marginTop: 12, listStyle: "none" }}>{aiReport.suggestions.map((s, i) => (<li key={i} style={{ padding: "6px 0", borderBottom: "1px solid #1f2a30" }}>• {s}</li>))}</ul>
+                  </div>
+                  {physicsReport && (
+                    <div style={{ background: "#0f171f", borderRadius: 20, padding: 20, gridColumn: "span 2" }}>
+                      <h3>⚙️ Physics Engine Metrics</h3>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginTop: 12 }}>
+                        <div><div style={{ fontSize: 11, color: "#64748b" }}>System Health</div><div style={{ fontSize: 20, fontWeight: 700 }}>{physicsReport.systemHealth?.toFixed(0)}%</div></div>
+                        <div><div style={{ fontSize: 11, color: "#64748b" }}>Voltage</div><div style={{ fontSize: 20, fontWeight: 700 }}>{physicsReport.voltage?.toFixed(1)}V</div></div>
+                        <div><div style={{ fontSize: 11, color: "#64748b" }}>Torque</div><div style={{ fontSize: 20, fontWeight: 700 }}>{physicsReport.torque?.toFixed(0)} Nm</div></div>
+                        <div><div style={{ fontSize: 11, color: "#64748b" }}>Stability</div><div style={{ fontSize: 20, fontWeight: 700 }}>{physicsReport.stability?.toFixed(0)}%</div></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: 60, color: "#475569" }}>Start simulation to activate AI Brain analysis →</div>
+              )}
+            </div>
+          )}
+
+          {/* System Logs */}
+          {activeTab === "logs" && (
+            <div style={{ flex: 1, padding: 24, overflow: "auto", background: "#080f14" }}>
+              <h2>📋 System Event Logs</h2>
+              <div style={{ marginTop: 16, fontFamily: "monospace" }}>
+                {state.logs.map((log, i) => (
+                  <div key={i} className="log-entry">
+                    <span style={{ color: "#00e5a0" }}>[T+{log.time}]</span> AI Score: {log.ai?.score} | Energy: {log.report?.energy?.toFixed(0)}W | Load: {log.report?.load?.toFixed(0)}W | Balance: {log.report?.balance?.toFixed(0)}
+                  </div>
+                ))}
+                {state.logs.length === 0 && <div style={{ color: "#475569", padding: 20 }}>No logs yet. Run simulation to generate data.</div>}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {toast && <div className="toast-msg" style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#0f2128", borderLeft: `4px solid ${toast.type === "success" ? "#00e5a0" : "#f59e0b"}`, padding: "8px 20px", borderRadius: 40, zIndex: 2000 }}>{toast.msg}</div>}
+        {isMobile && activeTab === "lab" && <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ position: "fixed", bottom: 20, right: 20, width: 56, height: 56, borderRadius: 30, background: "#00e5a0", border: "none", fontSize: 26, zIndex: 300 }}>📦</button>}
+        {sidebarOpen && isMobile && <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#0c1a22", borderTop: "2px solid #00e5a0", maxHeight: "60vh", overflowY: "auto", padding: 16, zIndex: 400 }}><div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>{filtered.map(c => (<div key={c.id} onClick={() => { const uid = `${c.id}_${Date.now()}`; dispatch({ type: "ADD", payload: { ...c, uid, x: Math.random() * 200 + 40, y: Math.random() * 150 + 40 } }); setSidebarOpen(false); }} style={{ background: "#1e2e32", borderRadius: 16, padding: 6, textAlign: "center" }}><div style={{ fontSize: 28 }}>{c.icon || "🔧"}</div><div style={{ fontSize: 9 }}>{c.name}</div></div>))}</div></div>}
       </div>
+    );
+  }
 
-      {/* AI PANEL */}
-      <div style={{ width: 260, padding: 10, borderLeft: "1px solid #1f2a30" }}>
-        <h3>🤖 AI ENGINE</h3>
-
-        {aiReport && (
-          <div style={{ fontSize: 12 }}>
-            <p>⚡ Balance: {aiReport.balance}</p>
-            <p>🌱 Sustainability: {aiReport.sustainability.toFixed(1)}%</p>
-            <p>📊 Status: {aiReport.status}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+  ReactDOM.createRoot(document.getElementById('root')).render(<EcoLabV6Ultra />);
+</script>
+</body>
+</html>
