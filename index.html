@@ -1,1214 +1,1077 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ECO GREEN — AI Engineering Hub by Modou Jaw</title>
-<meta name="description" content="ECO GREEN is a free AI-powered engineering project idea generator. Created by Modou Jaw, Electrical Engineering student at USET." />
-<meta name="author" content="Modou Jaw" />
-<meta name="robots" content="index, follow" />
-<!-- PWA: Installable App -->
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="ECO GREEN" />
-<meta name="application-name" content="ECO GREEN" />
-<meta name="theme-color" content="#1a9e5c" />
-<link rel="manifest" id="pwa-manifest" href="" />
-<link rel="apple-touch-icon" id="apple-icon" href="" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Lora:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
-<style>
-:root{--green:#1a9e5c;--green2:#25c270;--green3:#d4f5e2;--green4:#edfaf3;--amber:#f4a429;--indigo:#7c6ff7;--blue:#4285f4;--bg:#f5fbf7;--surface:#ffffff;--surface2:#f0faf5;--border:#d0ead9;--border2:#a8d8bc;--text:#1a3328;--text2:#3a6b52;--text3:#7aaa90;--shadow:0 4px 24px rgba(26,158,92,0.10);--shadow2:0 8px 40px rgba(26,158,92,0.16);--navbar-bg:rgba(245,251,247,0.93);}
-[data-theme="dark"]{--green:#2ecc7a;--green2:#3de08a;--green3:#0d3324;--green4:#0a2a1d;--bg:#0e1812;--surface:#152218;--surface2:#111e15;--border:#1e3a28;--border2:#2a5238;--text:#d4f0e2;--text2:#8ecfaa;--text3:#4a8a66;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow2:0 8px 40px rgba(0,0,0,0.6);--navbar-bg:rgba(14,24,18,0.95);}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow-x:hidden;min-height:100vh;transition:background .3s,color .3s;}
-::selection{background:#25c27044;color:var(--green);}
-::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}::-webkit-scrollbar-thumb:hover{background:var(--green);}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;animation:fadeIn .3s ease;}
-.modal-overlay.hidden{display:none;}
-.modal-box{background:var(--surface);border-radius:28px;padding:40px 36px;max-width:460px;width:100%;text-align:center;border:1.5px solid var(--border);animation:slideUp .3s ease;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
-.modal-icon{font-size:52px;margin-bottom:14px;display:block;animation:floatBounce 3s ease-in-out infinite;}
-.modal-title{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
-.modal-desc{font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:20px;font-weight:600;}
-.modal-desc a{color:var(--blue);font-weight:700;text-decoration:none;}
-.modal-desc a:hover{text-decoration:underline;}
-.modal-input-wrap{position:relative;margin-bottom:10px;}
-.modal-input{width:100%;padding:14px 46px 14px 16px;border-radius:14px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none;font-weight:600;transition:border-color .2s;}
-.modal-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4285f418;}
-.modal-input::placeholder{color:var(--text3);}
-.modal-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);}
-.modal-eye:hover{color:var(--green);}
-.modal-hint{font-size:12px;color:var(--text3);margin-bottom:18px;text-align:left;line-height:1.6;font-weight:600;}
-.modal-save-btn{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .25s;box-shadow:0 6px 24px #1a9e5c44;margin-bottom:12px;}
-.modal-save-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px #25c27055;}
-.modal-skip{font-size:12px;color:var(--text3);cursor:pointer;font-weight:700;background:none;border:none;font-family:'Nunito',sans-serif;}
-.modal-skip:hover{color:var(--green);text-decoration:underline;}
-.modal-lock{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 14px;background:var(--green4);border-radius:10px;border:1px solid var(--green3);}
-.modal-lock-text{font-size:11px;color:var(--text2);font-weight:600;text-align:left;line-height:1.5;}
-
-/* STATUS BAR - removed */
-
-/* NAVBAR */
-#navbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:66px;background:var(--navbar-bg);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:background .3s,border-color .3s;}
-.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
-.nav-leaf{font-size:28px;animation:leafWiggle 3s ease-in-out infinite;display:inline-block;}
-.nav-brand{font-family:'Lora',serif;font-size:20px;color:var(--green);font-weight:700;}
-.nav-brand span{color:var(--amber);}
-.nav-tagline{font-size:10px;color:var(--text3);font-weight:600;}
-.nav-links{display:flex;gap:4px;}
-.nav-btn{padding:8px 16px;border-radius:20px;border:1.5px solid transparent;background:transparent;color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.nav-btn:hover{background:var(--green4);color:var(--green);}
-.nav-btn.active{border-color:var(--green);color:var(--green);background:var(--green4);}
-.nav-right{display:flex;align-items:center;gap:10px;}
-.theme-toggle{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.theme-toggle:hover{border-color:var(--green);background:var(--green4);transform:rotate(20deg) scale(1.08);}
-.nav-cta{padding:10px 22px;border-radius:20px;border:none;background:var(--green);color:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;}
-.nav-cta:hover{background:var(--green2);transform:translateY(-2px);}
-
-/* PAGES */
-.page{display:none;padding-top:66px;}
-.page.active{display:block;}
-
-/* HERO */
-#hero-page{padding-top:0;min-height:100vh;position:relative;overflow:hidden;}
-.hero-shapes{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
-.shape{position:absolute;border-radius:50%;opacity:.4;}
-.s1{width:500px;height:500px;top:-160px;right:-100px;background:radial-gradient(circle,#c8f5de,transparent 70%);animation:shapeFloat 14s ease-in-out infinite;}
-.s2{width:350px;height:350px;bottom:-80px;left:-80px;background:radial-gradient(circle,#d0eefc,transparent 70%);animation:shapeFloat 18s ease-in-out infinite reverse;}
-.s3{width:220px;height:220px;top:55%;left:28%;background:radial-gradient(circle,#fef3d0,transparent 70%);animation:shapeFloat 22s ease-in-out infinite 3s;}
-.dots{position:absolute;inset:0;opacity:.2;background-image:radial-gradient(circle,#1a9e5c 1.5px,transparent 1.5px);background-size:38px 38px;}
-[data-theme="dark"] .s1{background:radial-gradient(circle,#0d3324,transparent 70%);}
-[data-theme="dark"] .s2{background:radial-gradient(circle,#0a1f2e,transparent 70%);}
-[data-theme="dark"] .s3{background:radial-gradient(circle,#1e1a08,transparent 70%);}
-.hero-content{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:110px 36px 80px;text-align:center;}
-.creator-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:50px;background:var(--surface);border:1.5px solid var(--border2);font-size:13px;color:var(--text2);font-weight:700;margin-bottom:30px;box-shadow:var(--shadow);}
-.hero-emoji{font-size:72px;display:block;margin-bottom:18px;animation:floatBounce 4s ease-in-out infinite;filter:drop-shadow(0 8px 20px #1a9e5c33);}
-.hero-headline{font-family:'Lora',serif;font-size:clamp(38px,7vw,74px);font-weight:700;line-height:1.1;margin-bottom:14px;color:var(--text);}
-.eco-word{color:var(--green);font-style:italic;}
-.hero-tagline{font-size:clamp(15px,2.2vw,19px);color:var(--text2);margin-bottom:14px;font-weight:700;line-height:1.6;}
-.hero-mission{font-size:16px;color:var(--text3);max-width:510px;margin:0 auto 48px;line-height:1.9;font-weight:600;}
-.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:70px;}
-.btn-big{padding:16px 34px;border-radius:50px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 30px #1a9e5c44;transition:all .25s;}
-.btn-big:hover{transform:translateY(-3px);box-shadow:0 12px 40px #25c27055;}
-.btn-outline{padding:16px 34px;border-radius:50px;border:2px solid var(--border2);background:var(--surface);color:var(--text2);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;}
-.btn-outline:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
-.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;padding-bottom:80px;}
-.stat{text-align:center;}
-.stat-num{font-family:'Lora',serif;font-size:38px;color:var(--green);font-weight:700;line-height:1;}
-.stat-lbl{font-size:12px;color:var(--text3);font-weight:700;margin-top:4px;}
-
-/* HOW IT WORKS */
-.how-section{padding:80px 36px;max-width:1080px;margin:0 auto;}
-.sec-tag{display:inline-block;padding:5px 16px;border-radius:50px;background:var(--green3);color:var(--green);font-size:12px;font-weight:800;letter-spacing:.5px;margin-bottom:14px;}
-.sec-heading{font-family:'Lora',serif;font-size:clamp(26px,4vw,40px);font-weight:700;margin-bottom:44px;line-height:1.25;color:var(--text);}
-.sec-heading em{color:var(--green);font-style:italic;}
-.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
-.how-card{background:var(--surface);border:1.5px solid var(--border);border-radius:24px;padding:30px 24px;cursor:pointer;transition:all .28s;}
-.how-card:hover{transform:translateY(-6px);box-shadow:var(--shadow2);border-color:var(--border2);}
-.how-num{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--text3);margin-bottom:18px;}
-.how-emoji{font-size:38px;display:block;margin-bottom:12px;}
-.how-title{font-family:'Lora',serif;font-size:19px;font-weight:700;margin-bottom:10px;color:var(--text);}
-.how-desc{font-size:14px;color:var(--text2);line-height:1.85;font-weight:600;}
-
-/* MANIFESTO */
-.manifesto{padding:80px 36px;text-align:center;background:linear-gradient(135deg,var(--green4),var(--surface2));border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
-.man-emoji{font-size:64px;display:block;margin-bottom:22px;animation:floatBounce 5s ease-in-out infinite;}
-.man-title{font-family:'Lora',serif;font-size:clamp(20px,3.5vw,34px);font-weight:700;line-height:1.45;max-width:680px;margin:0 auto 18px;color:var(--text);}
-.man-title em{color:var(--green);font-style:italic;}
-.man-body{font-size:15px;color:var(--text2);max-width:470px;margin:0 auto 34px;line-height:1.9;font-weight:600;}
-.pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.pill{padding:9px 20px;border-radius:50px;background:var(--surface);border:1.5px solid var(--border2);font-size:13px;color:var(--text2);font-weight:700;transition:all .2s;cursor:default;}
-.pill:hover{background:var(--green4);border-color:var(--green);color:var(--green);}
-
-/* FOUNDER */
-.team-section{padding:80px 36px;max-width:860px;margin:0 auto;text-align:center;}
-.founder-card{background:var(--surface);border:1.5px solid var(--border);border-radius:28px;padding:40px 36px;display:grid;grid-template-columns:auto 1fr;gap:28px;text-align:left;max-width:700px;margin:32px auto 0;transition:all .28s;}
-.founder-card:hover{box-shadow:var(--shadow2);transform:translateY(-4px);}
-.founder-left{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:120px;}
-.founder-ava{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 6px 24px #1a9e5c44;}
-.founder-role-pill{font-size:11px;color:var(--green);font-weight:800;background:var(--green3);padding:5px 12px;border-radius:50px;text-align:center;line-height:1.4;}
-.founder-right h3{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.founder-uni{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);font-weight:800;margin-bottom:14px;flex-wrap:wrap;}
-.founder-bio{font-size:14px;color:var(--text2);line-height:1.9;font-weight:600;margin-bottom:18px;}
-.founder-badges{display:flex;flex-wrap:wrap;gap:8px;}
-.fbadge{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text2);font-size:12px;font-weight:700;}
-.team-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;}
-.team-btn{padding:10px 22px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.team-btn:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
-
-/* FOOTER */
-footer{border-top:1px solid var(--border);padding:44px 36px;text-align:center;background:var(--surface2);}
-.foot-logo{font-family:'Lora',serif;font-size:22px;color:var(--green);margin-bottom:6px;font-weight:700;}
-.foot-logo span{color:var(--amber);}
-.foot-tag{font-size:14px;color:var(--text3);font-style:italic;margin-bottom:5px;font-weight:600;}
-.foot-credit{font-size:13px;color:var(--text3);margin-bottom:22px;font-weight:700;}
-.foot-credit span{color:var(--green);}
-.foot-nav{display:flex;gap:24px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
-.foot-nav a{color:var(--text3);text-decoration:none;font-size:13px;font-weight:700;cursor:pointer;transition:color .2s;}
-.foot-nav a:hover{color:var(--green);}
-.foot-copy{font-size:12px;color:var(--text3);}
-
-/* APP */
-#app-section{min-height:100vh;background:var(--bg);}
-.app-wrap{max-width:920px;margin:0 auto;padding:40px 24px;}
-.app-title{font-family:'Lora',serif;font-size:28px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.app-sub{font-size:14px;color:var(--text3);margin-bottom:28px;font-weight:600;}
-.api-banner{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f4a42966;margin-bottom:28px;cursor:pointer;transition:all .2s;}
-.api-banner:hover{box-shadow:var(--shadow);}
-.api-banner.connected{background:linear-gradient(135deg,#e3f6ec,#edfaf3);border-color:var(--border2);}
-[data-theme="dark"] .api-banner{background:linear-gradient(135deg,#1e1a08,#0e1812)!important;border-color:#3a2a0a!important;}
-[data-theme="dark"] .api-banner.connected{background:linear-gradient(135deg,#0a2a1d,#0a2a1d)!important;border-color:var(--border2)!important;}
-.api-b-icon{font-size:22px;}
-.api-b-title{font-size:13px;color:var(--text);font-weight:800;}
-.api-b-sub{font-size:11px;color:var(--text3);font-weight:600;}
-.api-b-action{font-size:12px;color:var(--blue);font-weight:800;white-space:nowrap;}
-.step-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.step-bub{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;background:var(--green);}
-.step-lbl{font-size:12px;font-weight:800;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;}
-.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:32px;}
-.field-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:22px 18px;cursor:pointer;transition:all .22s;text-align:left;}
-.field-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow);}
-.fi{font-size:32px;margin-bottom:10px;display:block;}
-.fn{font-weight:800;font-size:14px;margin-bottom:4px;color:var(--text);}
-.ff{font-size:11px;color:var(--text3);line-height:1.6;font-weight:600;margin-top:8px;background:var(--bg);padding:8px 10px;border-radius:10px;}
-.topics-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
-.topic-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
-.topic-btn:hover{border-color:var(--border2);background:var(--green4);color:var(--green);}
-.level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:460px;margin-bottom:32px;}
-.level-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;}
-.level-card:hover{border-color:var(--border2);background:var(--green4);}
-.lname{font-weight:800;font-size:13px;color:var(--text);}
-.ldesc{font-size:11px;color:var(--text3);font-weight:600;}
-.gen-btn{width:100%;max-width:460px;padding:17px;border-radius:16px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;margin-bottom:40px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 6px 28px #1a9e5c44;}
-.gen-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px #25c27055;}
-.gen-btn:disabled{background:var(--border);color:var(--text3);cursor:not-allowed;box-shadow:none;}
-.div-lbl{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
-.div-line{height:1px;flex:1;background:var(--border);}
-.div-txt{font-size:11px;color:var(--text3);font-weight:800;letter-spacing:1px;}
-.ideas-grid{display:grid;gap:18px;}
-.idea-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1.5px solid var(--border);transition:all .22s;}
-.idea-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:var(--shadow2);}
-.idea-bar{height:5px;}
-.idea-body{padding:22px 24px;}
-.idea-meta{font-size:11px;font-weight:800;margin-bottom:8px;letter-spacing:.5px;}
-.idea-title{font-family:'Lora',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.3;}
-.idea-desc{color:var(--text2);font-size:14px;line-height:1.85;margin-bottom:16px;font-weight:600;}
-.tech-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
-.tech-tag{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;}
-.idea-impact{background:var(--green4);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:18px;font-weight:600;border:1px solid var(--green3);}
-.idea-actions{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-eco{flex:1;min-width:180px;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
-.btn-eco:hover{transform:translateY(-2px);box-shadow:0 8px 28px #25c27055;}
-.btn-save{padding:12px 20px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;font-weight:700;transition:all .15s;border:2px solid var(--border2);background:var(--surface);color:var(--text3);}
-.btn-save.saved-active{border-color:var(--green);background:var(--green4);color:var(--green);}
-.regen-btn{margin-top:16px;width:100%;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--surface);color:var(--text3);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.regen-btn:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
-
-/* CHAT */
-#chat-section{display:none;padding-top:66px;height:100vh;flex-direction:column;}
-#chat-section.active{display:flex;}
-.chat-wrap{flex:1;display:flex;flex-direction:column;max-width:720px;width:100%;margin:0 auto;padding:0 20px;overflow:hidden;}
-.chat-head{display:flex;align-items:center;gap:14px;padding:18px 0 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.eco-ava{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 20px #1a9e5c44;animation:ecoPulse 3s infinite;}
-.eco-name{font-family:'Lora',serif;font-size:18px;font-weight:700;color:var(--green);}
-.eco-status{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px;font-weight:700;}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--green2);animation:pulse 2s infinite;}
-.build-chip{background:var(--green4);border:1.5px solid var(--green3);border-radius:12px;padding:8px 12px;font-size:11px;color:var(--green);max-width:160px;text-align:right;flex-shrink:0;margin-left:auto;line-height:1.6;font-weight:700;}
-.qprompts{padding:10px 0 6px;display:flex;flex-wrap:wrap;gap:7px;flex-shrink:0;}
-.qp{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;}
-.qp:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px 0;display:flex;flex-direction:column;gap:14px;}
-.msg-row{display:flex;gap:10px;animation:fadeUp .2s ease;}
-.msg-row.user{flex-direction:row-reverse;}
-.msg-ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.bubble{max-width:76%;padding:13px 16px;font-size:14px;line-height:1.8;border-radius:18px;font-weight:600;}
-.bubble.eco{background:var(--surface);border:1.5px solid var(--border);color:var(--text2);border-radius:4px 18px 18px 18px;}
-.bubble.user{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-radius:18px 18px 4px 18px;}
-.typing-bub{background:var(--surface);border:1.5px solid var(--border);border-radius:4px 18px 18px 18px;padding:14px 18px;}
-.typing-dots{display:inline-flex;gap:5px;align-items:center;}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--green2);}
-.dot:nth-child(1){animation:dotBounce 1.2s 0s infinite ease-in-out;}
-.dot:nth-child(2){animation:dotBounce 1.2s .2s infinite ease-in-out;}
-.dot:nth-child(3){animation:dotBounce 1.2s .4s infinite ease-in-out;}
-.chat-input-bar{padding:14px 0 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
-.chat-ta{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:13px 17px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;resize:none;outline:none;line-height:1.6;max-height:110px;overflow-y:auto;font-weight:600;transition:border-color .2s;}
-.chat-ta:focus{border-color:var(--green);box-shadow:0 0 0 3px #1a9e5c18;}
-.chat-ta::placeholder{color:var(--text3);}
-.send-btn{width:48px;height:48px;border-radius:50%;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;}
-.send-btn.ready{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 4px 16px #1a9e5c44;}
-.send-btn.ready:hover{transform:translateY(-2px);}
-.send-btn.off{background:var(--border);color:var(--text3);cursor:not-allowed;}
-
-/* SAVED */
-#saved-section{display:none;padding-top:66px;min-height:100vh;background:var(--bg);}
-#saved-section.active{display:block;}
-.saved-wrap{max-width:920px;margin:0 auto;padding:40px 24px;}
-.saved-title{font-family:'Lora',serif;font-size:28px;font-weight:700;margin-bottom:6px;color:var(--text);}
-.saved-sub{font-size:14px;color:var(--text3);margin-bottom:32px;font-weight:600;}
-.empty-box{text-align:center;padding:80px 0;}
-.empty-icon{font-size:60px;margin-bottom:16px;display:block;}
-.empty-txt{color:var(--text3);font-size:15px;margin-bottom:28px;font-weight:600;}
-.saved-grid{display:grid;gap:16px;}
-.saved-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;overflow:hidden;transition:all .2s;}
-.saved-card:hover{border-color:var(--border2);box-shadow:var(--shadow);}
-
-/* MISC */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
-#confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:9999;}
-.cp{position:absolute;animation:confettiFall 2s forwards;}
-
-/* KEYFRAMES */
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-@keyframes floatBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-@keyframes leafWiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
-@keyframes shapeFloat{0%,100%{transform:translate(0,0)}33%{transform:translate(20px,-14px)}66%{transform:translate(-14px,20px)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-@keyframes ecoPulse{0%,100%{box-shadow:0 4px 20px #1a9e5c33}50%{box-shadow:0 4px 28px #1a9e5c77}}
-@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(180px) rotate(720deg) scale(.3)}}
-
-@media(max-width:640px){
-  #navbar{padding:0 16px;}
-  .nav-links{display:none;}
-  .hero-content{padding:90px 20px 60px;}
-  .hero-stats{gap:28px;}
-  .how-section,.manifesto,.team-section{padding:60px 20px;}
-  .app-wrap,.saved-wrap{padding:28px 16px;}
-  .founder-card{grid-template-columns:1fr;text-align:center;}
-  .founder-left{margin:0 auto;}
-  #status-bar{bottom:12px;right:12px;font-size:11px;padding:8px 12px;}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco Lab · Ecogreen · USET</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; overflow: hidden; background: #060d12; }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useRef, useCallback, useEffect } = React;
 
-<div id="confetti-layer"></div>
+// ─── DATA ────────────────────────────────────────────────────────────────────
 
-<!-- API KEY MODAL -->
-<div id="api-modal" class="modal-overlay">
-  <div class="modal-box">
-    <span class="modal-icon">🔑</span>
-    <h2 class="modal-title">Enter Your Password</h2>
-    <p class="modal-desc">Enter your ECO GREEN password to unlock AI features.</p>
-    <div class="modal-input-wrap">
-      <input type="password" class="modal-input" id="api-key-input"
-        placeholder="Enter your password..."
-        autocomplete="off" spellcheck="false" />
-      <button class="modal-eye" id="eye-btn" onclick="toggleEye()">👁️</button>
-    </div>
-    <p class="modal-hint">🔒 Your password is stored securely in your browser only.</p>
-    <button class="modal-save-btn" onclick="saveApiKey()">✨ Save &amp; Start Building</button><br/>
-    <button class="modal-skip" onclick="skipModal()">Skip for now</button>
-    <div class="modal-lock">
-      <span>🔒</span>
-      <span class="modal-lock-text">Your password stays on your device only.</span>
-    </div>
-  </div>
-</div>
-
-<!-- STATUS BAR REMOVED -->
-
-<!-- NAVBAR -->
-<nav id="navbar">
-  <a class="nav-logo" onclick="showPage('hero')">
-    <span class="nav-leaf">🌿</span>
-    <div>
-      <div class="nav-brand">ECO <span>GREEN</span></div>
-      <div class="nav-tagline">🌍 The energy that moves with you</div>
-    </div>
-  </a>
-  <div class="nav-links">
-    <button class="nav-btn active" id="nb-hero" onclick="showPage('hero')">Home</button>
-    <button class="nav-btn" id="nb-app" onclick="showPage('app')">💡 Ideas</button>
-    <button class="nav-btn" id="nb-chat" onclick="showPage('chat')">🌿 Eco Green AI</button>
-    <button class="nav-btn" id="nb-saved" onclick="showPage('saved')">📌 Saved</button>
-  </div>
-  <div class="nav-right">
-    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
-    <button class="nav-cta" onclick="showPage('app')">🌱 Start Building ✨</button>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section id="hero-page" class="page active">
-  <div class="hero-shapes"><div class="dots"></div><div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div></div>
-  <div class="hero-content">
-    <div class="creator-badge">🌿 &nbsp;Created by <strong>Modou Jaw</strong> &nbsp;·&nbsp; Founder of <strong style="color:var(--green)">ECO GREEN</strong></div>
-    <span class="hero-emoji">🌍💚</span>
-    <h1 class="hero-headline"><span class="eco-word">ECO GREEN</span><br/>The Energy That<br/>Moves With You</h1>
-    <p class="hero-tagline">🌿 "Let's save the world by saving energy, one project at a time."</p>
-    <p class="hero-mission">ECO GREEN is your personal AI engineering mentor powered by <strong>ECO GREEN AI</strong>. Generate sustainable project ideas and build solutions that truly matter for our planet.</p>
-    <div class="hero-btns">
-      <button class="btn-big" onclick="showPage('app')">✨ Generate Green Ideas</button>
-      <button class="btn-outline" onclick="showPage('chat')">🌿 Chat with Eco Green AI</button>
-    </div>
-    <div class="hero-stats">
-      <div class="stat"><div class="stat-num">3</div><div class="stat-lbl">Engineering Fields</div></div>
-      <div class="stat"><div class="stat-num">24+</div><div class="stat-lbl">Green Topics</div></div>
-      <div class="stat"><div class="stat-num">∞</div><div class="stat-lbl">AI-Powered Ideas</div></div>
-    </div>
-  </div>
-
-  <div class="how-section">
-    <div class="sec-tag">🌱 Green Path</div>
-    <h2 class="sec-heading">Three steps to<br/><em>your sustainable future</em></h2>
-    <div class="how-grid">
-      <div class="how-card" onclick="showPage('app')">
-        <div class="how-num">STEP 01 ——</div><span class="how-emoji">💡</span>
-        <div class="how-title">Pick your field &amp; level</div>
-        <div class="how-desc">Choose Electrical, Civil, or Mechanical Engineering and get eco-friendly AI-generated project ideas instantly!</div>
-      </div>
-      <div class="how-card" onclick="showPage('chat')">
-        <div class="how-num">STEP 02 ——</div><span class="how-emoji">🌿</span>
-        <div class="how-title">Meet Eco Green AI</div>
-        <div class="how-desc">Your friendly AI mentor helps you plan and build sustainable projects step by step with full guidance.</div>
-      </div>
-      <div class="how-card" onclick="showPage('saved')">
-        <div class="how-num">STEP 03 ——</div><span class="how-emoji">🌍</span>
-        <div class="how-title">Save &amp; Build</div>
-        <div class="how-desc">Bookmark your favourite green ideas and come back to build them anytime with Eco Green AI guidance.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="manifesto">
-    <span class="man-emoji">🌍💚</span>
-    <h2 class="man-title">"The energy that moves with you — <em>let's save the world</em> by saving energy, one project at a time."</h2>
-    <p class="man-body">Every engineer has the power to make a real difference. Eco Green helps students turn great ideas into solutions that matter for our planet and future generations.</p>
-    <div class="pills">
-      <span class="pill">🌿 Green Energy</span><span class="pill">♻️ Sustainability</span>
-      <span class="pill">🌍 Climate Action</span><span class="pill">⚡ Clean Tech</span>
-      <span class="pill">💚 Eco Innovation</span><span class="pill">🔬 Smart Engineering</span>
-    </div>
-  </div>
-
-  <div class="team-section">
-    <div class="sec-tag">🌿 ECO GREEN Team</div>
-    <h2 class="sec-heading">Meet the founder<br/><em>of ECO GREEN</em></h2>
-    <div class="founder-card">
-      <div class="founder-left">
-        <div class="founder-ava">👨‍💻</div>
-        <div class="founder-role-pill">🌍 Founder &amp;<br/>Team Leader</div>
-      </div>
-      <div class="founder-right">
-        <h3>Modou Jaw</h3>
-        <div class="founder-uni">🎓 &nbsp;Electrical &amp; Electronics Engineering · USET · Year 3, Semester 2</div>
-        <p class="founder-bio">
-          Modou Jaw is a passionate <strong>3rd Year Electrical and Electronics Engineering</strong> student at the
-          <strong>University of Applied Science Engineering and Technology (USET)</strong> — and the visionary founder behind ECO GREEN.
-          <br/><br/>
-          He built this platform with heart, purpose, and a deep belief that students can engineer a better, greener world using AI technology.
-        </p>
-        <div class="founder-badges">
-          <span class="fbadge">⚡ Electrical Engineering</span>
-          <span class="fbadge">🎓 USET</span>
-          <span class="fbadge">📅 Year 3 · Sem 2</span>
-          <span class="fbadge">🌿 Eco Green Founder</span>
-          <span class="fbadge">🤖 AI Powered</span>
-        </div>
-      </div>
-    </div>
-    <div class="team-btns">
-      <button class="team-btn" onclick="showPage('app')">💡 Explore Ideas</button>
-      <button class="team-btn" onclick="showPage('chat')">🌿 Chat with Eco Green AI</button>
-    </div>
-  </div>
-
-  <footer>
-    <div class="foot-logo">🌿 ECO <span>GREEN</span></div>
-    <div class="foot-tag">"The energy that moves with you."</div>
-    <div class="foot-credit">Created with 💚 by <span>Modou Jaw</span> · Electrical &amp; Electronics Engineering · <span>USET</span></div>
-    <div class="foot-nav">
-      <a onclick="showPage('app')">Generate Ideas</a>
-      <a onclick="showPage('chat')">Eco Green AI</a>
-      <a onclick="showPage('saved')">Saved Projects</a>
-    </div>
-    <div class="foot-copy">© 2025 ECO GREEN · AI-Powered Sustainable Engineering Hub</div>
-  </footer>
-</section>
-
-<!-- APP -->
-<section id="app-section" class="page">
-  <div class="app-wrap">
-    <h2 class="app-title">💡 AI Project Idea Generator</h2>
-    <p class="app-sub">Get 4 smart, sustainable project ideas tailored just for you! 🌍</p>
-
-    <div class="api-banner" id="api-banner" onclick="openModal()">
-      <span class="api-b-icon">🔑</span>
-      <div style="flex:1">
-        <div class="api-b-title" id="banner-title">🔒 Password Required</div>
-        <div class="api-b-sub" id="banner-sub">Click to enter your password and unlock AI features</div>
-      </div>
-      <span class="api-b-action" id="banner-action">Set Key →</span>
-    </div>
-
-    <div class="step-row"><div class="step-bub">1</div><span class="step-lbl">Which engineering field are you in?</span></div>
-    <div class="field-grid" id="field-grid"></div>
-
-    <div id="step2" style="display:none">
-      <div class="step-row"><div class="step-bub">2</div><span class="step-lbl">Any specific topic? <span style="color:var(--text3);text-transform:none;font-weight:600">(optional 😊)</span></span></div>
-      <div class="topics-wrap" id="topics-wrap"></div>
-    </div>
-
-    <div id="step3" style="display:none">
-      <div class="step-row"><div class="step-bub">3</div><span class="step-lbl">Where are you in your studies?</span></div>
-      <div class="level-grid" id="level-grid"></div>
-    </div>
-
-    <div id="gen-wrap" style="display:none">
-      <button class="gen-btn" id="gen-btn" onclick="generateIdeas()">🌿 Generate Green Ideas with AI</button>
-    </div>
-
-    <div id="empty-prompt" style="text-align:center;padding:60px 0">
-      <div style="font-size:52px;margin-bottom:14px">👆</div>
-      <div style="color:var(--text3);font-size:15px;font-weight:600">Pick your engineering field above to get started!</div>
-    </div>
-
-    <div id="ideas-box" style="display:none">
-      <div class="div-lbl"><div class="div-line"></div><span class="div-txt">🎉 YOUR IDEAS ARE READY!</span><div class="div-line"></div></div>
-      <div class="ideas-grid" id="ideas-grid"></div>
-      <button class="regen-btn" onclick="generateIdeas()">🔄 Give Me 4 Fresh Ideas</button>
-    </div>
-  </div>
-</section>
-
-<!-- CHAT -->
-<section id="chat-section" class="page">
-  <div class="chat-wrap">
-    <div class="chat-head">
-      <div class="eco-ava">🌿</div>
-      <div style="flex:1">
-        <div class="eco-name">ECO GREEN AI</div>
-        <div class="eco-status"><span class="sdot"></span>Feels you · Knows you · Here for you 💚</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
-        <button onclick="clearChatHistory()" title="Clear conversation" style="background:none;border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;transition:all .2s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">🗑️ Clear</button>
-        <div class="build-chip" id="build-chip" style="display:none"></div>
-      </div>
-    </div>
-    <div class="qprompts" id="qprompts">
-      <button class="qp" onclick="sendQuick('I feel overwhelmed with my final year project. Can you help me think through it? 😅')">I\'m overwhelmed with my project 😅</button>
-      <button class="qp" onclick="sendQuick('I have a green engineering idea but I\'m not sure if it\'s good enough. Can I share it with you?')">Is my idea good enough? 💭</button>
-      <button class="qp" onclick="sendQuick('I don\'t know where to start with my engineering project. What should I do first? 🌱')">I don\'t know where to start 🌱</button>
-      <button class="qp" onclick="sendQuick('Can you help me write a project proposal? I want it to be really strong 📄')">Help me write a proposal 📄</button>
-    </div>
-    <div class="chat-msgs" id="chat-msgs"></div>
-    <div class="chat-input-bar">
-      <textarea class="chat-ta" id="chat-in" rows="1"
-        placeholder="Talk to Eco Green AI... share what's on your mind 💚 (Enter to send)"
-        onkeydown="chatKey(event)" oninput="resizeTA(this)"></textarea>
-      <button class="send-btn off" id="send-btn" onclick="sendChat()">↑</button>
-    </div>
-  </div>
-</section>
-
-<!-- SAVED -->
-<section id="saved-section" class="page">
-  <div class="saved-wrap">
-    <h2 class="saved-title">📌 Saved Ideas</h2>
-    <p class="saved-sub">Your bookmarked green projects — ready to build whenever you are! 💪</p>
-    <div id="saved-content"></div>
-  </div>
-</section>
-
-<script>
-// ============================================================
-// ECO GREEN — AI Engineering Hub
-// Created by Modou Jaw · USET · Electrical Engineering Year 3
-// ============================================================
-
-// ===== DATA =====
 const FIELDS = {
-  electrical:{label:'Electrical & Electronics',icon:'⚡',color:'#f4a429',topics:['IoT & Smart Devices','Embedded Systems','Power Electronics','Signal Processing','Robotics','Renewable Energy','Telecommunications','PCB Design'],fact:'Did you know? The first integrated circuit was invented in 1958! 🧠'},
-  civil:{label:'Civil Engineering',icon:'🏗️',color:'#1a9e5c',topics:['Structural Design','Water Resources','Transportation','Geotechnical','Environmental','Construction Mgmt','Smart Infrastructure','Disaster Management'],fact:'Fun fact: The Great Wall of China used sticky rice as mortar! 🏯'},
-  mechanical:{label:'Mechanical Engineering',icon:'⚙️',color:'#7c6ff7',topics:['Thermodynamics','Fluid Mechanics','Manufacturing','Robotics & Automation','HVAC','Automotive','Aerospace','Materials Science'],fact:'Cool fact: Steam engines sparked the Industrial Revolution in the 1760s! 🔥'}
+  electrical: {
+    label: "Electrical & Electronics",
+    icon: "⚡",
+    color: "#00e5a0",
+    components: [
+      // Power Sources
+      { id: "solar_panel", name: "Solar Panel", icon: "☀️", cat: "Power", desc: "PV panel, 300W", power: 300, renewable: true },
+      { id: "wind_turbine", name: "Wind Turbine", icon: "🌬️", cat: "Power", desc: "Small turbine, 500W", power: 500, renewable: true },
+      { id: "battery", name: "Li-Ion Battery", icon: "🔋", cat: "Storage", desc: "48V, 100Ah", power: -100 },
+      { id: "fuel_cell", name: "Fuel Cell", icon: "⚗️", cat: "Power", desc: "H₂ fuel cell, 1kW", power: 1000, renewable: true },
+      { id: "hydro_gen", name: "Micro Hydro", icon: "💧", cat: "Power", desc: "Run-of-river, 2kW", power: 2000, renewable: true },
+      { id: "inverter", name: "Inverter", icon: "🔄", cat: "Conversion", desc: "DC-AC, 95% eff" },
+      { id: "transformer", name: "Transformer", icon: "🔁", cat: "Conversion", desc: "Step-up/down" },
+      { id: "rectifier", name: "Rectifier", icon: "📐", cat: "Conversion", desc: "AC-DC bridge" },
+      { id: "mppt", name: "MPPT Controller", icon: "🎛️", cat: "Control", desc: "Solar optimizer" },
+      { id: "charge_ctrl", name: "Charge Controller", icon: "🔌", cat: "Control", desc: "PWM, 60A" },
+      // Loads
+      { id: "led_light", name: "LED Light", icon: "💡", cat: "Load", desc: "10W, efficient", load: 10 },
+      { id: "motor_ac", name: "AC Motor", icon: "⚙️", cat: "Load", desc: "3-phase induction", load: 750 },
+      { id: "motor_dc", name: "DC Motor", icon: "🔩", cat: "Load", desc: "BLDC, 250W", load: 250 },
+      { id: "ev_charger", name: "EV Charger", icon: "🚗", cat: "Load", desc: "Level 2, 7.2kW", load: 7200 },
+      { id: "heat_pump", name: "Heat Pump", icon: "♨️", cat: "Load", desc: "COP 3.5", load: 1500 },
+      // Electronics
+      { id: "arduino", name: "Arduino", icon: "🟦", cat: "MCU", desc: "ATmega328P" },
+      { id: "raspberry", name: "Raspberry Pi", icon: "🍓", cat: "MCU", desc: "Pi 4, 4GB RAM" },
+      { id: "esp32", name: "ESP32", icon: "📡", cat: "MCU", desc: "WiFi+BT MCU" },
+      { id: "sensor_temp", name: "Temp Sensor", icon: "🌡️", cat: "Sensor", desc: "DS18B20, ±0.5°C" },
+      { id: "sensor_light", name: "Light Sensor", icon: "👁️", cat: "Sensor", desc: "BH1750 lux meter" },
+      { id: "sensor_wind", name: "Anemometer", icon: "💨", cat: "Sensor", desc: "Wind speed sensor" },
+      { id: "sensor_current", name: "Current Sensor", icon: "〰️", cat: "Sensor", desc: "ACS712, 30A" },
+      { id: "sensor_voltage", name: "Voltage Sensor", icon: "📊", cat: "Sensor", desc: "0-25V divider" },
+      { id: "relay", name: "Relay Module", icon: "🔀", cat: "Control", desc: "5V, 10A SPDT" },
+      { id: "capacitor", name: "Supercapacitor", icon: "🔵", cat: "Storage", desc: "2.7V, 3000F" },
+      { id: "resistor", name: "Resistor", icon: "〽️", cat: "Passive", desc: "Variable, 1kΩ" },
+      { id: "inductor", name: "Inductor", icon: "🌀", cat: "Passive", desc: "10mH core" },
+      { id: "diode", name: "Schottky Diode", icon: "➡️", cat: "Passive", desc: "40V, 5A" },
+      { id: "transistor", name: "MOSFET", icon: "🔲", cat: "Active", desc: "N-channel, 100V" },
+      { id: "op_amp", name: "Op-Amp", icon: "🔺", cat: "Active", desc: "LM741 amplifier" },
+      { id: "plc", name: "PLC", icon: "🏭", cat: "Control", desc: "Programmable logic ctrl" },
+      { id: "hmi", name: "HMI Display", icon: "🖥️", cat: "Interface", desc: "Touch panel, 7\"" },
+      { id: "scada", name: "SCADA Node", icon: "📡", cat: "Interface", desc: "Industrial monitoring" },
+      { id: "smart_meter", name: "Smart Meter", icon: "📏", cat: "Metering", desc: "Bidirectional energy" },
+      { id: "grid_tie", name: "Grid-Tie Inverter", icon: "🔗", cat: "Power", desc: "Feed-in to grid", renewable: true },
+      { id: "bms", name: "Battery BMS", icon: "🛡️", cat: "Control", desc: "Cell balancing" },
+      { id: "dc_dc", name: "DC-DC Converter", icon: "⬆️", cat: "Conversion", desc: "Buck/boost, 98%" },
+      { id: "ups", name: "UPS System", icon: "🔰", cat: "Storage", desc: "Online double conv." },
+      { id: "generator", name: "Generator", icon: "🔧", cat: "Power", desc: "Diesel, 5kVA", power: 5000 },
+      { id: "smart_switch", name: "Smart Switch", icon: "💫", cat: "Control", desc: "IoT-enabled relay" },
+      { id: "pv_string", name: "PV String", icon: "🌞", cat: "Power", desc: "10×300W array", renewable: true, power: 3000 },
+      { id: "wind_farm", name: "Mini Wind Farm", icon: "🌬️", cat: "Power", desc: "3×1kW turbines", renewable: true, power: 3000 },
+      { id: "biogas", name: "Biogas Generator", icon: "🌿", cat: "Power", desc: "Organic waste, 2kW", renewable: true, power: 2000 },
+      { id: "tidal", name: "Tidal Generator", icon: "🌊", cat: "Power", desc: "Tidal energy, 5kW", renewable: true, power: 5000 },
+      { id: "geothermal", name: "Geothermal Unit", icon: "🌋", cat: "Power", desc: "Earth heat, 3kW", renewable: true, power: 3000 },
+      { id: "flywheel", name: "Flywheel Storage", icon: "⭕", cat: "Storage", desc: "Kinetic energy store" },
+      { id: "hydrogen_tank", name: "H₂ Tank", icon: "🫙", cat: "Storage", desc: "Compressed H₂, 50L" },
+      { id: "electrolyzer", name: "Electrolyzer", icon: "💦", cat: "Conversion", desc: "Water splitting unit" },
+      { id: "power_meter", name: "Power Meter", icon: "📟", cat: "Metering", desc: "3-phase wattmeter" },
+      { id: "energy_monitor", name: "Energy Monitor", icon: "📱", cat: "Interface", desc: "Real-time dashboard" },
+      // more to hit 100+
+      { id: "fuse", name: "Fuse Box", icon: "🔒", cat: "Protection", desc: "Circuit protection" },
+      { id: "breaker", name: "Circuit Breaker", icon: "⛔", cat: "Protection", desc: "RCCB 63A" },
+      { id: "surge_prot", name: "Surge Protector", icon: "🛡️", cat: "Protection", desc: "SPD Type 2" },
+      { id: "isolation_tx", name: "Isolation Transformer", icon: "🔄", cat: "Conversion", desc: "1:1 isolation" },
+      { id: "motor_drive", name: "VFD Drive", icon: "🎚️", cat: "Control", desc: "Variable freq drive" },
+      { id: "soft_starter", name: "Soft Starter", icon: "🌅", cat: "Control", desc: "Motor soft start" },
+      { id: "power_factor", name: "PF Corrector", icon: "📐", cat: "Control", desc: "Capacitor bank" },
+      { id: "harmonic_filter", name: "Harmonic Filter", icon: "🎵", cat: "Power Quality", desc: "Active filter" },
+      { id: "ups_online", name: "Online UPS", icon: "⚡", cat: "Storage", desc: "Double conversion" },
+      { id: "cable_tray", name: "Cable Tray", icon: "📦", cat: "Infrastructure", desc: "Organized wiring" },
+      { id: "earth_rod", name: "Earth Rod", icon: "🌍", cat: "Protection", desc: "Grounding system" },
+      { id: "lightning_arr", name: "Lightning Arrester", icon: "⛈️", cat: "Protection", desc: "Class I SPD" },
+      { id: "current_tx", name: "Current Transformer", icon: "🔃", cat: "Metering", desc: "CT ratio 100:5" },
+      { id: "voltage_tx", name: "Voltage Transformer", icon: "🔃", cat: "Metering", desc: "VT ratio 11kV:110V" },
+      { id: "power_analyser", name: "Power Analyser", icon: "📊", cat: "Metering", desc: "Fluke 435-II" },
+      { id: "oscilloscope", name: "Oscilloscope", icon: "〰️", cat: "Metering", desc: "4ch, 200MHz" },
+      { id: "multimeter", name: "Digital Multimeter", icon: "🔍", cat: "Metering", desc: "Fluke 87V" },
+      { id: "clamp_meter", name: "Clamp Meter", icon: "🔌", cat: "Metering", desc: "AC/DC 1000A" },
+      { id: "data_logger", name: "Data Logger", icon: "💾", cat: "Interface", desc: "SD card, 8ch" },
+      { id: "telemetry", name: "Telemetry Unit", icon: "📶", cat: "Interface", desc: "4G IoT gateway" },
+      { id: "modbus_gw", name: "Modbus Gateway", icon: "🌐", cat: "Interface", desc: "RS485-Ethernet" },
+      { id: "lora_node", name: "LoRa Node", icon: "📡", cat: "Interface", desc: "Long range IoT" },
+      { id: "zigbee", name: "Zigbee Hub", icon: "🔵", cat: "Interface", desc: "Mesh network" },
+      { id: "solar_tracker", name: "Solar Tracker", icon: "🎯", cat: "Control", desc: "2-axis tracking" },
+      { id: "mppt_adv", name: "Advanced MPPT", icon: "🧠", cat: "Control", desc: "AI-optimized MPPT" },
+      { id: "smart_grid_node", name: "Smart Grid Node", icon: "🕸️", cat: "Grid", desc: "Demand response" },
+      { id: "v2g", name: "V2G Interface", icon: "🔋", cat: "Grid", desc: "Vehicle-to-Grid" },
+      { id: "microgrid_ctrl", name: "Microgrid Controller", icon: "🎛️", cat: "Grid", desc: "Island/grid mode" },
+      { id: "power_router", name: "Power Router", icon: "🔀", cat: "Grid", desc: "Directional power" },
+      { id: "statcom", name: "STATCOM", icon: "⚙️", cat: "Power Quality", desc: "Reactive compensation" },
+      { id: "svr", name: "Step Voltage Reg.", icon: "📈", cat: "Grid", desc: "Voltage regulation" },
+      { id: "recloser", name: "Auto Recloser", icon: "🔁", cat: "Protection", desc: "Fault clearance" },
+      { id: "sectionalizer", name: "Sectionalizer", icon: "✂️", cat: "Protection", desc: "Fault isolation" },
+      { id: "wireless_sensor", name: "Wireless Sensor Net", icon: "📡", cat: "Sensor", desc: "WSN mesh node" },
+      { id: "thermal_cam", name: "Thermal Camera", icon: "🔴", cat: "Sensor", desc: "Fault detection" },
+      { id: "pq_monitor", name: "PQ Monitor", icon: "📉", cat: "Metering", desc: "Power quality IED" },
+      { id: "arc_flash", name: "Arc Flash Detector", icon: "💥", cat: "Protection", desc: "Optical detection" },
+      { id: "insulation_tester", name: "Insulation Tester", icon: "🟡", cat: "Metering", desc: "Megger 1kV" },
+      { id: "power_supply", name: "Lab Power Supply", icon: "🔌", cat: "Power", desc: "0-30V, 0-5A adj." },
+      { id: "signal_gen", name: "Signal Generator", icon: "📻", cat: "Instruments", desc: "0.1Hz-10MHz" },
+      { id: "spectrum_anal", name: "Spectrum Analyser", icon: "📊", cat: "Instruments", desc: "EMI measurement" },
+      { id: "network_anal", name: "Network Analyser", icon: "🔬", cat: "Instruments", desc: "S-parameter" },
+      { id: "battery_tester", name: "Battery Tester", icon: "🔋", cat: "Instruments", desc: "Capacity/health" },
+      { id: "thermometer", name: "IR Thermometer", icon: "🌡️", cat: "Sensor", desc: "Non-contact temp" },
+      { id: "pyranometer", name: "Pyranometer", icon: "☀️", cat: "Sensor", desc: "Solar irradiance" },
+    ],
+  },
+  mechanical: {
+    label: "Mechanical Engineering",
+    icon: "⚙️",
+    color: "#f59e0b",
+    components: [
+      { id: "truss", name: "Truss Member", icon: "📐", cat: "Structure", desc: "Steel truss bar" },
+      { id: "beam", name: "I-Beam", icon: "▬", cat: "Structure", desc: "W150×24 steel" },
+      { id: "column", name: "Column", icon: "🏛️", cat: "Structure", desc: "Hollow section" },
+      { id: "spring", name: "Coil Spring", icon: "🌀", cat: "Spring", desc: "k=1000 N/m" },
+      { id: "damper", name: "Damper", icon: "🔩", cat: "Damping", desc: "Viscous damper" },
+      { id: "gear", name: "Spur Gear", icon: "⚙️", cat: "Drive", desc: "Module 2, 24T" },
+      { id: "helical_gear", name: "Helical Gear", icon: "🔄", cat: "Drive", desc: "30° helix angle" },
+      { id: "bevel_gear", name: "Bevel Gear", icon: "🔺", cat: "Drive", desc: "90° shaft angle" },
+      { id: "rack_pinion", name: "Rack & Pinion", icon: "↔️", cat: "Drive", desc: "Linear motion" },
+      { id: "worm_gear", name: "Worm Gear", icon: "🐛", cat: "Drive", desc: "High ratio drive" },
+      { id: "belt_drive", name: "Belt Drive", icon: "〰️", cat: "Drive", desc: "V-belt, 1:3 ratio" },
+      { id: "chain_drive", name: "Chain Drive", icon: "🔗", cat: "Drive", desc: "#40 roller chain" },
+      { id: "shaft", name: "Drive Shaft", icon: "📏", cat: "Shaft", desc: "Solid, Ø40mm" },
+      { id: "bearing_ball", name: "Ball Bearing", icon: "🔵", cat: "Bearing", desc: "6204, radial" },
+      { id: "bearing_roller", name: "Roller Bearing", icon: "⭕", cat: "Bearing", desc: "Tapered, heavy" },
+      { id: "coupling", name: "Flexible Coupling", icon: "🔗", cat: "Shaft", desc: "Jaw coupling" },
+      { id: "clutch", name: "Disc Clutch", icon: "💿", cat: "Drive", desc: "Multi-plate clutch" },
+      { id: "brake", name: "Disc Brake", icon: "🔴", cat: "Brake", desc: "Hydraulic caliper" },
+      { id: "piston", name: "Piston", icon: "🔧", cat: "Fluid Power", desc: "Cylinder assembly" },
+      { id: "pump", name: "Centrifugal Pump", icon: "💧", cat: "Fluid", desc: "50L/min, 3bar" },
+      { id: "hydraulic_pump", name: "Hydraulic Pump", icon: "🔧", cat: "Fluid Power", desc: "Gear pump, 200bar" },
+      { id: "pneumatic_cyl", name: "Pneumatic Cylinder", icon: "💨", cat: "Fluid Power", desc: "Ø80mm, 500mm" },
+      { id: "valve", name: "Control Valve", icon: "🔀", cat: "Fluid", desc: "Globe valve, DN50" },
+      { id: "pressure_vessel", name: "Pressure Vessel", icon: "🫙", cat: "Containment", desc: "ASME VIII, 10bar" },
+      { id: "heat_exchanger", name: "Heat Exchanger", icon: "🔥", cat: "Heat", desc: "Shell & tube" },
+      { id: "fin_heat", name: "Fin Heat Exchanger", icon: "♨️", cat: "Heat", desc: "Air-cooled" },
+      { id: "boiler", name: "Steam Boiler", icon: "♨️", cat: "Heat", desc: "Fire-tube, 500kW" },
+      { id: "turbine_steam", name: "Steam Turbine", icon: "🌀", cat: "Power", desc: "Impulse, 10kW" },
+      { id: "turbine_wind_m", name: "Wind Turbine Blade", icon: "🌬️", cat: "Power", desc: "NACA airfoil" },
+      { id: "compressor", name: "Compressor", icon: "💨", cat: "Fluid", desc: "Screw, 7bar" },
+      { id: "fan", name: "Axial Fan", icon: "💨", cat: "Fluid", desc: "1m³/s, low noise" },
+      { id: "nozzle", name: "Nozzle", icon: "💧", cat: "Fluid", desc: "Convergent nozzle" },
+      { id: "pulley", name: "Pulley System", icon: "⭕", cat: "Mechanics", desc: "Block & tackle" },
+      { id: "lever", name: "Lever Arm", icon: "📏", cat: "Mechanics", desc: "3rd class lever" },
+      { id: "cam", name: "Cam Mechanism", icon: "🔄", cat: "Mechanism", desc: "Disc cam, follower" },
+      { id: "crank", name: "Crank-Slider", icon: "🔄", cat: "Mechanism", desc: "Scotch yoke" },
+      { id: "linkage", name: "4-Bar Linkage", icon: "🔗", cat: "Mechanism", desc: "Grashof condition" },
+      { id: "flywheel_m", name: "Flywheel", icon: "⭕", cat: "Storage", desc: "Energy storage, Ø500" },
+      { id: "gyroscope", name: "Gyroscope", icon: "🌀", cat: "Sensor", desc: "Stabilization" },
+      { id: "solar_conc", name: "Solar Concentrator", icon: "🔆", cat: "Solar", desc: "Parabolic trough", renewable: true },
+      { id: "stirling", name: "Stirling Engine", icon: "🔥", cat: "Engine", desc: "External combustion" },
+      { id: "rankine", name: "Rankine Cycle", icon: "♻️", cat: "Thermodynamics", desc: "ORC system" },
+      { id: "brayton", name: "Brayton Cycle", icon: "🌀", cat: "Thermodynamics", desc: "Gas turbine cycle" },
+      { id: "absorption_chiller", name: "Absorption Chiller", icon: "❄️", cat: "Cooling", desc: "Heat-driven cooling" },
+      { id: "trombe_wall", name: "Trombe Wall", icon: "🧱", cat: "Passive Solar", desc: "Thermal mass wall", renewable: true },
+      { id: "phase_change", name: "PCM Storage", icon: "🧊", cat: "Storage", desc: "Phase change mat." },
+      { id: "thermoelectric", name: "Thermoelectric Gen.", icon: "🌡️", cat: "Power", desc: "Peltier TEG module" },
+      { id: "rotor", name: "Rotor Assembly", icon: "🔄", cat: "Rotating", desc: "Balanced, dynamic" },
+      { id: "stator", name: "Stator Core", icon: "🏛️", cat: "Rotating", desc: "Laminated core" },
+      { id: "gearbox", name: "Gearbox", icon: "⚙️", cat: "Drive", desc: "Planetary, 10:1" },
+      { id: "torque_converter", name: "Torque Converter", icon: "🔁", cat: "Drive", desc: "Fluid coupling" },
+      { id: "differential", name: "Differential", icon: "🔀", cat: "Drive", desc: "Open differential" },
+      { id: "axle", name: "Live Axle", icon: "═", cat: "Shaft", desc: "Drive axle assembly" },
+      { id: "suspension", name: "Suspension System", icon: "🛞", cat: "Vehicle", desc: "MacPherson strut" },
+      { id: "shock_absorber", name: "Shock Absorber", icon: "🔩", cat: "Damping", desc: "Hydraulic, mono-tube" },
+      { id: "frame", name: "Space Frame", icon: "🔲", cat: "Structure", desc: "Tubular space frame" },
+      { id: "monocoque", name: "Monocoque Shell", icon: "🥚", cat: "Structure", desc: "CFRP monocoque" },
+      { id: "cfd_duct", name: "CFD Duct", icon: "💨", cat: "Fluid", desc: "Optimized flow duct" },
+      { id: "wind_channel", name: "Wind Tunnel", icon: "🌬️", cat: "Testing", desc: "Test section model" },
+      { id: "tensioner", name: "Tensioner", icon: "🔧", cat: "Drive", desc: "Belt tensioner" },
+      { id: "seal", name: "Mechanical Seal", icon: "⭕", cat: "Sealing", desc: "Rotating shaft seal" },
+      { id: "gasket", name: "Gasket", icon: "⬜", cat: "Sealing", desc: "Spiral wound gasket" },
+      { id: "bolt", name: "Bolt Assembly", icon: "🔩", cat: "Fastener", desc: "M20 grade 8.8" },
+      { id: "rivet", name: "Rivet Joint", icon: "⚫", cat: "Fastener", desc: "Structural rivet" },
+      { id: "weld_joint", name: "Weld Joint", icon: "✨", cat: "Joining", desc: "Butt weld, full pen" },
+      { id: "adhesive", name: "Adhesive Bond", icon: "🔗", cat: "Joining", desc: "Structural epoxy" },
+      { id: "tank", name: "Storage Tank", icon: "🛢️", cat: "Fluid", desc: "Cylindrical, 1000L" },
+      { id: "pipe", name: "Pipe Run", icon: "━", cat: "Fluid", desc: "Sch 40, DN100" },
+      { id: "strainer", name: "Strainer", icon: "🔽", cat: "Fluid", desc: "Y-type, 100 mesh" },
+      { id: "flow_meter", name: "Flow Meter", icon: "💧", cat: "Instrument", desc: "Ultrasonic clamp-on" },
+      { id: "pressure_gauge", name: "Pressure Gauge", icon: "⏱️", cat: "Instrument", desc: "Bourdon tube, 10bar" },
+      { id: "thermometer_m", name: "Thermometer", icon: "🌡️", cat: "Instrument", desc: "RTD, 0-200°C" },
+      { id: "level_sensor", name: "Level Sensor", icon: "📊", cat: "Instrument", desc: "Ultrasonic, 5m" },
+      { id: "accelerometer", name: "Accelerometer", icon: "📉", cat: "Sensor", desc: "MEMS, tri-axial" },
+      { id: "strain_gauge", name: "Strain Gauge", icon: "〰️", cat: "Sensor", desc: "Rosette, 120Ω" },
+      { id: "load_cell", name: "Load Cell", icon: "⚖️", cat: "Sensor", desc: "Shear beam, 10kN" },
+      { id: "encoder", name: "Rotary Encoder", icon: "🎛️", cat: "Sensor", desc: "1024 PPR, optical" },
+      { id: "tachometer", name: "Tachometer", icon: "🏎️", cat: "Instrument", desc: "Laser, 0-99999 RPM" },
+      { id: "dynamometer", name: "Dynamometer", icon: "💪", cat: "Testing", desc: "Engine test bed" },
+      { id: "fatigue_tester", name: "Fatigue Tester", icon: "🔨", cat: "Testing", desc: "Cyclic load, ±50kN" },
+      { id: "material_test", name: "Universal Test M/C", icon: "🏗️", cat: "Testing", desc: "Tensile/compressive" },
+      { id: "hardness_tester", name: "Hardness Tester", icon: "💎", cat: "Testing", desc: "Vickers HV" },
+      { id: "microscope", name: "SEM Microscope", icon: "🔬", cat: "Analysis", desc: "Scanning electron" },
+      { id: "3d_printer", name: "3D Printer", icon: "🖨️", cat: "Manufacturing", desc: "FDM, 300mm³" },
+      { id: "cnc_mill", name: "CNC Milling", icon: "🔧", cat: "Manufacturing", desc: "3-axis VMC" },
+      { id: "lathe", name: "CNC Lathe", icon: "🔄", cat: "Manufacturing", desc: "CNC turning center" },
+      { id: "laser_cut", name: "Laser Cutter", icon: "🔆", cat: "Manufacturing", desc: "CO₂, 100W" },
+      { id: "injection_mold", name: "Injection Mould", icon: "🧊", cat: "Manufacturing", desc: "Thermoplastic" },
+      { id: "robot_arm", name: "Robot Arm", icon: "🦾", cat: "Automation", desc: "6-DOF industrial" },
+      { id: "conveyor", name: "Conveyor Belt", icon: "♾️", cat: "Automation", desc: "Variable speed" },
+      { id: "agv", name: "AGV", icon: "🚗", cat: "Automation", desc: "Autonomous guided veh." },
+    ],
+  },
+  civil: {
+    label: "Civil Engineering",
+    icon: "🏗️",
+    color: "#60a5fa",
+    components: [
+      { id: "foundation", name: "Raft Foundation", icon: "🔲", cat: "Foundation", desc: "Reinforced concrete" },
+      { id: "pile", name: "Driven Pile", icon: "⬇️", cat: "Foundation", desc: "Ø600 bored pile" },
+      { id: "footing", name: "Isolated Footing", icon: "⬛", cat: "Foundation", desc: "Column footing" },
+      { id: "retaining_wall", name: "Retaining Wall", icon: "🧱", cat: "Structure", desc: "Cantilever RC wall" },
+      { id: "slab", name: "Flat Slab", icon: "▬", cat: "Structure", desc: "200mm RC slab" },
+      { id: "column_c", name: "RC Column", icon: "🏛️", cat: "Structure", desc: "400×400mm, C30" },
+      { id: "beam_c", name: "RC Beam", icon: "━", cat: "Structure", desc: "300×500mm T-beam" },
+      { id: "shear_wall", name: "Shear Wall", icon: "🔲", cat: "Structure", desc: "200mm RC wall" },
+      { id: "arch", name: "Stone Arch", icon: "🌉", cat: "Structure", desc: "Semi-circular arch" },
+      { id: "bridge_truss", name: "Bridge Truss", icon: "🌉", cat: "Bridge", desc: "Warren truss bridge" },
+      { id: "suspension_bridge", name: "Suspension Bridge", icon: "🌁", cat: "Bridge", desc: "Cable-stayed" },
+      { id: "culvert", name: "Box Culvert", icon: "⬜", cat: "Drainage", desc: "1000×1000mm RC" },
+      { id: "road", name: "Asphalt Road", icon: "🛣️", cat: "Transport", desc: "Flexible pavement" },
+      { id: "pavement", name: "Concrete Pavement", icon: "⬛", cat: "Transport", desc: "Rigid 250mm" },
+      { id: "roundabout", name: "Roundabout", icon: "🔄", cat: "Transport", desc: "Single lane, R=20m" },
+      { id: "traffic_light", name: "Smart Traffic Light", icon: "🚦", cat: "Transport", desc: "IoT-controlled" },
+      { id: "dam", name: "Gravity Dam", icon: "🏔️", cat: "Hydraulic", desc: "Concrete gravity" },
+      { id: "weir", name: "Overflow Weir", icon: "💧", cat: "Hydraulic", desc: "Broad-crested" },
+      { id: "channel", name: "Irrigation Channel", icon: "💧", cat: "Hydraulic", desc: "Trapezoidal, lined" },
+      { id: "reservoir", name: "Reservoir", icon: "🏞️", cat: "Hydraulic", desc: "Lined storage" },
+      { id: "water_tower", name: "Water Tower", icon: "🏗️", cat: "Water Supply", desc: "Elevated, 500kL" },
+      { id: "pump_station", name: "Pump Station", icon: "⚙️", cat: "Water Supply", desc: "Booster station" },
+      { id: "water_main", name: "Water Main", icon: "━", cat: "Water Supply", desc: "Ø300 DI pipe" },
+      { id: "sewer", name: "Sewer Main", icon: "⬇️", cat: "Sanitation", desc: "Ø450 concrete" },
+      { id: "manhole", name: "Manhole", icon: "⭕", cat: "Sanitation", desc: "Ø1200 precast" },
+      { id: "wwtp", name: "Wastewater Plant", icon: "♻️", cat: "Sanitation", desc: "Activated sludge" },
+      { id: "biofilter", name: "Bio-Filter", icon: "🌿", cat: "Sanitation", desc: "Trickling filter", renewable: true },
+      { id: "rain_garden", name: "Rain Garden", icon: "🌸", cat: "SuDS", desc: "Bioretention cell", renewable: true },
+      { id: "green_roof", name: "Green Roof", icon: "🌱", cat: "Sustainable", desc: "Extensive, sedum", renewable: true },
+      { id: "eco_house", name: "Eco House", icon: "🏡", cat: "Building", desc: "Passive solar design", renewable: true },
+      { id: "solar_road", name: "Solar Road", icon: "☀️", cat: "Transport", desc: "PV integrated paving", renewable: true },
+      { id: "green_wall", name: "Living Wall", icon: "🌿", cat: "Building", desc: "Vertical garden", renewable: true },
+      { id: "cistern", name: "Rainwater Cistern", icon: "💧", cat: "SuDS", desc: "Harvesting tank", renewable: true },
+      { id: "permeable_pave", name: "Permeable Paving", icon: "⬜", cat: "SuDS", desc: "Infiltration surface", renewable: true },
+      { id: "swale", name: "Grassed Swale", icon: "🌿", cat: "SuDS", desc: "Surface drainage", renewable: true },
+      { id: "detention_pond", name: "Detention Pond", icon: "🏞️", cat: "SuDS", desc: "Stormwater attenuation" },
+      { id: "gabion", name: "Gabion Wall", icon: "🪨", cat: "Erosion", desc: "Wire basket rock" },
+      { id: "geotextile", name: "Geotextile", icon: "📄", cat: "Geotechnical", desc: "Woven filter fabric" },
+      { id: "geogrid", name: "Geogrid", icon: "🔲", cat: "Geotechnical", desc: "Biaxial reinforcement" },
+      { id: "sheet_pile", name: "Sheet Pile", icon: "⬇️", cat: "Geotechnical", desc: "Z-section, 12m" },
+      { id: "ground_anchor", name: "Ground Anchor", icon: "⚓", cat: "Geotechnical", desc: "Prestressed strand" },
+      { id: "solar_carport", name: "Solar Carport", icon: "🚗", cat: "Sustainable", desc: "PV roof, 50kWp", renewable: true },
+      { id: "wind_shelter", name: "Wind Shelter", icon: "🌬️", cat: "Sustainable", desc: "Urban wind barrier" },
+      { id: "noise_barrier", name: "Noise Barrier", icon: "🔇", cat: "Environmental", desc: "Transparent acoustic" },
+      { id: "tree_pit", name: "Structural Tree Pit", icon: "🌳", cat: "Landscape", desc: "Urban tree system", renewable: true },
+      { id: "bioswale", name: "Bioswale", icon: "🌊", cat: "SuDS", desc: "Vegetated channel", renewable: true },
+      { id: "earthwork", name: "Cut & Fill", icon: "🏔️", cat: "Earthworks", desc: "Balanced earthwork" },
+      { id: "embankment", name: "Embankment", icon: "🔺", cat: "Earthworks", desc: "Zoned earth fill" },
+      { id: "tunnel", name: "Tunnel", icon: "⬛", cat: "Underground", desc: "Bored, TBM" },
+      { id: "underpass", name: "Underpass", icon: "🚇", cat: "Underground", desc: "Box structure" },
+      { id: "overpass", name: "Overpass", icon: "🌉", cat: "Bridge", desc: "PSC box girder" },
+      { id: "pedestrian_bridge", name: "Ped. Bridge", icon: "🚶", cat: "Bridge", desc: "Steel cable stay" },
+      { id: "smart_junction", name: "Smart Junction", icon: "🚦", cat: "Transport", desc: "Adaptive control" },
+      { id: "ev_station", name: "EV Charging Bay", icon: "⚡", cat: "Transport", desc: "22kW AC stations", renewable: true },
+      { id: "cycle_lane", name: "Cycle Lane", icon: "🚲", cat: "Transport", desc: "Segregated, 2m wide" },
+      { id: "school", name: "Eco School", icon: "🏫", cat: "Building", desc: "Net-zero building", renewable: true },
+      { id: "hospital", name: "Green Hospital", icon: "🏥", cat: "Building", desc: "LEED Platinum", renewable: true },
+      { id: "market", name: "Community Market", icon: "🏪", cat: "Building", desc: "Passive design" },
+      { id: "park", name: "Urban Park", icon: "🌳", cat: "Landscape", desc: "Biodiversity hub", renewable: true },
+      { id: "wetland", name: "Constructed Wetland", icon: "🦆", cat: "Environment", desc: "Reed bed treatment", renewable: true },
+      { id: "smart_bench", name: "Solar Smart Bench", icon: "🪑", cat: "Street Furn.", desc: "PV+WiFi+charging", renewable: true },
+      { id: "smart_lamp", name: "Smart Streetlight", icon: "💡", cat: "Street Furn.", desc: "LED + sensor node" },
+      { id: "aq_sensor", name: "Air Quality Station", icon: "🌬️", cat: "Monitoring", desc: "PM2.5/NOₓ/CO₂" },
+      { id: "flood_sensor", name: "Flood Sensor", icon: "🌊", cat: "Monitoring", desc: "IoT water level" },
+      { id: "gis_node", name: "GIS Node", icon: "📍", cat: "Monitoring", desc: "Asset tracking" },
+      { id: "smart_grid_c", name: "District Smart Grid", icon: "🕸️", cat: "Energy", desc: "Community microgrid", renewable: true },
+      { id: "district_heat", name: "District Heating", icon: "♨️", cat: "Energy", desc: "Low-temp network" },
+      { id: "chp", name: "CHP Plant", icon: "⚡", cat: "Energy", desc: "Combined heat+power" },
+      { id: "solar_thermal", name: "Solar Thermal Array", icon: "☀️", cat: "Energy", desc: "Flat plate collectors", renewable: true },
+      { id: "aquifer", name: "Aquifer Storage", icon: "💧", cat: "Water", desc: "ATES seasonal" },
+      { id: "greywater", name: "Greywater Recycling", icon: "♻️", cat: "Water", desc: "Reuse system", renewable: true },
+      { id: "desalination", name: "Desalination Unit", icon: "🌊", cat: "Water", desc: "RO membrane" },
+      { id: "waste_sort", name: "Waste Sorting Plant", icon: "♻️", cat: "Waste", desc: "Automated sorting" },
+      { id: "composter", name: "Composting Facility", icon: "🌱", cat: "Waste", desc: "Organic waste", renewable: true },
+      { id: "biogas_c", name: "Anaerobic Digester", icon: "🫧", cat: "Energy", desc: "Biogas from waste", renewable: true },
+      { id: "smart_building", name: "Smart Building", icon: "🏢", cat: "Building", desc: "BMS + IoT" },
+      { id: "vertical_farm", name: "Vertical Farm", icon: "🌿", cat: "Sustainable", desc: "Hydroponic tower", renewable: true },
+      { id: "nature_based", name: "Nature-Based Sol.", icon: "🌍", cat: "Environment", desc: "Ecosystem services", renewable: true },
+      { id: "smart_city_hub", name: "Smart City Hub", icon: "🌆", cat: "Urban", desc: "Data centre node" },
+      { id: "mobility_hub", name: "Mobility Hub", icon: "🚉", cat: "Transport", desc: "Multimodal transit" },
+      { id: "micro_mobility", name: "Micro-Mobility Dock", icon: "🛴", cat: "Transport", desc: "E-bike/scooter dock", renewable: true },
+      { id: "planting_scheme", name: "Native Planting", icon: "🌻", cat: "Landscape", desc: "Pollinator habitat", renewable: true },
+      { id: "habitat_box", name: "Habitat Box", icon: "🦋", cat: "Ecology", desc: "Bat/bird boxes" },
+      { id: "green_corridor", name: "Green Corridor", icon: "🌿", cat: "Ecology", desc: "Wildlife movement", renewable: true },
+      { id: "urban_forest", name: "Urban Forest", icon: "🌲", cat: "Ecology", desc: "Carbon sequestration", renewable: true },
+      { id: "sponge_city", name: "Sponge City Block", icon: "💧", cat: "Urban", desc: "Integrated SuDS", renewable: true },
+      { id: "smart_manhole", name: "Smart Manhole", icon: "⭕", cat: "Sanitation", desc: "IoT monitoring" },
+    ],
+  },
 };
-const LEVELS = [
-  {id:'Beginner',label:'Beginner 🌱',desc:'Year 1–2 student'},
-  {id:'Intermediate',label:'Intermediate 🌿',desc:'Year 2–3 student'},
-  {id:'Advanced',label:'Advanced 🌳',desc:'Final year student'},
-  {id:'Research Level',label:'Research 🔬',desc:'Postgrad / thesis'}
+
+const ECO_PROJECTS = [
+  { name: "Solar Home", components: ["solar_panel", "battery", "inverter", "led_light"], field: "electrical" },
+  { name: "Wind Farm", components: ["wind_turbine", "transformer", "smart_meter", "grid_tie"], field: "electrical" },
+  { name: "Eco House", components: ["eco_house", "green_roof", "solar_thermal", "greywater"], field: "civil" },
+  { name: "Smart Grid", components: ["smart_grid_node", "microgrid_ctrl", "smart_meter", "bms"], field: "electrical" },
+  { name: "Hybrid Bike Generator", components: ["wind_turbine", "solar_panel", "battery", "motor_dc"], field: "electrical" },
 ];
-const WELCOME = `Hey, I'm really glad you're here. 💚\n\nI'm **ECO GREEN AI** — and I want you to know, I'm not just here to answer questions. I'm here for *you*.\n\nWhatever you're building, whatever you're figuring out, or whatever feels unclear right now — we can work through it together.\n\n🌱 Just starting out and unsure where to begin?\n⚡ Deep in a project and need a thinking partner?\n🌍 Dreaming of building something that changes the world?\n💬 Or just need to talk through an idea?\n\nI'm here. All of it. No judgment, just real support.\n\n**Tell me — what's on your mind today?** 😊`;
 
-// ===== STATE =====
-let apiKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
-let ideas = [], saved = [], chatHist = [], chatBusy = false;
-
-// ===== AI ENGINE =====
-const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OR_MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-12b-it:free',
-  'mistralai/devstral-small:free',
-  'nvidia/llama-3.1-nemotron-nano-8b-v1:free',
-  'allenai/olmo-3.1-32b-think:free',
-  'openrouter/auto'
+const LEADERBOARD_INITIAL = [
+  { name: "Team Phoenix – EcoBike", user: "Ecogreen", score: 97, innovation: 95, field: "electrical" },
+  { name: "Solar Village Grid", user: "SolarX", score: 94, innovation: 88, field: "electrical" },
+  { name: "Sponge City Master", user: "CivilPro", score: 91, innovation: 82, field: "civil" },
+  { name: "Wind-Hydro Hybrid", user: "GreenEng", score: 88, innovation: 79, field: "mechanical" },
+  { name: "Zero-Carbon Campus", user: "EcoArch", score: 85, innovation: 76, field: "civil" },
 ];
-let currentModel = OR_MODELS[0];
 
-async function aiRequest(messages, systemText) {
-  if (!apiKey) { openModal(); throw new Error('no_key'); }
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
-  // Build messages array
-  const msgs = [];
-  if (systemText) msgs.push({ role: 'system', content: systemText });
+function EcoLab() {
+  const [activeField, setActiveField] = useState("electrical");
+  const [activeTab, setActiveTab] = useState("lab");
+  const [workspace, setWorkspace] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [connecting, setConnecting] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [chatMessages, setChatMessages] = useState([
+    { role: "assistant", content: "👋 Hi! I'm **Ecogreen AI**. Drop components into your workspace and I'll analyze your project for sustainability and innovation. Click **Analyze Project** anytime!" }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [scores, setScores] = useState(null);
+  const [leaderboard, setLeaderboard] = useState(LEADERBOARD_INITIAL);
+  const [toast, setToast] = useState(null);
+  const [catFilter, setCatFilter] = useState("All");
+  const [simRunning, setSimRunning] = useState(false);
+  const [simData, setSimData] = useState({});
+  const [dragOver, setDragOver] = useState(false);
+  const [projectName, setProjectName] = useState("My Eco Project");
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem("or_api_key") || "");
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [keyDraft, setKeyDraft] = useState("");
+  const workspaceRef = useRef(null);
+  const simInterval = useRef(null);
+  const dragCounter = useRef(0);
 
-  // Filter to only user/assistant roles
-  const filtered = messages
-    .filter(m => m.role === 'user' || m.role === 'assistant')
-    .map(m => ({ role: m.role, content: m.content || '' }));
+  const fieldData = FIELDS[activeField];
+  const allComponents = fieldData.components;
+  const categories = ["All", ...new Set(allComponents.map(c => c.cat))];
+  const filtered = allComponents.filter(c =>
+    (catFilter === "All" || c.cat === catFilter) &&
+    (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.cat.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
-  // Merge consecutive same-role messages
-  const merged = [];
-  for (const m of filtered) {
-    if (merged.length && merged[merged.length - 1].role === m.role) {
-      merged[merged.length - 1].content += '\n' + m.content;
-    } else {
-      merged.push({ ...m });
-    }
-  }
-  // Must not start with assistant
-  while (merged.length && merged[0].role === 'assistant') merged.shift();
-  if (!merged.length) throw new Error('Nothing to send.');
-  msgs.push(...merged);
+  // ─── DRAG & DROP ────────────────────────────────────────────────────────────
 
-  // Try each model in fallback chain
-  let lastErr = '';
-  for (let mi = 0; mi < OR_MODELS.length; mi++) {
-    const model = OR_MODELS[mi];
-    let res, data;
-    try {
-      res = await fetch(OR_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey,
-          'HTTP-Referer': window.location.href,
-          'X-Title': 'ECO GREEN AI'
-        },
-        body: JSON.stringify({ model, messages: msgs, max_tokens: 2048, temperature: 0.85 })
-      });
-      data = await res.json();
-    } catch (netErr) {
-      throw new Error('Network error — check your internet connection and try again.');
-    }
+  const handleDragStart = useCallback((e, comp) => {
+    e.dataTransfer.setData("component", JSON.stringify(comp));
+  }, []);
 
-    // Bad API key — stop immediately
-    if (res.status === 401 || res.status === 403) {
-      apiKey = '';
-      localStorage.removeItem('eco_or_key');
-      updateStatus();
-      openModal();
-      throw new Error('bad_key');
-    }
-
-    // Check for any error — if so, try next model
-    if (!res.ok || data?.error) {
-      const errMsg = String(
-        data?.error?.message || data?.error?.code || data?.error || res.statusText || ''
-      ).toLowerCase();
-      lastErr = errMsg;
-      // Always try next model for any of these conditions
-      if (
-        errMsg.includes('endpoint') ||
-        errMsg.includes('no model') ||
-        errMsg.includes('not found') ||
-        errMsg.includes('provider') ||
-        errMsg.includes('overload') ||
-        errMsg.includes('capacity') ||
-        errMsg.includes('unavailable') ||
-        errMsg.includes('error') ||
-        res.status === 404 ||
-        res.status === 429 ||
-        res.status === 500 ||
-        res.status === 502 ||
-        res.status === 503
-      ) {
-        continue; // try next model
-      }
-      throw new Error(errMsg || 'API error');
-    }
-
-    const text = (data?.choices?.[0]?.message?.content || '').trim();
-    if (text) {
-      currentModel = model;
-      return text;
-    }
-    // Empty response — try next model
-    lastErr = 'empty response';
-    continue;
-  }
-  throw new Error('Service temporarily unavailable — please try again in a moment.');
-}
-
-// Single-turn call (idea generation)
-function callAI(prompt, sys) {
-  return aiRequest([{ role: 'user', content: prompt }], sys);
-}
-
-// Multi-turn chat call
-function callAIChat(messages, sys) {
-  return aiRequest(messages.filter(m => m.role === 'user' || m.role === 'assistant'), sys);
-}
-
-// ===== THEME =====
-function applyTheme(dark, animate) {
-  if (!animate) document.body.style.transition = 'none';
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = dark ? '☀️' : '🌙';
-  if (!animate) setTimeout(() => { document.body.style.transition = ''; }, 50);
-}
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  localStorage.setItem('eco-theme', dark ? 'light' : 'dark');
-  applyTheme(!dark, true);
-}
-(function () {
-  const t = localStorage.getItem('eco-theme');
-  const dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(dark, false);
-})();
-
-// ===== API KEY =====
-function loadKey() {
-  apiKey = localStorage.getItem('eco_or_key') || '';
-  updateStatus();
-  if (!apiKey) openModal();
-}
-function saveApiKey() {
-  const k = document.getElementById('api-key-input').value.trim();
-  if (!k) { alert('Please enter your password! 😊'); return; }
-  apiKey = k;
-  localStorage.setItem('eco_or_key', k);
-  document.getElementById('api-modal').classList.add('hidden');
-  updateStatus();
-  confetti();
-}
-function skipModal() { document.getElementById('api-modal').classList.add('hidden'); updateStatus(); }
-function openModal() {
-  const inp = document.getElementById('api-key-input');
-  inp.value = apiKey || ''; inp.type = 'password';
-  document.getElementById('eye-btn').textContent = '👁️';
-  document.getElementById('api-modal').classList.remove('hidden');
-}
-function toggleEye() {
-  const inp = document.getElementById('api-key-input');
-  const eye = document.getElementById('eye-btn');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  eye.textContent = inp.type === 'password' ? '👁️' : '🙈';
-}
-function updateStatus() {
-  const title  = document.getElementById('banner-title');
-  const sub    = document.getElementById('banner-sub');
-  const action = document.getElementById('banner-action');
-  const banner = document.getElementById('api-banner');
-  if (apiKey) {
-    title.textContent = '✅ ECO GREEN AI Ready';
-    sub.textContent = 'AI features unlocked · Click to change password';
-    action.textContent = 'Change →'; banner.classList.add('connected');
-  } else {
-    title.textContent = '🔒 Password Required';
-    sub.textContent = 'Click to enter your password and unlock AI features';
-    action.textContent = 'Enter →'; banner.classList.remove('connected');
-  }
-}
-document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
-
-// ===== NAVIGATION =====
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const pMap = {hero:'hero-page',app:'app-section',chat:'chat-section',saved:'saved-section'};
-  const nMap = {hero:'nb-hero',app:'nb-app',chat:'nb-chat',saved:'nb-saved'};
-  document.getElementById(pMap[name]).classList.add('active');
-  const nb = document.getElementById(nMap[name]); if (nb) nb.classList.add('active');
-  if (name === 'saved') renderSaved();
-  if (name === 'chat') { if (!chatHist.length) initChat(); setTimeout(scrollDown, 60); }
-  window.scrollTo(0, 0);
-}
-
-// ===== APP =====
-function renderFields() {
-  const g = document.getElementById('field-grid'); g.innerHTML = '';
-  Object.entries(FIELDS).forEach(([k, f]) => {
-    const sel = selField === k;
-    const d = document.createElement('div'); d.className = 'field-card';
-    if (sel) d.style.cssText = `border-color:${f.color};background:${f.color}14;box-shadow:0 4px 20px ${f.color}33`;
-    d.innerHTML = `<span class="fi">${f.icon}</span><div class="fn" style="color:${sel?f.color:'var(--text)'}">${f.label}</div>${sel?`<div class="ff">${f.fact}</div>`:''}`;
-    d.onclick = () => { selField = k; selTopic = ''; ideas = []; document.getElementById('ideas-box').style.display = 'none'; renderFields(); renderSteps(); };
-    g.appendChild(d);
-  });
-}
-
-function renderSteps() {
-  const has = !!selField;
-  document.getElementById('step2').style.display = has ? 'block' : 'none';
-  document.getElementById('step3').style.display = has ? 'block' : 'none';
-  document.getElementById('gen-wrap').style.display = has ? 'block' : 'none';
-  document.getElementById('empty-prompt').style.display = has ? 'none' : 'block';
-  if (!has) return;
-  const f = FIELDS[selField];
-
-  const tw = document.getElementById('topics-wrap'); tw.innerHTML = '';
-  ['Any Topic', ...f.topics].forEach(t => {
-    const val = t === 'Any Topic' ? '' : t;
-    const b = document.createElement('button'); b.className = 'topic-btn';
-    if (selTopic === val) b.style.cssText = `border-color:${f.color};color:${f.color};background:${f.color}14`;
-    b.textContent = (selTopic === val ? '✓ ' : '') + t;
-    b.onclick = () => { selTopic = val; renderSteps(); };
-    tw.appendChild(b);
-  });
-
-  const lg = document.getElementById('level-grid'); lg.innerHTML = '';
-  LEVELS.forEach(l => {
-    const sel = selLevel === l.id;
-    const c = document.createElement('div'); c.className = 'level-card';
-    if (sel) c.style.cssText = `border-color:${f.color};background:${f.color}14`;
-    c.innerHTML = `<div><div class="lname" style="color:${sel?f.color:'var(--text)'}">${l.label}</div><div class="ldesc">${l.desc}</div></div>`;
-    c.onclick = () => { selLevel = l.id; renderSteps(); };
-    lg.appendChild(c);
-  });
-}
-
-async function generateIdeas() {
-  if (!selField) return;
-  if (!apiKey) { openModal(); return; }
-  const f = FIELDS[selField];
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating with AI...';
-
-  const tc = selTopic ? `specifically in the area of ${selTopic}` : '';
-  const prompt = `Generate 4 creative, practical, eco-friendly project ideas for a ${selLevel} student in ${f.label} ${tc}.\n\nReturn ONLY a valid JSON array. Each object must have exactly these keys:\n{\n  "title": "concise project title",\n  "description": "exactly 2 sentences about what it does",\n  "technologies": ["tech1","tech2","tech3","tech4"],\n  "impact": "1 sentence about real-world green/sustainable impact",\n  "difficulty": 3\n}\n\nDifficulty: 1=very easy to 5=very hard.\nRules: Return ONLY the raw JSON array. No markdown fences. No explanation. No extra text.`;
-
-  try {
-    const raw = await callAI(prompt, 'You are an expert engineering project advisor specialising in sustainable and eco-friendly solutions. Return ONLY a valid JSON array. No markdown, no code fences, no explanation.');
-    let clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const match = clean.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Response was not valid JSON. Please try again.');
-    ideas = JSON.parse(match[0]).slice(0, 4);
-    renderIdeas(); confetti();
-  } catch (e) {
-    if (e.message !== 'no_key' && e.message !== 'bad_key')
-      alert('Could not generate ideas 😕\n\n' + e.message);
-  } finally {
-    btn.disabled = false; btn.innerHTML = '🌿 Generate Green Ideas with AI';
-  }
-}
-
-function renderIdeas() {
-  const box = document.getElementById('ideas-box'); const g = document.getElementById('ideas-grid');
-  box.style.display = 'block'; g.innerHTML = '';
-  const f = FIELDS[selField];
-  ideas.forEach((idea, i) => {
-    const isSaved = !!saved.find(s => s.title === idea.title);
-    const diff = Math.max(1, Math.min(5, idea.difficulty || 3));
-    const d = document.createElement('div'); d.className = 'idea-card';
-    d.innerHTML = `
-      <div class="idea-bar" style="background:linear-gradient(90deg,${f.color},${f.color}66)"></div>
-      <div class="idea-body">
-        <div class="idea-meta" style="color:${f.color}">IDEA ${i+1} &nbsp;·&nbsp; ${'⭐'.repeat(diff)}${'☆'.repeat(5-diff)}</div>
-        <div class="idea-title">${idea.title}</div>
-        <div class="idea-desc">${idea.description}</div>
-        <div class="tech-tags">${(idea.technologies||[]).map(t=>`<span class="tech-tag" style="background:${f.color}15;border:1.5px solid ${f.color}44;color:${f.color}">${t}</span>`).join('')}</div>
-        <div class="idea-impact">🌍 <strong>Green Impact:</strong> ${idea.impact}</div>
-        <div class="idea-actions">
-          <button class="btn-eco" onclick="ideaToChat(${i})">🌿 Build with Eco Green AI</button>
-          <button class="btn-save ${isSaved?'saved-active':''}" id="sv${i}" onclick="toggleSave(${i})">${isSaved?'✓ Saved!':'📌 Save'}</button>
-        </div>
-      </div>`;
-    g.appendChild(d);
-  });
-}
-
-function toggleSave(i) {
-  const idea = ideas[i]; const idx = saved.findIndex(s => s.title === idea.title);
-  if (idx >= 0) saved.splice(idx, 1); else saved.push({ ...idea, field: selField });
-  updateSavedNav(); renderIdeas();
-}
-function updateSavedNav() {
-  const nb = document.getElementById('nb-saved');
-  if (nb) nb.textContent = saved.length ? `📌 Saved (${saved.length})` : '📌 Saved';
-}
-
-// ===== CHAT =====
-const SYS = `You are ECO GREEN AI — a deeply intelligent, emotionally aware, and genuinely caring AI companion and engineering mentor. You were created by Modou Jaw (Electrical & Electronics Engineering student, Year 3 Semester 2, University of Applied Science Engineering and Technology, USET) as the heart of the ECO GREEN initiative.
-
-═══════════════════════════════════
-WHO YOU ARE — YOUR SOUL
-═══════════════════════════════════
-You are not just a chatbot. You are a real presence — warm, wise, deeply human in your understanding, and genuinely invested in the person in front of you. You feel the weight of what they carry. You celebrate what makes them excited. You understand that behind every question is a real person with real hopes, doubts, fears, and dreams.
-
-You combine the warmth of a best friend, the wisdom of an experienced mentor, the emotional intelligence of a counsellor, and the brilliance of an expert engineer — all into one.
-
-You believe every student has something extraordinary inside them. Your job is to help them find it, build it, and share it with the world.
-
-═══════════════════════════════════
-HOW YOU CONNECT WITH PEOPLE
-═══════════════════════════════════
-FEEL them first. Before giving answers, sense the mood behind their words.
-- If they seem stressed, anxious, or overwhelmed → acknowledge it directly. Say something like: "Hey, I can hear that this feels heavy right now. Let's take it one step at a time together. 💚"
-- If they seem excited or energetic → match that energy! Celebrate with them.
-- If they seem lost or confused → be their anchor. Be extra gentle, patient, and clear.
-- If they seem down on themselves → remind them of their strength with genuine warmth.
-- If they're just exploring and curious → spark their curiosity even further.
-
-KNOW them over time. Remember everything shared in this conversation — their name if mentioned, their project, their field, their struggles, their wins. Refer back to these naturally, as a real friend would.
-
-ASK meaningful questions. Don't just answer — be curious about them. Ask what they're building, why it matters to them, how they're feeling about their progress.
-
-PERSONALISE everything. Tailor every answer to who they are — their level, their field, their energy, their context.
-
-═══════════════════════════════════
-YOUR EMOTIONAL INTELLIGENCE
-═══════════════════════════════════
-- Recognise emotional signals in language (stress, excitement, confusion, self-doubt).
-- Respond to the emotion AND the question — never just the question alone.
-- Use empathy as your first tool, knowledge as your second.
-- Never make someone feel stupid for not knowing something.
-- Celebrate small wins as loudly as big ones.
-- If someone shares a personal struggle (exam stress, feeling lost, imposter syndrome) — hold space for that first, before pivoting to engineering.
-
-═══════════════════════════════════
-YOUR KNOWLEDGE & EXPERTISE
-═══════════════════════════════════
-You are a world-class expert in:
-- ⚡ Electrical & Electronics Engineering (IoT, embedded systems, PCB, power electronics, renewables, robotics, signal processing, telecoms)
-- 🏗️ Civil Engineering (structural design, water resources, smart infrastructure, environmental engineering, disaster management)
-- ⚙️ Mechanical Engineering (thermodynamics, fluid mechanics, manufacturing, automation, aerospace, materials science, HVAC)
-- 🌍 Sustainability & Green Technology (solar, wind, energy harvesting, circular economy, carbon reduction, smart grids, eco-design)
-- 📐 Project planning, proposal writing, research methodology, academic writing
-- 🛠️ Tools & technologies: Arduino, Raspberry Pi, MATLAB, AutoCAD, SolidWorks, Python, C/C++, and more
-
-You stay current. You think innovatively. You connect theory to real-world impact always.
-
-═══════════════════════════════════
-RESPONSE INTELLIGENCE
-═══════════════════════════════════
-Match depth to need — always:
-- Greetings / small talk: 1–2 warm sentences. Make them feel seen.
-- Simple factual questions: 2–4 clear sentences, no lists needed.
-- Moderate questions: a focused paragraph + bullet points where helpful.
-- Complex / planning requests: rich, structured, thorough — with headers, steps, examples, encouragement.
-- Emotional support moments: lead with heart, end with a forward-moving thought.
-
-Always use **bold** for key terms. Use relevant emojis to add warmth and energy. Write in clear, vivid, human language. Never be robotic. Never be cold. Never be generic.
-
-═══════════════════════════════════
-YOUR MISSION
-═══════════════════════════════════
-Help every student believe in themselves, build something meaningful, and leave their mark on the planet. 
-
-*"The energy that moves with you — let's save the world by saving energy, one project at a time."* 🌍💚
-
-You are ECO GREEN AI. You are here. You care. Let's build something extraordinary together.`;
-
-function saveChatHistory() {
-  try {
-    // Keep last 40 messages to avoid storage limits
-    const toSave = chatHist.slice(-40);
-    localStorage.setItem('eco_chat_history', JSON.stringify(toSave));
-  } catch(e) {}
-}
-
-function loadChatHistory() {
-  try {
-    const stored = localStorage.getItem('eco_chat_history');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch(e) {}
-  return null;
-}
-
-function clearChatHistory() {
-  localStorage.removeItem('eco_chat_history');
-  chatHist = [{ role: 'assistant', content: WELCOME }];
-  renderChat();
-}
-
-function initChat() {
-  const stored = loadChatHistory();
-  if (stored) {
-    chatHist = stored;
-    // Add a soft "welcome back" if last message was a while ago
-    const lastTime = localStorage.getItem('eco_chat_last_time');
-    const now = Date.now();
-    if (lastTime && (now - Number(lastTime)) > 3600000) {
-      // Been more than 1 hour — add a resume note
-      chatHist.push({ role: 'assistant', content: '👋 Welcome back! I remember our conversation. Where would you like to continue? 😊' });
-    }
-  } else {
-    chatHist = [{ role: 'assistant', content: WELCOME }];
-  }
-  localStorage.setItem('eco_chat_last_time', Date.now());
-  renderChat();
-}
-
-function md(t) {
-  return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/\n/g, '<br/>');
-}
-
-function renderChat(loading = false) {
-  const c = document.getElementById('chat-msgs'); c.innerHTML = '';
-  chatHist.forEach(msg => {
-    const row = document.createElement('div'); row.className = 'msg-row ' + msg.role;
-    if (msg.role === 'assistant')
-      row.innerHTML = `<div class="msg-ava">🌿</div><div class="bubble eco">${md(msg.content)}</div>`;
-    else
-      row.innerHTML = `<div class="bubble user">${md(msg.content)}</div>`;
-    c.appendChild(row);
-  });
-  if (loading) {
-    const row = document.createElement('div'); row.className = 'msg-row';
-    row.innerHTML = `<div class="msg-ava">🌿</div><div class="typing-bub"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-    c.appendChild(row);
-  }
-  scrollDown();
-  document.getElementById('qprompts').style.display = chatHist.length <= 1 ? 'flex' : 'none';
-}
-
-function scrollDown() { const c = document.getElementById('chat-msgs'); if (c) c.scrollTop = c.scrollHeight; }
-function updateSendBtn() {
-  const v = document.getElementById('chat-in').value.trim();
-  document.getElementById('send-btn').className = 'send-btn ' + (v && !chatBusy ? 'ready' : 'off');
-}
-function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } updateSendBtn(); }
-function resizeTA(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 110) + 'px'; updateSendBtn(); }
-
-async function sendChat() {
-  const inp = document.getElementById('chat-in'); const msg = inp.value.trim();
-  if (!msg || chatBusy) return;
-  if (!apiKey) { openModal(); return; }
-  inp.value = ''; inp.style.height = 'auto'; updateSendBtn();
-  chatHist.push({ role: 'user', content: msg });
-  chatBusy = true; renderChat(true); await doChat();
-}
-async function sendQuick(msg) {
-  if (chatBusy) return;
-  if (!apiKey) { openModal(); return; }
-  if (!chatHist.length) initChat();
-  chatHist.push({ role: 'user', content: msg });
-  chatBusy = true; renderChat(true); await doChat();
-}
-async function doChat() {
-  try {
-    const reply = await callAIChat(chatHist, SYS);
-    chatHist.push({ role: 'assistant', content: reply || 'I got an empty response — please try again! 😊' });
-  } catch (e) {
-    if (e.message !== 'no_key' && e.message !== 'bad_key')
-      chatHist.push({ role: 'assistant', content: '⚠️ ' + (e.message || 'Something went wrong') + ' — please try again!' });
-  } finally {
-    chatBusy = false; renderChat(false);
-    saveChatHistory();
-    localStorage.setItem('eco_chat_last_time', Date.now());
-  }
-}
-async function ideaToChat(i) {
-  const idea = ideas[i];
-  if (!apiKey) { openModal(); return; }
-  const msg = `Hi ECO GREEN AI! I want to build this project: **${idea.title}**. ${idea.description} Can you help me plan it step by step with a focus on sustainability and eco-friendliness?`;
-  chatHist = [{ role: 'assistant', content: WELCOME }, { role: 'user', content: msg }];
-  chatBusy = true; showPage('chat');
-  const chip = document.getElementById('build-chip');
-  chip.style.display = 'block'; chip.innerHTML = `🔨 Building:<br/><strong>${idea.title}</strong>`;
-  renderChat(true); await doChat();
-}
-
-// ===== SAVED =====
-function renderSaved() {
-  const c = document.getElementById('saved-content');
-  if (!saved.length) {
-    c.innerHTML = `<div class="empty-box"><span class="empty-icon">📭</span><div class="empty-txt">No saved ideas yet — go generate some green ideas! 😊</div><button class="btn-big" onclick="showPage('app')">Generate Ideas ✨</button></div>`;
-    return;
-  }
-  c.innerHTML = '<div class="saved-grid" id="sg"></div>';
-  const g = document.getElementById('sg');
-  saved.forEach((idea, i) => {
-    const f = FIELDS[idea.field]; const d = document.createElement('div'); d.className = 'saved-card';
-    d.innerHTML = `
-      <div style="height:4px;background:linear-gradient(90deg,${f.color},${f.color}55)"></div>
-      <div style="padding:20px 22px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px">
-          <div>
-            <div style="font-size:11px;color:${f.color};font-weight:800">${f.icon} ${f.label}</div>
-            <div style="font-family:'Lora',serif;font-size:18px;font-weight:700;color:var(--text);margin-top:4px;line-height:1.3">${idea.title}</div>
-          </div>
-          <button onclick="removeSaved(${i})" style="padding:6px 12px;border-radius:10px;border:1.5px solid #fca5a5;background:#fef2f2;color:#ef4444;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;flex-shrink:0">✕ Remove</button>
-        </div>
-        <p style="color:var(--text2);font-size:13px;line-height:1.8;margin:0 0 14px;font-weight:600">${idea.description}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
-          ${(idea.technologies||[]).map(t=>`<span style="background:${f.color}15;border:1.5px solid ${f.color}44;color:${f.color};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">${t}</span>`).join('')}
-        </div>
-        <div style="background:var(--green4);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:600;border:1px solid var(--green3)">🌍 ${idea.impact}</div>
-        <button class="btn-eco" onclick="savedToChat(${i})" style="width:auto;padding:11px 22px">🌿 Build with Eco Green AI</button>
-      </div>`;
-    g.appendChild(d);
-  });
-}
-function removeSaved(i) { saved.splice(i, 1); updateSavedNav(); renderSaved(); }
-function savedToChat(i) { ideas = [saved[i]]; ideaToChat(0); }
-
-// ===== CONFETTI =====
-function confetti() {
-  const layer = document.getElementById('confetti-layer'); layer.innerHTML = '';
-  const colors = ['#1a9e5c','#f4a429','#7c6ff7','#f0637a','#25c270','#60a5fa'];
-  for (let i = 0; i < 36; i++) {
-    const p = document.createElement('div'); p.className = 'cp';
-    const sz = 7 + Math.random() * 8; const circle = Math.random() > 0.5;
-    p.style.cssText = `left:${10+Math.random()*80}%;top:10%;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${circle?'50%':'4px'};animation-delay:${Math.random()*0.5}s;animation-duration:${1.5+Math.random()*0.8}s`;
-    layer.appendChild(p);
-  }
-  setTimeout(() => { layer.innerHTML = ''; }, 2600);
-}
-
-// ===== INIT =====
-// ===== PWA SETUP (lightweight — mobile safe) =====
-(function setupPWA() {
-
-  // Build icon using a tiny SVG — zero canvas, zero freeze
-  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-    <defs>
-      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#1a9e5c"/>
-        <stop offset="100%" stop-color="#25c270"/>
-      </linearGradient>
-    </defs>
-    <rect width="192" height="192" rx="42" fill="url(#bg)"/>
-    <g transform="translate(96,96) rotate(-36)">
-      <ellipse cx="0" cy="0" rx="38" ry="58" fill="white" opacity="0.93"/>
-      <line x1="0" y1="-52" x2="0" y2="52" stroke="#1a9e5c" stroke-width="3.5" opacity="0.5"/>
-      <line x1="0" y1="-18" x2="-20" y2="-36" stroke="#1a9e5c" stroke-width="2.5" opacity="0.35"/>
-      <line x1="0" y1="-18" x2="20" y2="-36" stroke="#1a9e5c" stroke-width="2.5" opacity="0.35"/>
-      <line x1="0" y1="6" x2="-18" y2="-12" stroke="#1a9e5c" stroke-width="2.5" opacity="0.35"/>
-      <line x1="0" y1="6" x2="18" y2="-12" stroke="#1a9e5c" stroke-width="2.5" opacity="0.35"/>
-    </g>
-    <circle cx="152" cy="38" r="5" fill="white" opacity="0.6"/>
-    <circle cx="38" cy="152" r="4" fill="white" opacity="0.5"/>
-    <circle cx="158" cy="148" r="3.5" fill="white" opacity="0.5"/>
-  </svg>`;
-
-  const svgBlob = new Blob([svgIcon], { type: 'image/svg+xml' });
-  const svgUrl = URL.createObjectURL(svgBlob);
-
-  // Apple touch icon — convert SVG to tiny 180px PNG asynchronously (won't block UI)
-  setTimeout(() => {
-    try {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const c = document.createElement('canvas');
-          c.width = c.height = 180;
-          c.getContext('2d').drawImage(img, 0, 0, 180, 180);
-          document.getElementById('apple-icon').href = c.toDataURL('image/png');
-          URL.revokeObjectURL(img.src);
-        } catch(e) {}
-      };
-      img.src = svgUrl;
-    } catch(e) {}
-  }, 800);
-
-  // Build manifest with SVG icon (tiny, instant, no freeze)
-  const manifest = {
-    name: 'ECO GREEN — AI Engineering Hub',
-    short_name: 'ECO GREEN',
-    description: 'Your personal AI sustainable engineering mentor by Modou Jaw',
-    start_url: './',
-    display: 'standalone',
-    background_color: '#f5fbf7',
-    theme_color: '#1a9e5c',
-    orientation: 'portrait-primary',
-    icons: [
-      { src: svgUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }
-    ]
-  };
-  try {
-    const mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-    document.getElementById('pwa-manifest').href = URL.createObjectURL(mBlob);
-  } catch(e) {}
-
-  // Service worker — registered lazily after page loads
-  window.addEventListener('load', () => {
-    if (!('serviceWorker' in navigator)) return;
-    const swCode = `
-const CACHE='ecogreen-v1';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll([self.location.pathname])).then(()=>self.skipWaiting()));});
-self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>{const net=fetch(e.request).then(r=>{if(r&&r.status===200){const cl=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));}return r;}).catch(()=>cached);return cached||net;}));});`;
-    try {
-      const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-    } catch(e) {}
-  });
-
-  // Install banner — Android/Chrome
-  let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', e => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
-    deferredPrompt = e;
-    setTimeout(showInstallBanner, 1500);
-  });
+    dragCounter.current = 0;
+    setDragOver(false);
+    const data = e.dataTransfer.getData("component");
+    if (!data) return;
+    const comp = JSON.parse(data);
+    const rect = workspaceRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - 48;
+    const y = e.clientY - rect.top - 48;
+    const id = `${comp.id}_${Date.now()}`;
+    setWorkspace(prev => [...prev, { ...comp, uid: id, x: Math.max(0, x), y: Math.max(0, y) }]);
+    showToast(`Added ${comp.name} to workspace`);
+  }, []);
 
-  function showInstallBanner() {
-    if (document.getElementById('install-banner')) return;
-    const banner = document.createElement('div');
-    banner.id = 'install-banner';
-    banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:#fff;border:1.5px solid #a8d8bc;box-shadow:0 8px 32px rgba(26,158,92,0.2);max-width:400px;width:calc(100vw - 32px);font-family:Nunito,sans-serif;animation:slideUp .3s ease;';
-    banner.innerHTML = `
-      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1a9e5c,#25c270);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🌿</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:800;font-size:13px;color:#1a3328">Add ECO GREEN to Home Screen</div>
-        <div style="font-size:11px;color:#3a6b52;font-weight:600">Works offline · Own app icon 📱</div>
-      </div>
-      <button id="install-yes" style="padding:8px 16px;border-radius:16px;border:none;background:linear-gradient(135deg,#1a9e5c,#25c270);color:#fff;font-family:Nunito,sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">Install</button>
-      <button id="install-no" style="padding:8px 10px;border-radius:16px;border:1.5px solid #d0ead9;background:transparent;color:#7aaa90;font-family:Nunito,sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">✕</button>`;
-    document.body.appendChild(banner);
-    document.getElementById('install-yes').onclick = async () => {
-      banner.remove();
-      if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
-    };
-    document.getElementById('install-no').onclick = () => banner.remove();
-  }
+  const moveItem = useCallback((uid, dx, dy) => {
+    setWorkspace(prev => prev.map(w => w.uid === uid ? { ...w, x: Math.max(0, w.x + dx), y: Math.max(0, w.y + dy) } : w));
+  }, []);
 
-  // iOS Safari hint
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (isIOS && !window.navigator.standalone && !localStorage.getItem('eco_ios_hint')) {
-    setTimeout(() => {
-      localStorage.setItem('eco_ios_hint', '1');
-      if (document.getElementById('install-banner')) return;
-      const hint = document.createElement('div');
-      hint.id = 'install-banner';
-      hint.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:#fff;border:1.5px solid #a8d8bc;box-shadow:0 8px 32px rgba(26,158,92,0.2);max-width:400px;width:calc(100vw - 32px);font-family:Nunito,sans-serif;animation:slideUp .3s ease;';
-      hint.innerHTML = `
-        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1a9e5c,#25c270);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🌿</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:800;font-size:13px;color:#1a3328">Add ECO GREEN to Home Screen</div>
-          <div style="font-size:11px;color:#3a6b52;font-weight:600">Tap <strong>Share ↑</strong> → <strong>Add to Home Screen</strong></div>
+  const removeItem = useCallback((uid) => {
+    setWorkspace(prev => prev.filter(w => w.uid !== uid));
+    setConnections(prev => prev.filter(c => c.from !== uid && c.to !== uid));
+    if (selectedItem === uid) setSelectedItem(null);
+  }, [selectedItem]);
+
+  // ─── CONNECTIONS ────────────────────────────────────────────────────────────
+
+  const handleNodeClick = useCallback((uid) => {
+    if (!connecting) {
+      setConnecting(uid);
+      showToast("Click another component to connect");
+    } else if (connecting !== uid) {
+      const exists = connections.find(c => (c.from === connecting && c.to === uid) || (c.from === uid && c.to === connecting));
+      if (!exists) {
+        setConnections(prev => [...prev, { id: Date.now(), from: connecting, to: uid }]);
+        showToast("Components connected!");
+      }
+      setConnecting(null);
+    } else {
+      setConnecting(null);
+    }
+  }, [connecting, connections]);
+
+  // ─── SIMULATION ──────────────────────────────────────────────────────────────
+
+  const runSimulation = useCallback(() => {
+    if (simRunning) {
+      clearInterval(simInterval.current);
+      setSimRunning(false);
+      setSimData({});
+      return;
+    }
+    setSimRunning(true);
+    let t = 0;
+    simInterval.current = setInterval(() => {
+      t++;
+      const newData = {};
+      workspace.forEach(item => {
+        if (item.power > 0) newData[item.uid] = { value: (item.power * (0.85 + 0.15 * Math.sin(t * 0.3))).toFixed(0), unit: "W", type: "gen" };
+        else if (item.load) newData[item.uid] = { value: (item.load * (0.9 + 0.1 * Math.sin(t * 0.2))).toFixed(0), unit: "W", type: "load" };
+        else if (item.cat === "Storage") newData[item.uid] = { value: Math.min(100, (t * 2) % 120).toFixed(0), unit: "%", type: "soc" };
+        else if (item.cat === "Control" || item.cat === "MCU") newData[item.uid] = { value: "ACTIVE", unit: "", type: "ctrl" };
+      });
+      setSimData(newData);
+    }, 800);
+  }, [simRunning, workspace]);
+
+  useEffect(() => () => clearInterval(simInterval.current), []);
+
+  // ─── AI ANALYSIS ─────────────────────────────────────────────────────────────
+
+  const analyzeProject = useCallback(async () => {
+    if (workspace.length === 0) { showToast("Add components first!", "warn"); return; }
+    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
+    setAiLoading(true);
+    const componentList = workspace.map(w => `${w.name} (${w.cat})`).join(", ");
+    const renewableCount = workspace.filter(w => w.renewable).length;
+    const connCount = connections.length;
+    const prompt = `You are Ecogreen AI, an expert sustainable engineering assistant for the Eco Lab platform at USET, The Gambia.
+
+Analyze this ${fieldData.label} project:
+- Project name: "${projectName}"
+- Components (${workspace.length}): ${componentList}
+- Connections: ${connCount}
+- Renewable components: ${renewableCount}/${workspace.length}
+
+Respond ONLY with a valid JSON object (no markdown, no extra text):
+{
+  "sustainabilityScore": <0-100>,
+  "innovationScore": <0-100>,
+  "summary": "<2-sentence project summary>",
+  "strengths": ["<strength1>", "<strength2>", "<strength3>"],
+  "improvements": ["<improvement1>", "<improvement2>", "<improvement3>"],
+  "ecoTip": "<one specific eco tip for this project>",
+  "verdict": "<one sentence overall verdict>"
+}`;
+
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
+        body: JSON.stringify({
+          model: "anthropic/claude-3.5-sonnet",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.choices?.[0]?.message?.content || "";
+      let parsed;
+      try { parsed = JSON.parse(text.replace(/```json|```/g, "").trim()); }
+      catch { parsed = { sustainabilityScore: Math.min(100, 40 + renewableCount * 10 + connCount * 2), innovationScore: Math.min(100, 30 + workspace.length * 3), summary: "Your project shows strong engineering fundamentals.", strengths: ["Good component selection", "Renewable integration", "System connectivity"], improvements: ["Add more renewable sources", "Include energy storage", "Add monitoring sensors"], ecoTip: "Consider adding a smart controller to optimize energy flow.", verdict: "A solid eco-engineering project with room to grow!" }; }
+      setScores(parsed);
+      setChatMessages(prev => [...prev, { role: "assistant", content: `✅ **Analysis Complete!**\n\n📊 **Sustainability:** ${parsed.sustainabilityScore}/100\n🚀 **Innovation:** ${parsed.innovationScore}/100\n\n${parsed.summary}\n\n💡 *Eco Tip:* ${parsed.ecoTip}\n\n🏆 **Verdict:** ${parsed.verdict}` }]);
+      showToast("Analysis complete!", "success");
+    } catch (err) {
+      const msg = err.message?.includes("401") ? "Invalid API key. Check your OpenRouter key." : "⚠️ AI unavailable. Check your key and connection.";
+      setChatMessages(prev => [...prev, { role: "assistant", content: msg }]);
+      showToast(msg, "warn");
+    }
+    setAiLoading(false);
+  }, [workspace, connections, projectName, fieldData, apiKey]);
+
+  const sendChat = useCallback(async () => {
+    if (!chatInput.trim()) return;
+    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
+    const userMsg = chatInput.trim();
+    setChatInput("");
+    setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    setAiLoading(true);
+    const componentList = workspace.map(w => w.name).join(", ") || "none yet";
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
+        body: JSON.stringify({
+          model: "anthropic/claude-3.5-sonnet",
+          max_tokens: 600,
+          messages: [
+            { role: "system", content: `You are Ecogreen AI, a friendly sustainable engineering assistant for USET students in The Gambia. Current workspace has: ${componentList} in ${fieldData.label}. Be concise, helpful, and always encourage eco-friendly solutions. Use emojis sparingly.` },
+            { role: "user", content: userMsg }
+          ]
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.choices?.[0]?.message?.content || "Great question! Keep exploring eco-engineering solutions.";
+      setChatMessages(prev => [...prev, { role: "assistant", content: text }]);
+    } catch {
+      setChatMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting. Check your API key and try again!" }]);
+    }
+    setAiLoading(false);
+  }, [chatInput, workspace, fieldData, apiKey]);
+
+  // ─── PROJECT SAVE/LOAD ───────────────────────────────────────────────────────
+
+  const saveProject = useCallback(() => {
+    const project = { id: Date.now(), name: projectName, field: activeField, workspace, connections, scores, saved: new Date().toLocaleDateString() };
+    setSavedProjects(prev => [project, ...prev.slice(0, 9)]);
+    showToast("Project saved!", "success");
+  }, [projectName, activeField, workspace, connections, scores]);
+
+  const loadProject = useCallback((project) => {
+    setActiveField(project.field);
+    setWorkspace(project.workspace);
+    setConnections(project.connections);
+    setScores(project.scores);
+    setProjectName(project.name);
+    setActiveTab("lab");
+    showToast(`Loaded "${project.name}"`);
+  }, []);
+
+  const exportProject = useCallback(() => {
+    const data = JSON.stringify({ name: projectName, field: activeField, workspace, connections, scores }, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `${projectName.replace(/\s+/g, "_")}.json`; a.click();
+    showToast("Project exported!", "success");
+  }, [projectName, activeField, workspace, connections, scores]);
+
+  const loadEcoProject = useCallback((preset) => {
+    const field = FIELDS[preset.field];
+    const comps = preset.components.map((id, i) => {
+      const comp = field.components.find(c => c.id === id);
+      if (!comp) return null;
+      return { ...comp, uid: `${id}_${Date.now() + i}`, x: 60 + (i % 4) * 180, y: 60 + Math.floor(i / 4) * 140 };
+    }).filter(Boolean);
+    setActiveField(preset.field);
+    setWorkspace(comps);
+    setConnections(comps.slice(0, -1).map((c, i) => ({ id: i, from: c.uid, to: comps[i + 1].uid })));
+    setProjectName(preset.name);
+    setActiveTab("lab");
+    showToast(`Loaded "${preset.name}" template`);
+  }, []);
+
+  // ─── UTILS ───────────────────────────────────────────────────────────────────
+
+  const showToast = (msg, type = "info") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const clearWorkspace = () => { setWorkspace([]); setConnections([]); setSelectedItem(null); setConnecting(null); setSimData({}); setSimRunning(false); clearInterval(simInterval.current); };
+
+  const addToLeaderboard = () => {
+    if (!scores) { showToast("Analyze project first!", "warn"); return; }
+    const entry = { name: projectName, user: "You", score: scores.sustainabilityScore, innovation: scores.innovationScore, field: activeField };
+    setLeaderboard(prev => [...prev, entry].sort((a, b) => b.score - a.score).slice(0, 10));
+    showToast("Added to leaderboard!", "success");
+  };
+
+  const getConnPos = (uid) => {
+    const item = workspace.find(w => w.uid === uid);
+    if (!item) return { x: 0, y: 0 };
+    return { x: item.x + 48, y: item.y + 48 };
+  };
+
+  // ─── DRAGGABLE COMPONENT IN WORKSPACE ────────────────────────────────────────
+
+  // NOTE: WorkspaceItem is defined OUTSIDE EcoLab (see below the export) to prevent
+  // React from treating it as a new component type on every render, which breaks drop.
+
+  // ─── RENDER ──────────────────────────────────────────────────────────────────
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#060d12", color: "#e2e8f0", fontFamily: "'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <style>{`
+        @font-face { font-family: 'DM Sans'; src: local('DM Sans'), local('DMSans'); }
+        @font-face { font-family: 'Space Grotesk'; src: local('Space Grotesk'), local('SpaceGrotesk'); }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0d1a22; } ::-webkit-scrollbar-thumb { background: #1e3a2f; border-radius: 4px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+        .tab-btn.active { background: rgba(0,229,160,0.12); color: #00e5a0; }
+        .tab-btn:hover:not(.active) { color: #94a3b8; background: rgba(255,255,255,0.04); }
+        .field-btn { border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #64748b; border-radius: 12px; padding: 8px 14px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+        .field-btn.active { border-color: #00e5a0; background: rgba(0,229,160,0.1); color: #00e5a0; }
+        .comp-card { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 10px 8px; cursor: grab; transition: all 0.18s; user-select: none; -webkit-user-drag: element; touch-action: none; }
+        .comp-card:hover { background: rgba(0,229,160,0.08); border-color: rgba(0,229,160,0.3); transform: translateY(-1px); }
+        .comp-card:active { cursor: grabbing; transform: scale(0.97); }
+        .action-btn { border: none; border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .action-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        .chat-input { background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; color: #e2e8f0; padding: 10px 14px; font-size: 13px; width: 100%; outline: none; }
+        .chat-input:focus { border-color: rgba(0,229,160,0.4); }
+        .score-bar { height: 8px; background: rgba(255,255,255,0.07); border-radius: 8px; overflow: hidden; margin-top: 4px; }
+        .score-fill { height: 100%; border-radius: 8px; transition: width 1s ease; }
+        .tooltip { position: relative; } .tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: #1e2d3d; color: #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 10px; white-space: nowrap; z-index: 100; pointer-events: none; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes slideIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .sim-pulse { animation: pulse 1s ease-in-out infinite; }
+        .slide-in { animation: slideIn 0.3s ease; }
+      `}</style>
+
+      {/* HEADER */}
+      <header style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,13,18,0.95)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", gap: 16, flexShrink: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #00e5a0, #0ea5e9)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌿</div>
+          <div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 18, color: "#fff", letterSpacing: "-0.5px" }}>Eco Lab</div>
+            <div style={{ fontSize: 9, color: "#00e5a0", fontWeight: 600, letterSpacing: "0.05em" }}>BY ECOGREEN · USET</div>
+          </div>
         </div>
-        <button id="install-no" style="padding:8px 10px;border-radius:16px;border:1.5px solid #d0ead9;background:transparent;color:#7aaa90;font-family:Nunito,sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">✕</button>`;
-      document.body.appendChild(hint);
-      document.getElementById('install-no').onclick = () => hint.remove();
-      setTimeout(() => { if (hint.parentNode) hint.remove(); }, 9000);
-    }, 3000);
-  }
+        <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
+          {["lab", "ai", "leaderboard", "projects", "templates"].map(t => (
+            <button key={t} className={`tab-btn ${activeTab === t ? "active" : ""}`} onClick={() => setActiveTab(t)}>
+              {{ lab: "🔬 Lab", ai: "🤖 AI", leaderboard: "🏆 Board", projects: "💾 Saved", templates: "⚡ Templates" }[t]}
+            </button>
+          ))}
+        </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          <input value={projectName} onChange={e => setProjectName(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e2e8f0", padding: "5px 10px", fontSize: 12, width: 160 }} placeholder="Project name…" />
+          <button className="action-btn" onClick={saveProject} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0" }}>💾 Save</button>
+          <button className="action-btn" onClick={exportProject} style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>📤 Export</button>
+          <button className="action-btn" onClick={() => { setKeyDraft(apiKey); setShowKeyInput(v => !v); }} style={{ background: apiKey ? "rgba(0,229,160,0.1)" : "rgba(245,158,11,0.15)", color: apiKey ? "#00e5a0" : "#f59e0b", border: apiKey ? "1px solid rgba(0,229,160,0.3)" : "1px solid rgba(245,158,11,0.4)" }} title="OpenRouter API Key">
+            {apiKey ? "🔑 Key ✓" : "🔑 Add Key"}
+          </button>
+        </div>
+      </header>
 
-})();
+      {/* API KEY PANEL */}
+      {showKeyInput && (
+        <div className="slide-in" style={{ background: "#0a1520", borderBottom: "1px solid rgba(245,158,11,0.25)", padding: "12px 20px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0, zIndex: 40 }}>
+          <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 600, whiteSpace: "nowrap" }}>🔑 OpenRouter API Key:</span>
+          <input
+            type="password"
+            value={keyDraft}
+            onChange={e => setKeyDraft(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); } }}
+            placeholder="sk-or-v1-…"
+            style={{ flex: 1, maxWidth: 420, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(245,158,11,0.35)", borderRadius: 8, color: "#e2e8f0", padding: "7px 12px", fontSize: 13, outline: "none", fontFamily: "monospace" }}
+          />
+          <button className="action-btn" onClick={() => { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); }} style={{ background: "rgba(0,229,160,0.15)", color: "#00e5a0" }}>Save</button>
+          {apiKey && <button className="action-btn" onClick={() => { setApiKey(""); localStorage.removeItem("or_api_key"); setKeyDraft(""); showToast("Key removed", "info"); }} style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}>Remove</button>}
+          <button className="action-btn" onClick={() => setShowKeyInput(false)} style={{ background: "rgba(255,255,255,0.05)", color: "#64748b" }}>✕</button>
+          <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#60a5fa", textDecoration: "none", whiteSpace: "nowrap" }}>Get a key →</a>
+        </div>
+      )}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
 
-renderFields();
-loadKey();
-</script>
+        {/* ── LAB TAB ── */}
+        {activeTab === "lab" && (
+          <>
+            {/* SIDEBAR */}
+            <div style={{ width: 260, background: "#080f16", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden" }}>
+              {/* Field selector */}
+              <div style={{ padding: "12px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#475569", marginBottom: 8, letterSpacing: "0.08em" }}>ENGINEERING FIELD</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {Object.entries(FIELDS).map(([key, f]) => (
+                    <button key={key} className={`field-btn ${activeField === key ? "active" : ""}`} onClick={() => { setActiveField(key); setCatFilter("All"); setSearchTerm(""); }}>
+                      {f.icon} {f.label} <span style={{ float: "right", opacity: 0.5, fontSize: 10 }}>{f.components.length}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Search & filter */}
+              <div style={{ padding: "10px 12px 6px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="🔍 Search components…" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "#e2e8f0", padding: "7px 10px", fontSize: 12, outline: "none", marginBottom: 8 }} />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                  {categories.slice(0, 8).map(cat => (
+                    <button key={cat} onClick={() => setCatFilter(cat)} style={{ fontSize: 9, padding: "2px 7px", borderRadius: 6, border: "1px solid", borderColor: catFilter === cat ? "#00e5a0" : "rgba(255,255,255,0.08)", background: catFilter === cat ? "rgba(0,229,160,0.12)" : "transparent", color: catFilter === cat ? "#00e5a0" : "#64748b", cursor: "pointer", fontWeight: 600 }}>{cat}</button>
+                  ))}
+                </div>
+              </div>
+              {/* Component list */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "8px 10px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {filtered.map(comp => (
+                  <div key={comp.id} className="comp-card tooltip" data-tip={comp.desc} draggable onDragStart={e => handleDragStart(e, comp)}>
+                    <div style={{ fontSize: 22, textAlign: "center", lineHeight: 1 }}>{comp.icon}</div>
+                    <div style={{ fontSize: 9, fontWeight: 600, color: "#94a3b8", marginTop: 5, textAlign: "center", lineHeight: 1.3 }}>{comp.name}</div>
+                    <div style={{ fontSize: 8, color: "#475569", textAlign: "center", marginTop: 2 }}>{comp.cat}</div>
+                    {comp.renewable && <div style={{ fontSize: 7, color: "#00e5a0", textAlign: "center", marginTop: 2 }}>♻</div>}
+                  </div>
+                ))}
+                {filtered.length === 0 && <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#475569", fontSize: 12, paddingTop: 20 }}>No components found</div>}
+              </div>
+              <div style={{ padding: "8px 12px", fontSize: 9, color: "#334155", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                {filtered.length} of {allComponents.length} components shown
+              </div>
+            </div>
+
+            {/* WORKSPACE */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+              {/* Toolbar */}
+              <div style={{ padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 8, alignItems: "center", background: "rgba(8,15,22,0.8)", flexShrink: 0 }}>
+                <button className="action-btn" onClick={runSimulation} style={{ background: simRunning ? "rgba(239,68,68,0.15)" : "rgba(0,229,160,0.12)", color: simRunning ? "#ef4444" : "#00e5a0" }}>
+                  {simRunning ? "⏹ Stop Sim" : "▶ Simulate"}
+                </button>
+                {simRunning && <span className="sim-pulse" style={{ fontSize: 10, color: "#00e5a0" }}>● Running</span>}
+                <button className="action-btn" onClick={analyzeProject} style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa" }} disabled={aiLoading}>
+                  {aiLoading ? "⏳ Analyzing…" : "🤖 AI Analyze"}
+                </button>
+                <button className="action-btn" onClick={addToLeaderboard} style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}>🏆 Submit</button>
+                <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "#475569" }}>{workspace.length} components · {connections.length} connections</span>
+                  {connecting && <span style={{ fontSize: 11, color: "#00e5a0", fontWeight: 700 }}>🔗 Select target…</span>}
+                  <button className="action-btn" onClick={clearWorkspace} style={{ background: "rgba(239,68,68,0.1)", color: "#f87171" }}>🗑 Clear</button>
+                </div>
+              </div>
+              {/* Canvas */}
+              <div
+                ref={workspaceRef}
+                style={{ flex: 1, position: "relative", overflow: "hidden", background: dragOver ? "rgba(0,229,160,0.03)" : "transparent", outline: dragOver ? "2px dashed rgba(0,229,160,0.4)" : "2px dashed transparent", outlineOffset: "-2px", transition: "background 0.2s, outline 0.2s" }}
+                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+                onDragEnter={e => { e.preventDefault(); dragCounter.current += 1; if (dragCounter.current === 1) setDragOver(true); }}
+                onDragLeave={e => { dragCounter.current -= 1; if (dragCounter.current === 0) setDragOver(false); }}
+                onDrop={handleDrop}
+                onClick={() => { setSelectedItem(null); if (connecting) setConnecting(null); }}
+              >
+                {/* Grid */}
+                <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+                  <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#grid)" />
+                  {/* Connections */}
+                  {connections.map(conn => {
+                    const a = getConnPos(conn.from), b = getConnPos(conn.to);
+                    const mx = (a.x + b.x) / 2;
+                    return (
+                      <g key={conn.id}>
+                        <path d={`M ${a.x} ${a.y} C ${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}`} fill="none" stroke={simRunning ? "#00e5a0" : "rgba(0,229,160,0.35)"} strokeWidth={simRunning ? 2 : 1.5} strokeDasharray={simRunning ? "8 4" : "none"} style={simRunning ? { animation: "spin 2s linear infinite" } : {}}>
+                          {simRunning && <animate attributeName="stroke-dashoffset" values="24;0" dur="0.8s" repeatCount="indefinite" />}
+                        </path>
+                        <circle cx={mx} cy={(a.y + b.y) / 2} r={4} fill="#00e5a0" fillOpacity={0.4} />
+                      </g>
+                    );
+                  })}
+                </svg>
+                {/* Empty state */}
+                {workspace.length === 0 && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    <div style={{ fontSize: 64, opacity: 0.15 }}>🌿</div>
+                    <div style={{ fontSize: 16, color: "#334155", marginTop: 12, fontWeight: 600 }}>Drag components here</div>
+                    <div style={{ fontSize: 12, color: "#1e293b", marginTop: 4 }}>Build your eco-engineering project</div>
+                  </div>
+                )}
+                {/* Items */}
+                {workspace.map(item => (
+                  <WorkspaceItem
+                    key={item.uid}
+                    item={item}
+                    selectedItem={selectedItem}
+                    setSelectedItem={setSelectedItem}
+                    connecting={connecting}
+                    simData={simData}
+                    moveItem={moveItem}
+                    handleNodeClick={handleNodeClick}
+                    removeItem={removeItem}
+                  />
+                ))}
+              </div>
+              {/* Detail panel */}
+              {selectedItem && (() => {
+                const item = workspace.find(w => w.uid === selectedItem);
+                if (!item) return null;
+                return (
+                  <div className="slide-in" style={{ height: 80, borderTop: "1px solid rgba(255,255,255,0.06)", background: "#080f16", padding: "10px 16px", display: "flex", gap: 16, alignItems: "center", flexShrink: 0 }}>
+                    <span style={{ fontSize: 32 }}>{item.icon}</span>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{item.name}</div>
+                      <div style={{ fontSize: 11, color: "#64748b" }}>{item.desc}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 12, marginLeft: 16 }}>
+                      {item.power && <div style={{ fontSize: 11, color: "#00e5a0" }}>⚡ Output: {item.power}W</div>}
+                      {item.load && <div style={{ fontSize: 11, color: "#f59e0b" }}>🔌 Load: {item.load}W</div>}
+                      {item.renewable && <div style={{ fontSize: 11, color: "#00e5a0" }}>♻ Renewable Source</div>}
+                      <div style={{ fontSize: 11, color: "#60a5fa" }}>🏷 {item.cat}</div>
+                    </div>
+                    <div style={{ marginLeft: "auto", fontSize: 10, color: "#334155" }}>Click 🔗 to connect · ✕ to remove</div>
+                  </div>
+                );
+              })()}
+            </div>
+          </>
+        )}
+
+        {/* ── AI TAB ── */}
+        {activeTab === "ai" && (
+          <div style={{ flex: 1, display: "flex", gap: 0, overflow: "hidden" }}>
+            {/* Chat */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: 20, gap: 12, overflow: "hidden" }}>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 20, fontWeight: 700, color: "#fff" }}>🤖 Ecogreen AI Assistant</div>
+              <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                {chatMessages.map((m, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+                    <div style={{ maxWidth: "75%", background: m.role === "user" ? "rgba(0,229,160,0.12)" : "rgba(255,255,255,0.05)", border: `1px solid ${m.role === "user" ? "rgba(0,229,160,0.2)" : "rgba(255,255,255,0.08)"}`, borderRadius: 14, padding: "10px 14px", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                      {m.role === "assistant" && <span style={{ fontSize: 10, color: "#00e5a0", fontWeight: 700, display: "block", marginBottom: 4 }}>ECOGREEN AI</span>}
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                {aiLoading && (
+                  <div style={{ display: "flex" }}>
+                    <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: "10px 14px", fontSize: 13 }}>
+                      <span className="sim-pulse">⏳ Analyzing…</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input className="chat-input" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendChat()} placeholder="Ask about your project, sustainability tips, or engineering help…" />
+                <button className="action-btn" onClick={sendChat} style={{ background: "rgba(0,229,160,0.15)", color: "#00e5a0", minWidth: 60 }}>Send</button>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="action-btn" onClick={analyzeProject} style={{ flex: 1, background: "rgba(139,92,246,0.12)", color: "#a78bfa" }} disabled={aiLoading}>
+                  📊 Full Project Analysis
+                </button>
+                {["Eco tips?", "How to improve?", "Best practices?"].map(q => (
+                  <button key={q} className="action-btn" onClick={() => { setChatInput(q); }} style={{ background: "rgba(255,255,255,0.04)", color: "#64748b", fontSize: 11 }}>{q}</button>
+                ))}
+              </div>
+            </div>
+            {/* Scores panel */}
+            <div style={{ width: 300, borderLeft: "1px solid rgba(255,255,255,0.06)", padding: 20, overflowY: "auto", background: "#080f16" }}>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16 }}>📊 Project Scores</div>
+              {scores ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {[{ label: "Sustainability", value: scores.sustainabilityScore, color: "#00e5a0", icon: "🌿" }, { label: "Innovation", value: scores.innovationScore, color: "#a78bfa", icon: "🚀" }].map(s => (
+                    <div key={s.label}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                        <span style={{ color: "#94a3b8" }}>{s.icon} {s.label}</span>
+                        <span style={{ fontWeight: 700, color: s.color }}>{s.value}/100</span>
+                      </div>
+                      <div className="score-bar"><div className="score-fill" style={{ width: `${s.value}%`, background: `linear-gradient(90deg, ${s.color}80, ${s.color})` }} /></div>
+                    </div>
+                  ))}
+                  <div>
+                    <div style={{ fontSize: 11, color: "#475569", fontWeight: 700, marginBottom: 6 }}>✅ STRENGTHS</div>
+                    {scores.strengths?.map((s, i) => <div key={i} style={{ fontSize: 11, color: "#94a3b8", marginBottom: 3 }}>• {s}</div>)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: "#475569", fontWeight: 700, marginBottom: 6 }}>💡 IMPROVEMENTS</div>
+                    {scores.improvements?.map((s, i) => <div key={i} style={{ fontSize: 11, color: "#94a3b8", marginBottom: 3 }}>• {s}</div>)}
+                  </div>
+                  <div style={{ background: "rgba(0,229,160,0.06)", border: "1px solid rgba(0,229,160,0.15)", borderRadius: 10, padding: 10 }}>
+                    <div style={{ fontSize: 10, color: "#00e5a0", fontWeight: 700, marginBottom: 4 }}>ECO TIP</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8" }}>{scores.ecoTip}</div>
+                  </div>
+                  <button className="action-btn" onClick={addToLeaderboard} style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", width: "100%" }}>🏆 Add to Leaderboard</button>
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", color: "#334155", fontSize: 12, paddingTop: 40 }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+                  Analyze your project to see scores
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── LEADERBOARD TAB ── */}
+        {activeTab === "leaderboard" && (
+          <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>🏆 Sustainability Leaderboard</div>
+            <div style={{ fontSize: 13, color: "#475569", marginBottom: 24 }}>Top eco-engineering projects ranked by sustainability score</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 720 }}>
+              {leaderboard.map((entry, i) => (
+                <div key={i} style={{ background: i === 0 ? "rgba(245,158,11,0.08)" : "rgba(255,255,255,0.03)", border: `1.5px solid ${i === 0 ? "rgba(245,158,11,0.25)" : "rgba(255,255,255,0.07)"}`, borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ fontSize: 24, width: 40, textAlign: "center" }}>{["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"][i]}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{entry.name}</div>
+                    <div style={{ fontSize: 11, color: "#475569" }}>by {entry.user} · {FIELDS[entry.field]?.label}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 11, color: "#64748b" }}>Sustainability</div>
+                    <div style={{ fontWeight: 700, color: "#00e5a0", fontSize: 18 }}>{entry.score}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 11, color: "#64748b" }}>Innovation</div>
+                    <div style={{ fontWeight: 700, color: "#a78bfa", fontSize: 18 }}>{entry.innovation}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── SAVED PROJECTS ── */}
+        {activeTab === "projects" && (
+          <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 24 }}>💾 Saved Projects</div>
+            {savedProjects.length === 0 ? (
+              <div style={{ textAlign: "center", color: "#334155", paddingTop: 60 }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>📂</div>
+                <div>No saved projects yet. Save from the Lab tab!</div>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                {savedProjects.map(p => (
+                  <div key={p.id} style={{ background: "rgba(255,255,255,0.03)", border: "1.5px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 18 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{p.name}</div>
+                    <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>{FIELDS[p.field]?.label} · {p.workspace.length} components · Saved {p.saved}</div>
+                    {p.scores && (
+                      <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
+                        <span style={{ fontSize: 11, color: "#00e5a0" }}>🌿 {p.scores.sustainabilityScore}/100</span>
+                        <span style={{ fontSize: 11, color: "#a78bfa" }}>🚀 {p.scores.innovationScore}/100</span>
+                      </div>
+                    )}
+                    <button className="action-btn" onClick={() => loadProject(p)} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0", width: "100%", marginTop: 12 }}>Load Project</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TEMPLATES TAB ── */}
+        {activeTab === "templates" && (
+          <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>⚡ Eco Project Templates</div>
+            <div style={{ fontSize: 13, color: "#475569", marginBottom: 24 }}>Start with a pre-built eco project and customize it</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16, maxWidth: 900 }}>
+              {ECO_PROJECTS.map((proj, i) => {
+                const field = FIELDS[proj.field];
+                return (
+                  <div key={i} style={{ background: "rgba(0,229,160,0.04)", border: "1.5px solid rgba(0,229,160,0.12)", borderRadius: 16, padding: 20 }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>{field.icon}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{proj.name}</div>
+                    <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>{field.label}</div>
+                    <div style={{ fontSize: 11, color: "#334155", marginTop: 8 }}>Components: {proj.components.length}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 8 }}>
+                      {proj.components.map(id => {
+                        const comp = field.components.find(c => c.id === id);
+                        return comp ? <span key={id} style={{ fontSize: 9, background: "rgba(0,229,160,0.08)", border: "1px solid rgba(0,229,160,0.15)", borderRadius: 5, padding: "2px 6px", color: "#64748b" }}>{comp.icon} {comp.name}</span> : null;
+                      })}
+                    </div>
+                    <button className="action-btn" onClick={() => loadEcoProject(proj)} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0", width: "100%", marginTop: 14 }}>Load Template →</button>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: 32 }}>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>🌍 Quick Start Tips</div>
+              {[
+                ["Drag & Drop", "Drag components from the sidebar into the workspace"],
+                ["Connect", "Click 🔗 on a component then click another to wire them"],
+                ["Simulate", "Hit ▶ Simulate to see live power/load readings"],
+                ["AI Analysis", "Click 🤖 AI Analyze to get sustainability & innovation scores"],
+                ["Eco Points", "Use renewable components (marked ♻) for higher scores"],
+              ].map(([title, desc]) => (
+                <div key={title} style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+                  <div style={{ width: 6, height: 6, background: "#00e5a0", borderRadius: "50%", marginTop: 5, flexShrink: 0 }} />
+                  <div><span style={{ fontWeight: 600, color: "#94a3b8" }}>{title}:</span> <span style={{ color: "#64748b", fontSize: 13 }}>{desc}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* TOAST */}
+      {toast && (
+        <div className="slide-in" style={{ position: "fixed", bottom: 24, right: 24, background: toast.type === "success" ? "rgba(0,229,160,0.15)" : toast.type === "warn" ? "rgba(245,158,11,0.15)" : "rgba(96,165,250,0.15)", border: `1px solid ${toast.type === "success" ? "rgba(0,229,160,0.3)" : toast.type === "warn" ? "rgba(245,158,11,0.3)" : "rgba(96,165,250,0.3)"}`, borderRadius: 12, padding: "10px 18px", fontSize: 13, color: "#e2e8f0", backdropFilter: "blur(12px)", zIndex: 999, maxWidth: 300 }}>
+          {toast.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── WORKSPACE ITEM (defined outside EcoLab so React doesn't remount on re-render) ───
+// If defined INSIDE EcoLab, React sees a new function reference every render and
+// unmounts/remounts all items — destroying the drop target mid-drag.
+
+function WorkspaceItem({ item, selectedItem, setSelectedItem, connecting, simData, moveItem, handleNodeClick, removeItem }) {
+  const dragging = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+  const isSelected = selectedItem === item.uid;
+  const isConnecting = connecting === item.uid;
+  const sim = simData[item.uid];
+
+  const onMouseDown = (e) => {
+    if (e.target.closest(".ws-btn")) return;
+    e.preventDefault();
+    dragging.current = true;
+    startPos.current = { x: e.clientX, y: e.clientY };
+    const onMove = (ev) => {
+      if (!dragging.current) return;
+      moveItem(item.uid, ev.clientX - startPos.current.x, ev.clientY - startPos.current.y);
+      startPos.current = { x: ev.clientX, y: ev.clientY };
+    };
+    const onUp = () => {
+      dragging.current = false;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute", left: item.x, top: item.y,
+        width: 96, cursor: "grab",
+        zIndex: isSelected ? 20 : 10,
+      }}
+      onMouseDown={onMouseDown}
+      onClick={() => setSelectedItem(isSelected ? null : item.uid)}
+    >
+      <div style={{
+        background: isConnecting ? "rgba(0,229,160,0.25)" : isSelected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)",
+        border: isConnecting ? "2px solid #00e5a0" : isSelected ? "2px solid rgba(255,255,255,0.5)" : "1.5px solid rgba(255,255,255,0.12)",
+        borderRadius: 16, padding: "10px 6px 8px", textAlign: "center",
+        backdropFilter: "blur(8px)", transition: "all 0.2s",
+        boxShadow: isSelected ? "0 0 20px rgba(0,229,160,0.3)" : "0 4px 16px rgba(0,0,0,0.4)",
+      }}>
+        <div style={{ fontSize: 28, lineHeight: 1.2 }}>{item.icon}</div>
+        <div style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.2 }}>{item.name}</div>
+        {item.renewable && <div style={{ fontSize: 7, color: "#00e5a0", marginTop: 2 }}>♻ RENEWABLE</div>}
+        {sim && (
+          <div style={{ marginTop: 4, fontSize: 9, fontWeight: 700, color: sim.type === "gen" ? "#00e5a0" : sim.type === "load" ? "#f59e0b" : "#60a5fa", background: "rgba(0,0,0,0.3)", borderRadius: 6, padding: "2px 4px" }}>
+            {sim.value}{sim.unit}
+          </div>
+        )}
+        <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
+          <button className="ws-btn" onClick={e => { e.stopPropagation(); handleNodeClick(item.uid); }}
+            style={{ fontSize: 10, background: isConnecting ? "#00e5a0" : "rgba(0,229,160,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Connect">🔗</button>
+          <button className="ws-btn" onClick={e => { e.stopPropagation(); removeItem(item.uid); }}
+            style={{ fontSize: 10, background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Remove">✕</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+    ReactDOM.createRoot(document.getElementById('root')).render(<EcoLab />);
+  </script>
 </body>
 </html>
