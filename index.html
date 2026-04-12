@@ -11,62 +11,22 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body, #root { height: 100%; overflow: hidden; background: #060d12; }
 
-    /* ── Portrait rotation prompt ── */
-    #rotate-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 9999;
-      background: #060d12;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      text-align: center;
-      padding: 32px;
-    }
-    #rotate-overlay .phone-icon {
-      font-size: 72px;
-      display: block;
-      animation: rotatehint 1.6s ease-in-out infinite alternate;
-    }
-    #rotate-overlay h2 {
-      color: #00e5a0;
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 22px; font-weight: 700;
-    }
-    #rotate-overlay p {
-      color: #64748b;
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 14px; max-width: 260px; line-height: 1.6;
-    }
-    #rotate-overlay .arrow {
-      font-size: 36px; color: #00e5a0; opacity: 0.7;
-      animation: bounce 1s ease-in-out infinite alternate;
-    }
-    @keyframes rotatehint {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(85deg); }
-    }
-    @keyframes bounce {
-      from { transform: translateY(0); }
-      to   { transform: translateY(-8px); }
-    }
-
-    /* Show only on portrait screens narrower than 640px */
-    @media screen and (max-width: 639px) and (orientation: portrait) {
-      #rotate-overlay { display: flex; }
-      #root { display: none; }
+    /* ── Landscape lock via CSS transform in portrait ── */
+    @media screen and (orientation: portrait) {
+      html {
+        transform: rotate(90deg);
+        transform-origin: left top;
+        width: 100vh;
+        height: 100vw;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Portrait rotation prompt — hidden in landscape via CSS -->
-  <div id="rotate-overlay">
-    <span class="phone-icon">📱</span>
-    <h2>Rotate your device</h2>
-    <p>Eco Lab works best in <strong style="color:#00e5a0">landscape mode</strong>. Please rotate your phone or tablet sideways.</p>
-    <span class="arrow">↻</span>
-  </div>
-
   <div id="root"></div>
   <script type="text/babel">
     const { useState, useRef, useCallback, useEffect } = React;
