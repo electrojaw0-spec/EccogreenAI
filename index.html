@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eco Lab · Ecogreen · USET</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body, #root { height: 100%; overflow: hidden; background: #060d12; }
-
-    /* ── Landscape lock via CSS transform in portrait ── */
-    @media screen and (orientation: portrait) {
-      html {
-        transform: rotate(90deg);
-        transform-origin: left top;
-        width: 100vh;
-        height: 100vw;
-        overflow: hidden;
-        position: fixed;
-        top: 0;
-        left: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useRef, useCallback, useEffect } = React;
+import { useState, useRef, useCallback, useEffect } from "react";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -352,7 +321,7 @@ const LEADERBOARD_INITIAL = [
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
-function EcoLab() {
+export default function EcoLab() {
   const [activeField, setActiveField] = useState("electrical");
   const [activeTab, setActiveTab] = useState("lab");
   const [workspace, setWorkspace] = useState([]);
@@ -374,12 +343,8 @@ function EcoLab() {
   const [dragOver, setDragOver] = useState(false);
   const [projectName, setProjectName] = useState("My Eco Project");
   const [savedProjects, setSavedProjects] = useState([]);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem("or_api_key") || "");
-  const [showKeyInput, setShowKeyInput] = useState(false);
-  const [keyDraft, setKeyDraft] = useState("");
   const workspaceRef = useRef(null);
   const simInterval = useRef(null);
-  const dragCounter = useRef(0);
 
   const fieldData = FIELDS[activeField];
   const allComponents = fieldData.components;
@@ -397,7 +362,6 @@ function EcoLab() {
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
-    dragCounter.current = 0;
     setDragOver(false);
     const data = e.dataTransfer.getData("component");
     if (!data) return;
@@ -468,7 +432,6 @@ function EcoLab() {
 
   const analyzeProject = useCallback(async () => {
     if (workspace.length === 0) { showToast("Add components first!", "warn"); return; }
-    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
     setAiLoading(true);
     const componentList = workspace.map(w => `${w.name} (${w.cat})`).join(", ");
     const renewableCount = workspace.filter(w => w.renewable).length;
@@ -493,62 +456,55 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
 }`;
 
     try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "anthropic/claude-3.5-sonnet",
+          model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
           messages: [{ role: "user", content: prompt }]
         })
       });
       const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      const text = data.choices?.[0]?.message?.content || "";
+      const text = data.content?.map(b => b.text || "").join("");
       let parsed;
       try { parsed = JSON.parse(text.replace(/```json|```/g, "").trim()); }
       catch { parsed = { sustainabilityScore: Math.min(100, 40 + renewableCount * 10 + connCount * 2), innovationScore: Math.min(100, 30 + workspace.length * 3), summary: "Your project shows strong engineering fundamentals.", strengths: ["Good component selection", "Renewable integration", "System connectivity"], improvements: ["Add more renewable sources", "Include energy storage", "Add monitoring sensors"], ecoTip: "Consider adding a smart controller to optimize energy flow.", verdict: "A solid eco-engineering project with room to grow!" }; }
       setScores(parsed);
       setChatMessages(prev => [...prev, { role: "assistant", content: `✅ **Analysis Complete!**\n\n📊 **Sustainability:** ${parsed.sustainabilityScore}/100\n🚀 **Innovation:** ${parsed.innovationScore}/100\n\n${parsed.summary}\n\n💡 *Eco Tip:* ${parsed.ecoTip}\n\n🏆 **Verdict:** ${parsed.verdict}` }]);
       showToast("Analysis complete!", "success");
-    } catch (err) {
-      const msg = err.message?.includes("401") ? "Invalid API key. Check your OpenRouter key." : "⚠️ AI unavailable. Check your key and connection.";
-      setChatMessages(prev => [...prev, { role: "assistant", content: msg }]);
-      showToast(msg, "warn");
+    } catch {
+      setChatMessages(prev => [...prev, { role: "assistant", content: "⚠️ Analysis temporarily unavailable. Your project looks promising — keep adding renewable components for a better score!" }]);
     }
     setAiLoading(false);
-  }, [workspace, connections, projectName, fieldData, apiKey]);
+  }, [workspace, connections, projectName, fieldData]);
 
   const sendChat = useCallback(async () => {
     if (!chatInput.trim()) return;
-    if (!apiKey) { setShowKeyInput(true); showToast("Enter your OpenRouter API key first!", "warn"); return; }
     const userMsg = chatInput.trim();
     setChatInput("");
     setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setAiLoading(true);
     const componentList = workspace.map(w => w.name).join(", ") || "none yet";
     try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "anthropic/claude-3.5-sonnet",
+          model: "claude-sonnet-4-20250514",
           max_tokens: 600,
-          messages: [
-            { role: "system", content: `You are Ecogreen AI, a friendly sustainable engineering assistant for USET students in The Gambia. Current workspace has: ${componentList} in ${fieldData.label}. Be concise, helpful, and always encourage eco-friendly solutions. Use emojis sparingly.` },
-            { role: "user", content: userMsg }
-          ]
+          system: `You are Ecogreen AI, a friendly sustainable engineering assistant for USET students in The Gambia. Current workspace has: ${componentList} in ${fieldData.label}. Be concise, helpful, and always encourage eco-friendly solutions. Use emojis sparingly.`,
+          messages: [{ role: "user", content: userMsg }]
         })
       });
       const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      const text = data.choices?.[0]?.message?.content || "Great question! Keep exploring eco-engineering solutions.";
+      const text = data.content?.map(b => b.text || "").join("") || "Great question! Keep exploring eco-engineering solutions.";
       setChatMessages(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
-      setChatMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting. Check your API key and try again!" }]);
+      setChatMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble connecting. Try again in a moment!" }]);
     }
     setAiLoading(false);
-  }, [chatInput, workspace, fieldData, apiKey]);
+  }, [chatInput, workspace, fieldData]);
 
   // ─── PROJECT SAVE/LOAD ───────────────────────────────────────────────────────
 
@@ -616,16 +572,70 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
 
   // ─── DRAGGABLE COMPONENT IN WORKSPACE ────────────────────────────────────────
 
-  // NOTE: WorkspaceItem is defined OUTSIDE EcoLab (see below the export) to prevent
-  // React from treating it as a new component type on every render, which breaks drop.
+  function WorkspaceItem({ item }) {
+    const dragging = useRef(false);
+    const startPos = useRef({ x: 0, y: 0 });
+    const isSelected = selectedItem === item.uid;
+    const isConnecting = connecting === item.uid;
+    const sim = simData[item.uid];
+
+    const onMouseDown = (e) => {
+      if (e.target.closest(".ws-btn")) return;
+      e.preventDefault();
+      dragging.current = true;
+      startPos.current = { x: e.clientX, y: e.clientY };
+      const onMove = (ev) => {
+        if (!dragging.current) return;
+        moveItem(item.uid, ev.clientX - startPos.current.x, ev.clientY - startPos.current.y);
+        startPos.current = { x: ev.clientX, y: ev.clientY };
+      };
+      const onUp = () => { dragging.current = false; window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    };
+
+    return (
+      <div
+        style={{
+          position: "absolute", left: item.x, top: item.y,
+          width: 96, cursor: "grab",
+          zIndex: isSelected ? 20 : 10,
+        }}
+        onMouseDown={onMouseDown}
+        onClick={() => setSelectedItem(isSelected ? null : item.uid)}
+      >
+        <div style={{
+          background: isConnecting ? "rgba(0,229,160,0.25)" : isSelected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)",
+          border: isConnecting ? "2px solid #00e5a0" : isSelected ? "2px solid rgba(255,255,255,0.5)" : "1.5px solid rgba(255,255,255,0.12)",
+          borderRadius: 16, padding: "10px 6px 8px", textAlign: "center",
+          backdropFilter: "blur(8px)", transition: "all 0.2s",
+          boxShadow: isSelected ? "0 0 20px rgba(0,229,160,0.3)" : "0 4px 16px rgba(0,0,0,0.4)",
+        }}>
+          <div style={{ fontSize: 28, lineHeight: 1.2 }}>{item.icon}</div>
+          <div style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.2 }}>{item.name}</div>
+          {item.renewable && <div style={{ fontSize: 7, color: "#00e5a0", marginTop: 2 }}>♻ RENEWABLE</div>}
+          {sim && (
+            <div style={{ marginTop: 4, fontSize: 9, fontWeight: 700, color: sim.type === "gen" ? "#00e5a0" : sim.type === "load" ? "#f59e0b" : "#60a5fa", background: "rgba(0,0,0,0.3)", borderRadius: 6, padding: "2px 4px" }}>
+              {sim.value}{sim.unit}
+            </div>
+          )}
+          <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
+            <button className="ws-btn" onClick={e => { e.stopPropagation(); handleNodeClick(item.uid); }}
+              style={{ fontSize: 10, background: isConnecting ? "#00e5a0" : "rgba(0,229,160,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Connect">🔗</button>
+            <button className="ws-btn" onClick={e => { e.stopPropagation(); removeItem(item.uid); }}
+              style={{ fontSize: 10, background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Remove">✕</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: "100vh", background: "#060d12", color: "#e2e8f0", fontFamily: "'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#060d12", color: "#e2e8f0", fontFamily: "'DM Sans', system-ui, sans-serif", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @font-face { font-family: 'DM Sans'; src: local('DM Sans'), local('DMSans'); }
-        @font-face { font-family: 'Space Grotesk'; src: local('Space Grotesk'), local('SpaceGrotesk'); }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0d1a22; } ::-webkit-scrollbar-thumb { background: #1e3a2f; border-radius: 4px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
@@ -633,7 +643,7 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
         .tab-btn:hover:not(.active) { color: #94a3b8; background: rgba(255,255,255,0.04); }
         .field-btn { border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #64748b; border-radius: 12px; padding: 8px 14px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
         .field-btn.active { border-color: #00e5a0; background: rgba(0,229,160,0.1); color: #00e5a0; }
-        .comp-card { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 10px 8px; cursor: grab; transition: all 0.18s; user-select: none; -webkit-user-drag: element; touch-action: none; }
+        .comp-card { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 10px 8px; cursor: grab; transition: all 0.18s; user-select: none; }
         .comp-card:hover { background: rgba(0,229,160,0.08); border-color: rgba(0,229,160,0.3); transform: translateY(-1px); }
         .comp-card:active { cursor: grabbing; transform: scale(0.97); }
         .action-btn { border: none; border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
@@ -670,30 +680,10 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
           <input value={projectName} onChange={e => setProjectName(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e2e8f0", padding: "5px 10px", fontSize: 12, width: 160 }} placeholder="Project name…" />
           <button className="action-btn" onClick={saveProject} style={{ background: "rgba(0,229,160,0.12)", color: "#00e5a0" }}>💾 Save</button>
           <button className="action-btn" onClick={exportProject} style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>📤 Export</button>
-          <button className="action-btn" onClick={() => { setKeyDraft(apiKey); setShowKeyInput(v => !v); }} style={{ background: apiKey ? "rgba(0,229,160,0.1)" : "rgba(245,158,11,0.15)", color: apiKey ? "#00e5a0" : "#f59e0b", border: apiKey ? "1px solid rgba(0,229,160,0.3)" : "1px solid rgba(245,158,11,0.4)" }} title="OpenRouter API Key">
-            {apiKey ? "🔑 Key ✓" : "🔑 Add Key"}
-          </button>
         </div>
       </header>
 
-      {/* API KEY PANEL */}
-      {showKeyInput && (
-        <div className="slide-in" style={{ background: "#0a1520", borderBottom: "1px solid rgba(245,158,11,0.25)", padding: "12px 20px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0, zIndex: 40 }}>
-          <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 600, whiteSpace: "nowrap" }}>🔑 OpenRouter API Key:</span>
-          <input
-            type="password"
-            value={keyDraft}
-            onChange={e => setKeyDraft(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); } }}
-            placeholder="sk-or-v1-…"
-            style={{ flex: 1, maxWidth: 420, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(245,158,11,0.35)", borderRadius: 8, color: "#e2e8f0", padding: "7px 12px", fontSize: 13, outline: "none", fontFamily: "monospace" }}
-          />
-          <button className="action-btn" onClick={() => { setApiKey(keyDraft); localStorage.setItem("or_api_key", keyDraft); setShowKeyInput(false); showToast("API key saved!", "success"); }} style={{ background: "rgba(0,229,160,0.15)", color: "#00e5a0" }}>Save</button>
-          {apiKey && <button className="action-btn" onClick={() => { setApiKey(""); localStorage.removeItem("or_api_key"); setKeyDraft(""); showToast("Key removed", "info"); }} style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}>Remove</button>}
-          <button className="action-btn" onClick={() => setShowKeyInput(false)} style={{ background: "rgba(255,255,255,0.05)", color: "#64748b" }}>✕</button>
-          <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#60a5fa", textDecoration: "none", whiteSpace: "nowrap" }}>Get a key →</a>
-        </div>
-      )}
+      {/* BODY */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
 
         {/* ── LAB TAB ── */}
@@ -759,10 +749,9 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
               {/* Canvas */}
               <div
                 ref={workspaceRef}
-                style={{ flex: 1, position: "relative", overflow: "hidden", background: dragOver ? "rgba(0,229,160,0.03)" : "transparent", outline: dragOver ? "2px dashed rgba(0,229,160,0.4)" : "2px dashed transparent", outlineOffset: "-2px", transition: "background 0.2s, outline 0.2s" }}
-                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
-                onDragEnter={e => { e.preventDefault(); dragCounter.current += 1; if (dragCounter.current === 1) setDragOver(true); }}
-                onDragLeave={e => { dragCounter.current -= 1; if (dragCounter.current === 0) setDragOver(false); }}
+                style={{ flex: 1, position: "relative", overflow: "hidden", background: dragOver ? "rgba(0,229,160,0.03)" : "transparent", transition: "background 0.2s" }}
+                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => { setSelectedItem(null); if (connecting) setConnecting(null); }}
               >
@@ -797,19 +786,7 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
                   </div>
                 )}
                 {/* Items */}
-                {workspace.map(item => (
-                  <WorkspaceItem
-                    key={item.uid}
-                    item={item}
-                    selectedItem={selectedItem}
-                    setSelectedItem={setSelectedItem}
-                    connecting={connecting}
-                    simData={simData}
-                    moveItem={moveItem}
-                    handleNodeClick={handleNodeClick}
-                    removeItem={removeItem}
-                  />
-                ))}
+                {workspace.map(item => <WorkspaceItem key={item.uid} item={item} />)}
               </div>
               {/* Detail panel */}
               {selectedItem && (() => {
@@ -1019,73 +996,3 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
     </div>
   );
 }
-
-// ─── WORKSPACE ITEM (defined outside EcoLab so React doesn't remount on re-render) ───
-// If defined INSIDE EcoLab, React sees a new function reference every render and
-// unmounts/remounts all items — destroying the drop target mid-drag.
-
-function WorkspaceItem({ item, selectedItem, setSelectedItem, connecting, simData, moveItem, handleNodeClick, removeItem }) {
-  const dragging = useRef(false);
-  const startPos = useRef({ x: 0, y: 0 });
-  const isSelected = selectedItem === item.uid;
-  const isConnecting = connecting === item.uid;
-  const sim = simData[item.uid];
-
-  const onMouseDown = (e) => {
-    if (e.target.closest(".ws-btn")) return;
-    e.preventDefault();
-    dragging.current = true;
-    startPos.current = { x: e.clientX, y: e.clientY };
-    const onMove = (ev) => {
-      if (!dragging.current) return;
-      moveItem(item.uid, ev.clientX - startPos.current.x, ev.clientY - startPos.current.y);
-      startPos.current = { x: ev.clientX, y: ev.clientY };
-    };
-    const onUp = () => {
-      dragging.current = false;
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  };
-
-  return (
-    <div
-      style={{
-        position: "absolute", left: item.x, top: item.y,
-        width: 96, cursor: "grab",
-        zIndex: isSelected ? 20 : 10,
-      }}
-      onMouseDown={onMouseDown}
-      onClick={() => setSelectedItem(isSelected ? null : item.uid)}
-    >
-      <div style={{
-        background: isConnecting ? "rgba(0,229,160,0.25)" : isSelected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)",
-        border: isConnecting ? "2px solid #00e5a0" : isSelected ? "2px solid rgba(255,255,255,0.5)" : "1.5px solid rgba(255,255,255,0.12)",
-        borderRadius: 16, padding: "10px 6px 8px", textAlign: "center",
-        backdropFilter: "blur(8px)", transition: "all 0.2s",
-        boxShadow: isSelected ? "0 0 20px rgba(0,229,160,0.3)" : "0 4px 16px rgba(0,0,0,0.4)",
-      }}>
-        <div style={{ fontSize: 28, lineHeight: 1.2 }}>{item.icon}</div>
-        <div style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.2 }}>{item.name}</div>
-        {item.renewable && <div style={{ fontSize: 7, color: "#00e5a0", marginTop: 2 }}>♻ RENEWABLE</div>}
-        {sim && (
-          <div style={{ marginTop: 4, fontSize: 9, fontWeight: 700, color: sim.type === "gen" ? "#00e5a0" : sim.type === "load" ? "#f59e0b" : "#60a5fa", background: "rgba(0,0,0,0.3)", borderRadius: 6, padding: "2px 4px" }}>
-            {sim.value}{sim.unit}
-          </div>
-        )}
-        <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
-          <button className="ws-btn" onClick={e => { e.stopPropagation(); handleNodeClick(item.uid); }}
-            style={{ fontSize: 10, background: isConnecting ? "#00e5a0" : "rgba(0,229,160,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Connect">🔗</button>
-          <button className="ws-btn" onClick={e => { e.stopPropagation(); removeItem(item.uid); }}
-            style={{ fontSize: 10, background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 5, color: "#fff", padding: "2px 5px", cursor: "pointer" }} title="Remove">✕</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-    ReactDOM.createRoot(document.getElementById('root')).render(<EcoLab />);
-  </script>
-</body>
-</html>
