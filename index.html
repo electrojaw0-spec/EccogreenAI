@@ -1,472 +1,1945 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Eco Lab V6 · Civil · Mechanical · Electrical & Electronics</title>
-  <meta name="description" content="Sustainable engineering sandbox with AI analysis, physics engine, and real-time simulation. Three fields: Civil, Mechanical, Electrical & Electronics.">
-  <meta name="author" content="Ecogreen · USET">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    html, body, #root { height: 100%; background: #050a0f; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #0f171f; }
-    ::-webkit-scrollbar-thumb { background: #2a8a6e; border-radius: 8px; }
-    @keyframes pulseGlow { 0% { opacity: 0.5; text-shadow: 0 0 0px #00e5a0; } 100% { opacity: 1; text-shadow: 0 0 6px #00e5a0; } }
-    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); visibility: hidden; } }
-    .sim-pulse { animation: pulseGlow 1s infinite alternate; }
-    .slide-up { animation: slideUp 0.25s ease-out; }
-    .toast-msg { animation: fadeInOut 2.4s ease forwards; }
-    .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 6px 14px; border-radius: 30px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-    .tab-btn.active { background: rgba(0,229,160,0.12); color: #00e5a0; }
-    .comp-card { background: rgba(255,255,255,0.04); border: 1px solid #2a3a2f; border-radius: 14px; padding: 8px 4px; text-align: center; cursor: grab; transition: all 0.18s; }
-    .comp-card:hover { background: rgba(0,229,160,0.08); border-color: #00e5a0; transform: translateY(-2px); }
-    .ws-item { background: rgba(20,30,35,0.95); backdrop-filter: blur(8px); border-radius: 20px; transition: all 0.08s linear; cursor: pointer; }
-    .ws-item:hover { transform: scale(1.02); border-color: #00e5a0 !important; }
-    .power-badge { position: fixed; bottom: 20px; left: 20px; background: #0f1a1fe0; backdrop-filter: blur(12px); border-radius: 40px; padding: 8px 18px; font-size: 13px; font-weight: 600; border-left: 3px solid #00e5a0; z-index: 150; pointer-events: none; font-family: monospace; }
-    @media (max-width: 640px) { .power-badge { bottom: 80px; left: 12px; font-size: 10px; padding: 4px 12px; } }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .field-btn { background: rgba(255,255,255,0.03); border: 1.5px solid #2a3a2f; color: #94a3b8; border-radius: 12px; padding: 10px 12px; margin: 6px 0; cursor: pointer; transition: all 0.2s; width: 100%; text-align: left; font-weight: 600; }
-    .field-btn.active { background: rgba(0,229,160,0.12); border-color: #00e5a0; color: #00e5a0; box-shadow: 0 0 8px rgba(0,229,160,0.2); }
-    .log-entry { font-size: 11px; font-family: monospace; border-bottom: 1px solid #1f2a30; padding: 4px 0; }
-    .github-corner { position: fixed; top: 0; right: 0; z-index: 1000; }
-    @media (max-width: 640px) { .github-corner svg { width: 40px; height: 40px; } }
-    .field-icon { font-size: 20px; margin-right: 10px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ECO GREEN — AI Engineering Hub by Modou Jaw</title>
+<meta name="description" content="ECO GREEN is a free AI-powered engineering project idea generator. Created by Modou Jaw, Electrical Engineering student at USET." />
+<meta name="author" content="Modou Jaw" />
+<meta name="robots" content="index, follow" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="ECO GREEN" />
+<meta name="application-name" content="ECO GREEN" />
+<meta name="theme-color" content="#1a9e5c" />
+<link rel="manifest" id="pwa-manifest" href="" />
+<link rel="apple-touch-icon" id="apple-icon" href="" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+:root{--green:#16a05a;--green2:#1db86a;--green3:#d6f3e6;--green4:#f0faf5;--bg:#fafcfb;--surface:#ffffff;--surface2:#f5f9f7;--border:#e4ede9;--border2:#c2d9ce;--text:#111b17;--text2:#3d5c4e;--text3:#8aab9a;--shadow:0 2px 16px rgba(22,160,90,0.08);--shadow2:0 6px 32px rgba(22,160,90,0.14);--navbar-bg:rgba(250,252,251,0.95);}
+[data-theme="dark"]{--green:#25d077;--green2:#30e085;--green3:#0c2e1e;--green4:#091f14;--bg:#0b1410;--surface:#101a14;--surface2:#0e1812;--border:#1a3326;--border2:#245038;--text:#e0f2ea;--text2:#90c9ab;--text3:#4d8a6a;--shadow:0 2px 16px rgba(0,0,0,0.35);--shadow2:0 6px 32px rgba(0,0,0,0.55);--navbar-bg:rgba(11,20,16,0.97);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
+::selection{background:#25c27044;color:var(--green);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}::-webkit-scrollbar-thumb:hover{background:var(--green);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;animation:fadeIn .3s ease;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--surface);border-radius:28px;padding:40px 36px;max-width:460px;width:100%;text-align:center;border:1.5px solid var(--border);animation:slideUp .3s ease;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal-icon{font-size:52px;margin-bottom:14px;display:block;animation:floatBounce 3s ease-in-out infinite;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.modal-desc{font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:20px;font-weight:600;}
+.modal-input-wrap{position:relative;margin-bottom:10px;}
+.modal-input{width:100%;padding:14px 46px 14px 16px;border-radius:14px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;font-weight:600;transition:border-color .2s;}
+.modal-input:focus{border-color:var(--green);box-shadow:0 0 0 3px #1a9e5c18;}
+.modal-input::placeholder{color:var(--text3);}
+.modal-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);}
+.modal-eye:hover{color:var(--green);}
+.modal-hint{font-size:12px;color:var(--text3);margin-bottom:18px;text-align:left;line-height:1.6;font-weight:600;}
+.modal-save-btn{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .25s;box-shadow:0 6px 24px #1a9e5c44;margin-bottom:12px;}
+.modal-save-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px #25c27055;}
+.modal-skip{font-size:12px;color:var(--text3);cursor:pointer;font-weight:700;background:none;border:none;font-family:'Inter',sans-serif;}
+.modal-skip:hover{color:var(--green);text-decoration:underline;}
+.modal-lock{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 14px;background:var(--green4);border-radius:10px;border:1px solid var(--green3);}
+.modal-lock-text{font-size:11px;color:var(--text2);font-weight:600;text-align:left;line-height:1.5;}
+
+/* MEMORY PANEL */
+.mem-panel{position:fixed;top:0;right:0;bottom:0;width:300px;background:var(--surface);border-left:1.5px solid var(--border);z-index:1100;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease;box-shadow:-8px 0 40px rgba(0,0,0,0.12);}
+.mem-panel.open{transform:translateX(0);}
+.mem-head{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mem-title{font-family:'DM Serif Display',serif;font-size:17px;font-weight:700;color:var(--text);}
+.mem-close{background:none;border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:16px;cursor:pointer;color:var(--text3);transition:all .2s;}
+.mem-close:hover{border-color:var(--green);color:var(--green);}
+.mem-body{flex:1;overflow-y:auto;padding:16px 18px;}
+.mem-section{margin-bottom:20px;}
+.mem-sec-title{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.mem-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--green4);border:1px solid var(--green3);color:var(--green);font-size:12px;font-weight:700;margin:3px;cursor:default;}
+.mem-tag .del-tag{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);padding:0;line-height:1;}
+.mem-tag .del-tag:hover{color:#ef4444;}
+.mem-empty{font-size:13px;color:var(--text3);font-weight:600;font-style:italic;}
+.mem-input-row{display:flex;gap:8px;margin-top:8px;}
+.mem-inp{flex:1;padding:9px 12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;}
+.mem-inp:focus{border-color:var(--green);}
+.mem-add-btn{padding:9px 14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+.conv-item{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.conv-item:hover{border-color:var(--green);background:var(--green4);}
+.conv-item-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-item-meta{font-size:11px;color:var(--text3);font-weight:600;}
+.conv-item-actions{display:flex;gap:6px;margin-top:8px;}
+.conv-load-btn{flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface);color:var(--green);font-size:11px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.conv-load-btn:hover{background:var(--green4);}
+.conv-del-btn{padding:6px 10px;border-radius:8px;border:1.5px solid #fca5a5;background:#fef2f2;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.mem-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:1099;display:none;}
+.mem-overlay.open{display:block;}
+@media(max-width:640px){.mem-panel{width:100%;}}
+.profile-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;}
+.profile-btn:hover{border-color:var(--green);background:var(--green4);}
+.profile-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--green2);border:2px solid var(--surface);}
+
+/* NAVBAR */
+#navbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:var(--navbar-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .3s,border-color .3s;}
+.nav-logo{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;}
+.nav-leaf{font-size:20px;display:inline-block;}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);font-weight:400;letter-spacing:-.2px;}
+.nav-brand span{color:var(--green);}
+.nav-links{display:flex;gap:2px;}
+.nav-btn{padding:7px 14px;border-radius:8px;border:none;background:transparent;color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;}
+.nav-btn:hover{background:var(--surface2);color:var(--text);}
+.nav-btn.active{color:var(--green);background:var(--green4);font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.theme-toggle{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.theme-toggle:hover{border-color:var(--border2);color:var(--text);background:var(--surface2);}
+.nav-cta{padding:8px 18px;border-radius:8px;border:none;background:var(--green);color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:-.1px;}
+.nav-cta:hover{background:var(--green2);transform:translateY(-1px);}
+
+/* PAGES */
+.page{display:none;padding-top:66px;}
+.page.active{display:block;}
+
+/* HERO */
+#hero-page{padding-top:0;min-height:100vh;position:relative;overflow:hidden;}
+.hero-shapes{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.shape{position:absolute;border-radius:50%;opacity:.25;}
+.s1{width:600px;height:600px;top:-200px;right:-150px;background:radial-gradient(circle,#c8f5de,transparent 65%);animation:shapeFloat 18s ease-in-out infinite;}
+.s2{width:400px;height:400px;bottom:-120px;left:-120px;background:radial-gradient(circle,#dff0e8,transparent 65%);animation:shapeFloat 22s ease-in-out infinite reverse;}
+.dots{position:absolute;inset:0;opacity:.08;background-image:radial-gradient(circle,#16a05a 1px,transparent 1px);background-size:44px 44px;}
+[data-theme="dark"] .s1{background:radial-gradient(circle,#0a2e1e,transparent 65%);}
+[data-theme="dark"] .s2{background:radial-gradient(circle,#081a12,transparent 65%);}
+.hero-content{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:130px 40px 90px;text-align:center;}
+.hero-emoji{font-size:40px;display:block;margin-bottom:28px;line-height:1;}
+.hero-headline{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,56px);font-weight:700;line-height:1.08;margin-bottom:16px;color:var(--text);letter-spacing:-.6px;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+.eco-word{color:var(--green);font-style:italic;}
+.hero-tagline{font-size:clamp(16px,2.2vw,20px);color:var(--text2);margin-bottom:52px;font-weight:400;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:90px;}
+.btn-big{padding:18px 42px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(22,160,90,.32);transition:all .2s;letter-spacing:-.1px;}
+.btn-big:hover{background:var(--green2);transform:translateY(-2px);box-shadow:0 10px 32px rgba(22,160,90,.40);}
+.btn-outline{padding:18px 42px;border-radius:12px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'Inter',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-outline:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
+.hero-stats{display:flex;justify-content:center;gap:60px;flex-wrap:wrap;padding-bottom:96px;border-top:1px solid var(--border);padding-top:52px;}
+.stat{text-align:center;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:36px;color:var(--text);font-weight:400;line-height:1;letter-spacing:-.5px;}
+.stat-lbl{font-size:12px;color:var(--text3);font-weight:500;margin-top:6px;letter-spacing:.2px;text-transform:uppercase;}
+
+/* HOW IT WORKS */
+.how-section{padding:100px 40px;max-width:1000px;margin:0 auto;}
+.sec-tag{display:inline-block;padding:5px 14px;border-radius:6px;background:var(--green4);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:20px;}
+.sec-heading{font-family:'DM Serif Display',serif;font-size:clamp(32px,4.5vw,48px);font-weight:400;margin-bottom:56px;line-height:1.18;color:var(--text);letter-spacing:-.4px;}
+.sec-heading em{color:var(--green);font-style:italic;}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+.how-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px;cursor:pointer;transition:all .2s;}
+.how-card:hover{transform:translateY(-4px);box-shadow:var(--shadow2);border-color:var(--border2);}
+.how-num{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--text3);margin-bottom:20px;text-transform:uppercase;}
+.how-emoji{font-size:24px;display:block;margin-bottom:14px;}
+.how-title{font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:8px;color:var(--text);}
+.how-desc{font-size:14px;color:var(--text2);line-height:1.7;font-weight:400;}
+
+/* MANIFESTO */
+.manifesto{padding:100px 40px;text-align:center;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.man-emoji{font-size:32px;display:block;margin-bottom:28px;}
+.man-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,3.8vw,40px);font-weight:400;line-height:1.35;max-width:680px;margin:0 auto 20px;color:var(--text);letter-spacing:-.3px;}
+.man-title em{color:var(--green);font-style:italic;}
+.man-body{font-size:16px;color:var(--text2);max-width:500px;margin:0 auto 44px;line-height:1.8;font-weight:400;}
+.pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.pill{padding:8px 18px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--text3);font-weight:500;transition:all .2s;cursor:default;}
+.pill:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
+
+/* FOUNDER */
+.team-section{padding:100px 40px;max-width:800px;margin:0 auto;text-align:center;}
+.founder-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;display:grid;grid-template-columns:auto 1fr;gap:28px;text-align:left;max-width:640px;margin:32px auto 0;transition:all .2s;}
+.founder-card:hover{box-shadow:var(--shadow2);}
+.founder-left{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:100px;}
+.founder-ava{width:80px;height:80px;border-radius:50%;background:var(--green4);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.founder-role-pill{font-size:11px;color:var(--green);font-weight:600;background:var(--green4);padding:4px 10px;border-radius:6px;text-align:center;line-height:1.4;border:1px solid var(--green3);}
+.founder-right h3{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:4px;}
+.founder-uni{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-weight:500;margin-bottom:12px;flex-wrap:wrap;}
+.founder-bio{font-size:14px;color:var(--text2);line-height:1.75;font-weight:400;margin-bottom:16px;}
+.founder-badges{display:flex;flex-wrap:wrap;gap:6px;}
+.fbadge{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:12px;font-weight:500;}
+.team-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;}
+.team-btn{padding:10px 22px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.team-btn:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:center;background:var(--surface);}
+.foot-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:4px;font-weight:400;letter-spacing:-.2px;}
+.foot-logo span{color:var(--green);}
+.foot-tag{font-size:13px;color:var(--text3);font-style:italic;margin-bottom:24px;font-weight:400;}
+.foot-credit{font-size:13px;color:var(--text3);margin-bottom:20px;font-weight:500;}
+.foot-credit span{color:var(--text2);font-weight:600;}
+.foot-nav{display:flex;gap:28px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.foot-nav a{color:var(--text3);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:color .2s;}
+.foot-nav a:hover{color:var(--green);}
+.foot-copy{font-size:12px;color:var(--text3);}
+
+/* APP */
+#app-section{min-height:100vh;background:var(--bg);}
+.app-wrap{max-width:920px;margin:0 auto;padding:40px 24px;}
+.app-title{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--text);margin-bottom:6px;letter-spacing:-.3px;}
+.app-sub{font-size:14px;color:var(--text3);margin-bottom:28px;font-weight:400;}
+.api-banner{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f4a42966;margin-bottom:28px;cursor:pointer;transition:all .2s;}
+.api-banner:hover{box-shadow:var(--shadow);}
+.api-banner.connected{background:linear-gradient(135deg,#e3f6ec,#edfaf3);border-color:var(--border2);}
+[data-theme="dark"] .api-banner{background:linear-gradient(135deg,#1e1a08,#0e1812)!important;border-color:#3a2a0a!important;}
+[data-theme="dark"] .api-banner.connected{background:linear-gradient(135deg,#0a2a1d,#0a2a1d)!important;border-color:var(--border2)!important;}
+.api-b-icon{font-size:22px;}
+.api-b-title{font-size:13px;color:var(--text);font-weight:800;}
+.api-b-sub{font-size:11px;color:var(--text3);font-weight:600;}
+.api-b-action{font-size:12px;color:var(--green);font-weight:800;white-space:nowrap;}
+.step-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.step-bub{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;background:var(--green);}
+.step-lbl{font-size:12px;font-weight:800;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:32px;}
+.field-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:22px 18px;cursor:pointer;transition:all .22s;text-align:left;}
+.field-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow);}
+.fi{font-size:32px;margin-bottom:10px;display:block;}
+.fn{font-weight:800;font-size:14px;margin-bottom:4px;color:var(--text);}
+.ff{font-size:11px;color:var(--text3);line-height:1.6;font-weight:600;margin-top:8px;background:var(--bg);padding:8px 10px;border-radius:10px;}
+.topics-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+.topic-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
+.topic-btn:hover{border-color:var(--border2);background:var(--green4);color:var(--green);}
+.level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:460px;margin-bottom:32px;}
+.level-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;}
+.level-card:hover{border-color:var(--border2);background:var(--green4);}
+.lname{font-weight:800;font-size:13px;color:var(--text);}
+.ldesc{font-size:11px;color:var(--text3);font-weight:600;}
+.gen-btn{width:100%;max-width:460px;padding:17px;border-radius:16px;border:none;font-family:'Inter',sans-serif;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;margin-bottom:40px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 6px 28px #1a9e5c44;}
+.gen-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px #25c27055;}
+.gen-btn:disabled{background:var(--border);color:var(--text3);cursor:not-allowed;box-shadow:none;}
+.div-lbl{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.div-line{height:1px;flex:1;background:var(--border);}
+.div-txt{font-size:11px;color:var(--text3);font-weight:800;letter-spacing:1px;}
+.ideas-grid{display:grid;gap:18px;}
+.idea-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1.5px solid var(--border);transition:all .22s;}
+.idea-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:var(--shadow2);}
+.idea-bar{height:5px;}
+.idea-body{padding:22px 24px;}
+.idea-meta{font-size:11px;font-weight:800;margin-bottom:8px;letter-spacing:.5px;}
+.idea-title{font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.3;}
+.idea-desc{color:var(--text2);font-size:14px;line-height:1.85;margin-bottom:16px;font-weight:600;}
+.tech-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.tech-tag{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.idea-impact{background:var(--green4);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:18px;font-weight:600;border:1px solid var(--green3);}
+.idea-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-eco{flex:1;min-width:180px;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
+.btn-eco:hover{transform:translateY(-2px);box-shadow:0 8px 28px #25c27055;}
+.btn-save{padding:12px 20px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;font-weight:700;transition:all .15s;border:2px solid var(--border2);background:var(--surface);color:var(--text3);}
+.btn-save.saved-active{border-color:var(--green);background:var(--green4);color:var(--green);}
+.regen-btn{margin-top:16px;width:100%;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--surface);color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.regen-btn:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
+
+/* ============================================================
+   CHAT
+   ============================================================ */
+#chat-section{display:none;padding-top:64px;height:100vh;flex-direction:column;background:var(--chat-bg);}
+#chat-section.active{display:flex;}
+:root{
+  --chat-bg:#f0faf5;--chat-surface:#ffffff;--chat-border:#d4ece2;
+  --chat-ai-bg:#ffffff;--chat-ai-border:#d4ece2;
+  --chat-user-bg:linear-gradient(135deg,#16a05a,#1db86a);
+  --chat-input-bg:#ffffff;
+  --chat-shadow-ai:0 2px 12px rgba(22,160,90,0.10),0 1px 4px rgba(0,0,0,0.04);
+  --chat-shadow-user:0 2px 12px rgba(22,160,90,0.28),0 1px 4px rgba(22,160,90,0.12);
+  --chat-text-ai:#1a2e22;--chat-text-user:#ffffff;--chat-text-subtle:#5a8a6e;
+}
+[data-theme="dark"]{
+  --chat-bg:#0d1a12;--chat-surface:#111e16;--chat-border:#1e3828;
+  --chat-ai-bg:#152019;--chat-ai-border:#1e3828;--chat-input-bg:#152019;
+  --chat-shadow-ai:0 2px 12px rgba(0,0,0,0.35),0 1px 4px rgba(0,0,0,0.2);
+  --chat-shadow-user:0 2px 12px rgba(22,160,90,0.30);
+  --chat-text-ai:#c8ecd8;--chat-text-subtle:#4d7a5e;
+}
+.chat-wrap{flex:1;display:flex;flex-direction:column;max-width:100%;width:100%;margin:0 auto;padding:0 24px;overflow:hidden;}
+.chat-head{display:flex;align-items:center;gap:14px;padding:16px 0 14px;border-bottom:1px solid var(--chat-border);flex-shrink:0;background:var(--chat-bg);}
+.eco-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 16px #1a9e5c44;animation:ecoPulse 3s infinite;}
+.eco-name{font-family:'DM Serif Display',serif;font-size:17px;font-weight:700;color:var(--green);}
+.eco-status{font-size:12px;color:var(--chat-text-subtle);display:flex;align-items:center;gap:6px;font-weight:600;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--green2);animation:pulse 2s infinite;}
+.build-chip{background:var(--green4);border:1.5px solid var(--green3);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--green);max-width:150px;text-align:right;flex-shrink:0;margin-left:auto;line-height:1.5;font-weight:700;}
+.qprompts{padding:12px 0 6px;display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0;}
+.qp{padding:9px 16px;border-radius:22px;border:1.5px solid var(--chat-border);background:var(--chat-surface);color:var(--chat-text-subtle);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;box-shadow:0 1px 4px rgba(22,160,90,0.07);}
+.qp:hover{border-color:var(--green);color:var(--green);background:var(--green4);box-shadow:0 2px 10px rgba(22,160,90,0.15);transform:translateY(-1px);}
+.chat-msgs{flex:1;overflow-y:auto;padding:20px 0 10px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;}
+.chat-msgs::-webkit-scrollbar{width:4px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--chat-border);border-radius:4px;}
+.msg-row{display:flex;gap:12px;animation:fadeUp .22s ease;padding:2px 0;}
+.msg-row.user{flex-direction:row-reverse;padding-left:60px;}
+.msg-row.assistant{padding-right:0;align-items:flex-start;}
+.msg-ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:4px;box-shadow:0 2px 8px rgba(22,160,90,0.25);}
+.msg-ava-user{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0d7a44,#16a05a);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:4px;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(22,160,90,0.20);}
+.bubble-wrap{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.msg-row.user .bubble-wrap{flex:0 1 auto;max-width:78%;}
+.bubble-label{font-size:11px;font-weight:700;letter-spacing:.3px;color:var(--chat-text-subtle);padding:0 4px;}
+.msg-row.user .bubble-label{text-align:right;}
+.bubble.eco{background:var(--chat-ai-bg);border:1px solid var(--chat-ai-border);border-radius:4px 18px 18px 18px;color:var(--chat-text-ai);padding:18px 22px;font-family:'Inter',sans-serif;font-size:16px;line-height:1.9;font-weight:400;box-shadow:var(--chat-shadow-ai);word-break:break-word;width:100%;}
+.bubble.user{background:var(--chat-user-bg);border:none;border-radius:18px 4px 18px 18px;color:var(--chat-text-user);padding:14px 20px;font-family:'Inter',sans-serif;font-size:16px;line-height:1.75;font-weight:500;box-shadow:var(--chat-shadow-user);word-break:break-word;align-self:flex-end;}
+
+/* Streaming cursor */
+.stream-cursor{display:inline-block;width:2px;height:1.1em;background:var(--green);vertical-align:middle;margin-left:2px;animation:blinkCursor .7s step-end infinite;border-radius:1px;}
+@keyframes blinkCursor{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Rich content inside AI bubbles */
+.bubble.eco .chat-p{margin:0 0 12px;}
+.bubble.eco .chat-p:last-child{margin-bottom:0;}
+.bubble.eco .chat-h1{font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:var(--green);margin:20px 0 10px;line-height:1.2;padding-bottom:8px;border-bottom:2px solid var(--green3);}
+.bubble.eco .chat-h2{font-size:17px;font-weight:800;color:var(--chat-text-ai);margin:18px 0 6px;line-height:1.3;letter-spacing:-.2px;}
+.bubble.eco .chat-h3{font-size:15px;font-weight:700;color:var(--green);margin:14px 0 5px;line-height:1.3;text-transform:uppercase;letter-spacing:.4px;}
+.bubble.eco strong,.bubble.eco b{font-weight:700;color:var(--chat-text-ai);}
+.bubble.eco em,.bubble.eco i{font-style:italic;color:var(--chat-text-subtle);}
+.bubble.eco .chat-li{display:flex;gap:10px;margin:5px 0;align-items:flex-start;font-size:16px;line-height:1.75;}
+.bubble.eco .chat-li-bullet{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;}
+.bubble.eco .chat-li-num{width:20px;height:20px;border-radius:6px;background:var(--green4);border:1.5px solid var(--green3);color:var(--green);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;}
+.bubble.eco .chat-code-inline{background:var(--green4);border:1px solid var(--green3);border-radius:6px;padding:2px 7px;font-size:14px;font-family:'Courier New',monospace;color:var(--green);font-weight:600;}
+.bubble.eco .chat-pre{background:#0f1e14;border-radius:12px;padding:16px 18px;font-size:13.5px;overflow-x:auto;margin:12px 0;font-family:'Courier New',monospace;line-height:1.65;color:#a8ffc8;border:1px solid #1e3828;box-shadow:inset 0 1px 8px rgba(0,0,0,0.4);}
+.bubble.eco .chat-pre-header{display:flex;align-items:center;gap:8px;background:#0a1610;border-radius:10px 10px 0 0;padding:8px 14px;margin:12px 0 -2px;border:1px solid #1e3828;border-bottom:none;}
+.bubble.eco .chat-pre-lang{font-size:11px;font-weight:700;color:#4d8a6a;letter-spacing:.5px;text-transform:uppercase;}
+.bubble.eco .chat-hr{border:none;border-top:2px solid var(--green3);margin:16px 0;}
+.bubble.eco .chat-callout{background:var(--green4);border-left:4px solid var(--green);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:15px;color:var(--chat-text-subtle);font-style:italic;}
+.bubble.eco > *:first-child{margin-top:0!important;}
+.bubble.eco > *:last-child{margin-bottom:0!important;}
+.bubble.user strong,.bubble.user b{font-weight:700;color:#fff;}
+.bubble.user em,.bubble.user i{font-style:italic;color:rgba(255,255,255,0.85);}
+.bubble.user .chat-code-inline{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.25);color:#fff;}
+
+/* Typing indicator */
+.typing-bub{background:var(--chat-ai-bg);border:1px solid var(--chat-ai-border);border-radius:4px 18px 18px 18px;padding:16px 22px;box-shadow:var(--chat-shadow-ai);display:inline-flex;align-items:center;gap:6px;}
+.typing-label{font-size:13px;color:var(--chat-text-subtle);font-weight:600;margin-right:4px;}
+.typing-dots{display:inline-flex;gap:5px;align-items:center;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green2);}
+.dot:nth-child(1){animation:dotBounce 1.2s 0s infinite ease-in-out;}
+.dot:nth-child(2){animation:dotBounce 1.2s .2s infinite ease-in-out;}
+.dot:nth-child(3){animation:dotBounce 1.2s .4s infinite ease-in-out;}
+
+/* Input bar */
+.chat-input-bar{padding:12px 0 20px;flex-shrink:0;background:var(--chat-bg);}
+.chat-input-inner{display:flex;gap:10px;align-items:flex-end;background:var(--chat-input-bg);border:1.5px solid var(--chat-border);border-radius:18px;padding:10px 10px 10px 16px;box-shadow:0 2px 16px rgba(22,160,90,0.10),0 1px 6px rgba(0,0,0,0.05);transition:border-color .2s,box-shadow .2s;}
+.chat-input-inner:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,160,90,0.12),0 2px 16px rgba(22,160,90,0.14);}
+.chat-ta{flex:1;background:transparent;border:none;color:var(--chat-text-ai);font-family:'Inter',sans-serif;font-size:15px;resize:none;outline:none;line-height:1.6;max-height:130px;overflow-y:auto;font-weight:400;padding:4px 0;}
+.chat-ta::placeholder{color:var(--chat-text-subtle);opacity:.7;}
+.send-btn{width:42px;height:42px;border-radius:12px;border:none;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.send-btn.ready{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 3px 12px rgba(22,160,90,0.40);}
+.send-btn.ready:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(22,160,90,0.50);}
+.send-btn.off{background:var(--chat-border);color:var(--chat-text-subtle);cursor:not-allowed;}
+.chat-hint{font-size:11px;color:var(--chat-text-subtle);text-align:center;margin-top:7px;font-weight:500;}
+
+/* Streaming status bar */
+.stream-status{display:none;align-items:center;gap:8px;padding:6px 14px;border-radius:10px;background:var(--green4);border:1px solid var(--green3);margin-bottom:8px;font-size:12px;color:var(--green);font-weight:700;}
+.stream-status.visible{display:flex;}
+.stream-pulse{width:7px;height:7px;border-radius:50%;background:var(--green2);animation:pulse 1s infinite;}
+
+@media(max-width:640px){
+  .msg-row.user{padding-left:20px;}
+  .bubble.eco{font-size:15px;padding:14px 16px;}
+  .bubble.user{font-size:15px;padding:12px 16px;}
+  .chat-input-inner{border-radius:14px;}
+}
+
+/* SAVED */
+#saved-section{display:none;padding-top:66px;min-height:100vh;background:var(--bg);}
+#saved-section.active{display:block;}
+.saved-wrap{max-width:920px;margin:0 auto;padding:40px 24px;}
+.saved-title{font-family:'DM Serif Display',serif;font-size:28px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.saved-sub{font-size:14px;color:var(--text3);margin-bottom:32px;font-weight:600;}
+.empty-box{text-align:center;padding:80px 0;}
+.empty-icon{font-size:60px;margin-bottom:16px;display:block;}
+.empty-txt{color:var(--text3);font-size:15px;margin-bottom:28px;font-weight:600;}
+.saved-grid{display:grid;gap:16px;}
+.saved-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;overflow:hidden;transition:all .2s;}
+.saved-card:hover{border-color:var(--border2);box-shadow:var(--shadow);}
+
+/* MISC */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+#confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+.cp{position:absolute;animation:confettiFall 2s forwards;}
+
+/* KEYFRAMES */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes shapeFloat{0%,100%{transform:translate(0,0)}33%{transform:translate(20px,-14px)}66%{transform:translate(-14px,20px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes ecoPulse{0%,100%{box-shadow:0 4px 20px #1a9e5c33}50%{box-shadow:0 4px 28px #1a9e5c77}}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(180px) rotate(720deg) scale(.3)}}
+
+@media(max-width:640px){
+  #navbar{padding:0 16px;}
+  .nav-links{display:none;}
+  .hero-content{padding:90px 20px 60px;}
+  .hero-stats{gap:28px;}
+  .how-section,.manifesto,.team-section{padding:60px 20px;}
+  .app-wrap,.saved-wrap{padding:28px 16px;}
+  .founder-card{grid-template-columns:1fr;text-align:center;}
+  .founder-left{margin:0 auto;}
+}
+
+/* ── LAB STYLES ── */
+.lab-field-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+.lab-field-btn.active-elec{background:#fff3e0;border-color:#f4a429;color:#c47800;}
+.lab-field-btn.active-mech{background:#f3f0ff;border-color:#7c6ff7;color:#5a48c8;}
+.lab-field-btn.active-civil{background:#e8f5ef;border-color:#1a9e5c;color:#147a44;}
+.lab-field-btn:hover{border-color:var(--border2);}
+.lab-action-btn{padding:6px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.lab-action-btn:hover{border-color:var(--green);color:var(--green);}
+.lab-action-btn.danger:hover{border-color:#ef4444;color:#ef4444;}
+.lab-comp-group{margin-bottom:14px;}
+.lab-comp-group-label{font-size:10px;font-weight:700;color:var(--green);letter-spacing:.5px;text-transform:uppercase;padding:0 8px 5px;}
+.lab-comp-item{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);margin-bottom:4px;cursor:grab;transition:all .15s;user-select:none;}
+.lab-comp-item:hover{border-color:var(--border2);background:var(--surface2);transform:translateX(2px);}
+.lab-comp-item:active{cursor:grabbing;}
+.lab-comp-icon{font-size:16px;flex-shrink:0;}
+.lab-comp-name{font-size:11px;font-weight:700;color:var(--text);line-height:1.3;}
+.lab-comp-cat{font-size:9px;color:var(--text3);font-weight:600;}
+.lab-node{position:absolute;background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:10px 12px;cursor:move;user-select:none;min-width:110px;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s;z-index:10;}
+.lab-node:hover{border-color:var(--border2);box-shadow:var(--shadow2);}
+.lab-node.selected{border-color:var(--green);box-shadow:0 0 0 3px #1a9e5c22,var(--shadow2);}
+.lab-node.connecting-source{border-color:#f4a429;box-shadow:0 0 0 3px #f4a42922;}
+.lab-node-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.lab-node-icon{font-size:18px;}
+.lab-node-name{font-size:11px;font-weight:800;color:var(--text);}
+.lab-node-tag{font-size:9px;color:var(--text3);font-weight:600;}
+.lab-node-ports{display:flex;justify-content:space-between;margin-top:6px;}
+.lab-port{width:11px;height:11px;border-radius:50%;background:var(--border2);border:2px solid var(--surface);cursor:crosshair;transition:all .15s;flex-shrink:0;}
+.lab-port:hover,.lab-port.active{background:var(--green);border-color:var(--green);transform:scale(1.3);}
+.lab-port.right{margin-left:auto;}
+.lab-node-delete{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:2px solid var(--surface);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;line-height:1;font-weight:700;}
+.lab-node:hover .lab-node-delete{display:flex;}
+.score-block{background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid var(--border);}
+.score-label{font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.score-bar-wrap{background:var(--border);border-radius:20px;height:8px;overflow:hidden;margin-bottom:4px;}
+.score-bar{height:100%;border-radius:20px;transition:width .5s ease;}
+.score-bar.sustain{background:linear-gradient(90deg,#16a05a,#25d077);}
+.score-bar.innov{background:linear-gradient(90deg,#7c6ff7,#a78bfa);}
+.score-val{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--text);line-height:1;}
+.score-max{font-size:11px;color:var(--text3);}
+.lab-feedback-bubble{background:var(--green4);border:1px solid var(--green3);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:8px;}
+.lab-feedback-bubble strong{color:var(--green);}
+.conn-label{font-size:10px;fill:var(--text3);font-family:'Inter',sans-serif;pointer-events:none;}
+.lab-analyse-btn{width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px #1a9e5c33;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;}
+.lab-analyse-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px #25c27044;}
+.lab-analyse-btn:disabled{background:var(--border);color:var(--text3);cursor:not-allowed;box-shadow:none;transform:none;}
+.lab-rtab.active{color:var(--green)!important;border-bottom:2px solid var(--green)!important;}
+</style>
 </head>
 <body>
-  <!-- GitHub Corner Ribbon -->
-  <a href="https://github.com/yourusername/eco-lab-v6" class="github-corner" target="_blank" rel="noopener noreferrer" aria-label="View source on GitHub">
-    <svg width="70" height="70" viewBox="0 0 250 250" style="fill:#00e5a0; color:#050a0f; position: fixed; top: 0; right: 0; border: 0; z-index: 1000;">
-      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
-      <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
-      <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
-    </svg>
-  </a>
-<div id="root"></div>
-<script type="text/babel">
-  const { useState, useRef, useCallback, useEffect, useMemo, useReducer } = React;
 
-  // ========================= CONSTANTS =========================
-  const ENGINE_CONFIG = { tickRate: 1000, gravity: 9.81, efficiencyLoss: 0.02, maxNodes: 500, version: "V6 · Three Fields" };
-  const STORAGE_KEYS = { appState: "eco_lab_v6_state", apiKey: "eco_lab_openrouter_key" };
+<div id="confetti-layer"></div>
 
-  // ========================= THREE FIELDS: CIVIL · MECHANICAL · ELECTRICAL & ELECTRONICS =========================
-  const FIELDS = {
-    electrical: {
-      id: "electrical",
-      label: "Electrical & Electronics",
-      icon: "⚡",
-      color: "#00e5a0",
-      description: "Power systems, renewable energy, circuits, sensors, and electronics",
-      components: [
-        { id: "solar_panel", name: "Solar Panel", icon: "☀️", power: 300, efficiency: 0.9, renewable: true, cat: "Power", voltage: 48, resistance: 0.5, desc: "300W photovoltaic panel" },
-        { id: "wind_turbine", name: "Wind Turbine", icon: "🌬️", power: 500, efficiency: 0.85, renewable: true, cat: "Power", voltage: 72, resistance: 0.3, desc: "500W small wind generator" },
-        { id: "battery", name: "Lithium Battery", icon: "🔋", storage: 1000, cat: "Storage", voltage: 48, capacity: 1000, decay: 0.001, desc: "48V 100Ah energy storage" },
-        { id: "inverter", name: "Power Inverter", icon: "🔄", efficiency: 0.95, cat: "Conversion", desc: "DC-AC conversion 95% efficiency" },
-        { id: "mppt", name: "MPPT Controller", icon: "🎛️", cat: "Control", efficiency: 0.98, desc: "Maximum power point tracking" },
-        { id: "led_light", name: "LED Light", icon: "💡", load: 10, cat: "Load", voltage: 12, desc: "10W energy-efficient lighting" },
-        { id: "ev_charger", name: "EV Charger", icon: "🚗", load: 7200, cat: "Load", voltage: 240, desc: "Level 2 7.2kW charger" },
-        { id: "esp32", name: "ESP32 Microcontroller", icon: "📡", cat: "MCU", voltage: 3.3, desc: "WiFi + Bluetooth IoT controller" },
-        { id: "smart_meter", name: "Smart Meter", icon: "📏", cat: "Metering", desc: "Bidirectional energy monitoring" },
-        { id: "grid_tie", name: "Grid-Tie Inverter", icon: "🔗", power: 1000, renewable: true, cat: "Power", desc: "Feed excess energy to grid" },
-        { id: "bms", name: "Battery BMS", icon: "🛡️", cat: "Control", desc: "Battery management system" },
-        { id: "current_sensor", name: "Current Sensor", icon: "〰️", cat: "Sensor", desc: "ACS712 30A measurement" },
-        { id: "relay_module", name: "Relay Module", icon: "🔀", cat: "Control", desc: "5V 10A switching" },
-        { id: "capacitor", name: "Supercapacitor", icon: "🔵", cat: "Storage", desc: "3000F energy buffer" },
-        { id: "rectifier", name: "Rectifier", icon: "📐", cat: "Conversion", desc: "AC to DC conversion" }
-      ]
-    },
-    mechanical: {
-      id: "mechanical",
-      label: "Mechanical Engineering",
-      icon: "⚙️",
-      color: "#f59e0b",
-      description: "Machines, mechanisms, fluids, thermodynamics, and structural mechanics",
-      components: [
-        { id: "electric_motor", name: "Electric Motor", icon: "🔩", torque: 200, efficiency: 0.88, cat: "Drive", power: 750, desc: "3-phase induction motor" },
-        { id: "gear_system", name: "Gear System", icon: "⚙️", efficiency: 0.92, cat: "Drive", ratio: 3.5, desc: "Helical gear transmission" },
-        { id: "hydraulic_pump", name: "Hydraulic Pump", icon: "💧", pressure: 300, cat: "Fluid", load: 500, desc: "Variable displacement pump" },
-        { id: "steam_turbine", name: "Steam Turbine", icon: "🌀", power: 1500, efficiency: 0.82, cat: "Power", desc: "Impulse reaction turbine" },
-        { id: "flywheel", name: "Flywheel Energy Storage", icon: "⭕", inertia: 100, cat: "Storage", desc: "Kinetic energy storage" },
-        { id: "piston", name: "Piston Assembly", icon: "🔧", cat: "Mechanism", desc: "Reciprocating piston" },
-        { id: "bearing", name: "Ball Bearing", icon: "🔵", cat: "Bearing", desc: "Radial load bearing" },
-        { id: "belt_drive", name: "Belt Drive", icon: "〰️", cat: "Drive", ratio: 2.5, desc: "V-belt transmission" },
-        { id: "heat_exchanger", name: "Heat Exchanger", icon: "🔥", cat: "Thermal", desc: "Shell and tube heat transfer" },
-        { id: "compressor", name: "Air Compressor", icon: "💨", load: 1500, cat: "Fluid", desc: "Screw compressor" },
-        { id: "valve", name: "Control Valve", icon: "🔀", cat: "Fluid", desc: "Flow regulation" },
-        { id: "spring", name: "Coil Spring", icon: "🌀", cat: "Mechanism", stiffness: 1000, desc: "Helical compression spring" },
-        { id: "damper", name: "Shock Damper", icon: "🔩", cat: "Damping", desc: "Hydraulic vibration damper" }
-      ]
-    },
-    civil: {
-      id: "civil",
-      label: "Civil Engineering",
-      icon: "🏗️",
-      color: "#60a5fa",
-      description: "Structures, infrastructure, sustainable buildings, water systems, and geotechnics",
-      components: [
-        { id: "green_building", name: "Green Building", icon: "🏡", load: 150, stability: 90, cat: "Building", renewable: true, desc: "Passive solar design" },
-        { id: "bridge", name: "Suspension Bridge", icon: "🌉", load: 400, stability: 85, cat: "Infrastructure", desc: "Cable-stayed bridge" },
-        { id: "transmission_tower", name: "Transmission Tower", icon: "📡", stability: 95, cat: "Infrastructure", desc: "Steel lattice tower" },
-        { id: "green_roof", name: "Green Roof System", icon: "🌱", stability: 85, renewable: true, cat: "Sustainable", desc: "Vegetated roof layer" },
-        { id: "solar_farm", name: "Solar Farm Array", icon: "☀️", power: 5000, renewable: true, cat: "Power", stability: 98, desc: "Ground-mounted PV" },
-        { id: "retaining_wall", name: "Retaining Wall", icon: "🧱", cat: "Structure", stability: 80, desc: "Reinforced concrete wall" },
-        { id: "foundation", name: "Deep Foundation", icon: "⬇️", cat: "Geotech", stability: 95, desc: "Pile foundation system" },
-        { id: "water_tank", name: "Water Tower", icon: "💧", cat: "Water", capacity: 500, desc: "Elevated water storage" },
-        { id: "drainage", name: "Storm Drainage", icon: "🌊", cat: "Hydraulics", desc: "Urban drainage network" },
-        { id: "pavement", name: "Permeable Pavement", icon: "⬜", cat: "Transport", renewable: true, desc: "Water-permeable paving" },
-        { id: "wind_shelter", name: "Wind Shelter Belt", icon: "🌳", cat: "Environmental", renewable: true, desc: "Natural wind barrier" },
-        { id: "dam", name: "Concrete Dam", icon: "🏔️", cat: "Hydraulic", stability: 92, desc: "Gravity dam structure" }
-      ]
-    }
-  };
+<!-- API KEY MODAL -->
+<div id="api-modal" class="modal-overlay">
+  <div class="modal-box">
+    <span class="modal-icon"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="var(--green)" opacity="0.12"/><circle cx="26" cy="26" r="24" stroke="var(--green)" stroke-width="2"/><path d="M26 2C26 2 19 13 19 26s7 24 7 24" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/><path d="M26 2C26 2 33 13 33 26s-7 24-7 24" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/><path d="M2.5 20h47M2.5 32h47" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+    <h2 class="modal-title">Enter Your Password</h2>
+    <p class="modal-desc">Enter your ECO GREEN password to unlock AI features.</p>
+    <div class="modal-input-wrap">
+      <input type="password" class="modal-input" id="api-key-input" placeholder="Enter your password..." autocomplete="off" spellcheck="false" />
+      <button class="modal-eye" id="eye-btn" onclick="toggleEye()">👁️</button>
+    </div>
+    <p class="modal-hint">🔒 Your password is stored securely in your browser only.</p>
+    <button class="modal-save-btn" onclick="saveApiKey()">✨ Save &amp; Start Building</button><br/>
+    <button class="modal-skip" onclick="skipModal()">Skip for now</button>
+    <div class="modal-lock">
+      <span>🔒</span>
+      <span class="modal-lock-text">Your password stays on your device only.</span>
+    </div>
+  </div>
+</div>
 
-  // ========================= INITIAL STATE =========================
-  const getInitialState = () => {
-    const saved = localStorage.getItem(STORAGE_KEYS.appState);
-    if (saved) {
-      try { return JSON.parse(saved); } catch(e) { return { workspace: [], connections: [], selected: null, simulationTime: 0, logs: [], field: "electrical" }; }
-    }
-    return { workspace: [], connections: [], selected: null, simulationTime: 0, logs: [], field: "electrical" };
-  };
+<!-- MEMORY OVERLAY -->
+<div class="mem-overlay" id="mem-overlay" onclick="closeMemPanel()"></div>
 
-  // ========================= REDUCER ENGINE =========================
-  function reducer(state, action) {
-    let newState;
-    switch (action.type) {
-      case "ADD": newState = { ...state, workspace: [...state.workspace, action.payload] }; break;
-      case "MOVE": newState = { ...state, workspace: state.workspace.map(n => n.uid === action.uid ? { ...n, x: action.x, y: action.y } : n) }; break;
-      case "REMOVE": newState = { ...state, workspace: state.workspace.filter(n => n.uid !== action.uid), connections: state.connections.filter(c => c.from !== action.uid && c.to !== action.uid) }; break;
-      case "SELECT": newState = { ...state, selected: action.uid }; break;
-      case "CONNECT": {
-        if (action.from === action.to) return state;
-        const exists = state.connections.find(c => (c.from === action.from && c.to === action.to) || (c.from === action.to && c.to === action.from));
-        if (exists) return state;
-        newState = { ...state, connections: [...state.connections, { id: Date.now(), from: action.from, to: action.to }] };
-        break;
-      }
-      case "TICK": newState = { ...state, simulationTime: state.simulationTime + 1 }; break;
-      case "LOG": newState = { ...state, logs: [action.log, ...state.logs].slice(0, 50) }; break;
-      case "SET_FIELD": newState = { ...state, field: action.field }; break;
-      case "CLEAR": newState = { workspace: [], connections: [], selected: null, simulationTime: 0, logs: [], field: state.field }; break;
-      case "LOAD_STATE": newState = action.payload; break;
-      default: return state;
-    }
-    localStorage.setItem(STORAGE_KEYS.appState, JSON.stringify(newState));
-    return newState;
-  }
-
-  // ========================= PHYSICS ENGINE =========================
-  function physicsEngine(nodes, connections, simTime) {
-    let energy = 0, load = 0, stability = 0, voltageSum = 0, resistanceSum = 0, torqueSum = 0, stressLevel = 0;
-    nodes.forEach(n => {
-      energy += n.power || 0;
-      load += n.load || 0;
-      stability += n.stability || 50;
-      voltageSum += n.voltage || 0;
-      resistanceSum += n.resistance || 0;
-      torqueSum += n.torque || 0;
-      stressLevel += (n.load || 0) * 0.1;
-    });
-    const batteryNodes = nodes.filter(n => n.cat === "Storage");
-    let batteryHealth = 100;
-    if (batteryNodes.length > 0) batteryHealth = Math.max(0, 100 - (simTime * 0.1 * (batteryNodes[0].decay || 0.001)));
-    const voltageDrop = resistanceSum > 0 ? (energy / (resistanceSum + 1)) * 0.1 : 0;
-    const effectiveVoltage = Math.max(0, (voltageSum / (nodes.length || 1)) - voltageDrop);
-    const gearRatio = nodes.filter(n => n.ratio).reduce((sum, n) => sum * (n.ratio || 1), 1);
-    const torqueEfficiency = Math.min(1, torqueSum / (energy + 1) * 0.05);
-    const effectiveTorque = torqueSum * torqueEfficiency * gearRatio;
-    const structuralStress = Math.min(100, stressLevel / (nodes.length || 1));
-    const finalStability = Math.max(0, Math.min(100, stability / (nodes.length || 1) - structuralStress * 0.2));
-    const balance = energy - load;
-    const systemHealth = (energy > 0 ? Math.min(100, (energy / (load + 1)) * 20) : 50);
-    return { energy, load, stability: finalStability, balance, systemHealth, voltage: effectiveVoltage, resistance: resistanceSum, batteryHealth, torque: effectiveTorque, gearRatio, structuralStress, timestamp: Date.now() };
-  }
-
-  // ========================= AI BRAIN =========================
-  function aiBrain(report, nodes) {
-    const suggestions = [];
-    let sustainabilityScore = 70, innovationScore = 65, riskLevel = "LOW";
-    if (report.balance < -100) { suggestions.push("⚠️ Energy deficit: Add renewable sources"); sustainabilityScore -= 15; riskLevel = "HIGH"; }
-    else if (report.balance > 500) { suggestions.push("⚡ Energy surplus: Optimize storage or grid feed-in"); innovationScore += 10; }
-    else suggestions.push("✅ Energy balance nominal");
-    if (report.stability < 60) { suggestions.push("🏗️ Structural instability detected: Reinforce components"); sustainabilityScore -= 10; riskLevel = "MEDIUM"; }
-    if (report.voltage < 40 && report.voltage > 0) suggestions.push("🔌 Low voltage detected: Check resistance or add regulators");
-    if (report.batteryHealth < 30) { suggestions.push("🔋 Battery degradation critical"); riskLevel = "CRITICAL"; }
-    else if (report.batteryHealth < 60) suggestions.push("🔋 Battery health moderate: Monitor decay");
-    const renewableCount = nodes.filter(n => n.renewable).length;
-    if (renewableCount === 0 && nodes.length > 0) suggestions.push("🌱 Auto-design: Integrate renewable energy sources");
-    else if (renewableCount > 0) sustainabilityScore += Math.min(20, renewableCount * 5);
-    let failureProbability = 0;
-    if (report.structuralStress > 70) failureProbability += 30;
-    if (report.batteryHealth < 40) failureProbability += 25;
-    if (report.voltage < 20) failureProbability += 20;
-    if (failureProbability > 50) { suggestions.push(`⚠️ Predictive failure: ${failureProbability.toFixed(0)}% probability`); riskLevel = "HIGH"; }
-    sustainabilityScore = Math.min(100, Math.max(0, sustainabilityScore));
-    innovationScore = Math.min(100, Math.max(0, innovationScore + (nodes.length * 2)));
-    return { score: Math.floor((sustainabilityScore + innovationScore) / 2), sustainabilityScore: Math.floor(sustainabilityScore), innovationScore: Math.floor(innovationScore), suggestions, riskLevel, failureProbability: Math.floor(failureProbability) };
-  }
-
-  // ========================= OpenRouter API CALL =========================
-  async function callOpenRouter(apiKey, messages, systemHint = "") {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Eco Lab V6" },
-      body: JSON.stringify({ model: "anthropic/claude-3.5-sonnet", max_tokens: 800, messages: [{ role: "system", content: systemHint || "You are Ecogreen AI, expert in civil, mechanical, and electrical engineering." }, ...messages] })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.choices[0].message.content;
-  }
-
-  // ========================= MAIN APP =========================
-  function EcoLabV6() {
-    const [state, dispatch] = useReducer(reducer, getInitialState());
-    const [activeTab, setActiveTab] = useState("lab");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [catFilter, setCatFilter] = useState("All");
-    const [simRunning, setSimRunning] = useState(false);
-    const [simData, setSimData] = useState({});
-    const [aiReport, setAiReport] = useState(null);
-    const [physicsReport, setPhysicsReport] = useState(null);
-    const [toast, setToast] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [apiKey, setApiKey] = useState(() => localStorage.getItem(STORAGE_KEYS.apiKey) || "");
-    const [showKeyInput, setShowKeyInput] = useState(false);
-    const [keyDraft, setKeyDraft] = useState("");
-    const [aiLoading, setAiLoading] = useState(false);
-    const [chatMessages, setChatMessages] = useState([{ role: "assistant", content: "🌱 **Ecogreen AI** ready! I specialize in Civil, Mechanical, and Electrical & Electronics engineering. Enter your OpenRouter API key to get started." }]);
-    const [chatInput, setChatInput] = useState("");
-    const workspaceRef = useRef(null);
-    const simInterval = useRef(null);
-
-    useEffect(() => {
-      const handleResize = () => setIsMobile(window.innerWidth < 768);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const currentField = FIELDS[state.field];
-    const allComponents = currentField?.components || [];
-    const categories = ["All", ...new Set(allComponents.map(c => c.cat))];
-    const filtered = allComponents.filter(c => (catFilter === "All" || c.cat === catFilter) && (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.cat.toLowerCase().includes(searchTerm.toLowerCase())));
-
-    const showToast = (msg, type = "info") => { setToast({ msg, type }); setTimeout(() => setToast(null), 2400); };
-
-    const saveApiKey = () => {
-      if (!keyDraft.startsWith("sk-or")) { showToast("⚠️ Invalid OpenRouter key format", "warn"); return; }
-      setApiKey(keyDraft);
-      localStorage.setItem(STORAGE_KEYS.apiKey, keyDraft);
-      setShowKeyInput(false);
-      showToast("✅ API key saved!", "success");
-    };
-
-    // Simulation loop
-    useEffect(() => {
-      if (!simRunning) return;
-      const interval = setInterval(() => {
-        dispatch({ type: "TICK" });
-        const report = physicsEngine(state.workspace, state.connections, state.simulationTime);
-        const ai = aiBrain(report, state.workspace);
-        setPhysicsReport(report);
-        setAiReport(ai);
-        dispatch({ type: "LOG", log: { report: { energy: report.energy, load: report.load, balance: report.balance }, ai: { score: ai.score }, time: state.simulationTime } });
-        const newSimData = {};
-        state.workspace.forEach(item => {
-          if (item.power) newSimData[item.uid] = { value: (item.power * (0.7 + 0.3 * Math.sin(state.simulationTime * 0.4))).toFixed(0), unit: "W" };
-          else if (item.load) newSimData[item.uid] = { value: (item.load * (0.8 + 0.2 * Math.sin(state.simulationTime * 0.5))).toFixed(0), unit: "W" };
-        });
-        setSimData(newSimData);
-      }, ENGINE_CONFIG.tickRate);
-      return () => clearInterval(interval);
-    }, [simRunning, state.workspace, state.connections, state.simulationTime]);
-
-    const onDragStart = (e, comp) => { e.dataTransfer.setData("comp", JSON.stringify(comp)); e.dataTransfer.effectAllowed = "copy"; };
-    const onDrop = (e) => {
-      e.preventDefault();
-      const raw = e.dataTransfer.getData("comp");
-      if (!raw) return;
-      const comp = JSON.parse(raw);
-      const rect = workspaceRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const x = e.clientX - rect.left - 46;
-      const y = e.clientY - rect.top - 46;
-      const uid = `${comp.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-      dispatch({ type: "ADD", payload: { ...comp, uid, x: Math.max(10, x), y: Math.max(10, y) } });
-      showToast(`➕ Added ${comp.name}`, "success");
-    };
-    const moveItem = (uid, x, y) => { dispatch({ type: "MOVE", uid, x, y }); };
-    const removeItem = (uid) => { dispatch({ type: "REMOVE", uid }); showToast(`🗑 Removed component`, "info"); };
-    const connectComponents = (from, to) => {
-      if (!from || !to) return;
-      dispatch({ type: "CONNECT", from, to });
-      showToast("✅ Connected!", "success");
-    };
-    const startSimulation = () => { if (simRunning) { if (simInterval.current) clearInterval(simInterval.current); setSimRunning(false); showToast("Simulation stopped"); } else { setSimRunning(true); showToast("Simulation started", "success"); } };
-    const clearWorkspace = () => { dispatch({ type: "CLEAR" }); setSimRunning(false); setSimData({}); setAiReport(null); setPhysicsReport(null); showToast("Workspace cleared"); };
-    const getConnPos = (uid) => { const item = state.workspace.find(w => w.uid === uid); return item ? { x: item.x + 48, y: item.y + 48 } : null; };
-
-    const sendAIChat = async () => {
-      if (!chatInput.trim()) return;
-      if (!apiKey) { setShowKeyInput(true); showToast("Please enter OpenRouter API key", "warn"); return; }
-      const userMsg = chatInput.trim();
-      setChatInput("");
-      setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
-      setAiLoading(true);
-      try {
-        const context = `Current engineering field: ${currentField.label}. Workspace: ${state.workspace.length} components. Energy: ${physicsReport?.energy || 0}W, Load: ${physicsReport?.load || 0}W.`;
-        const reply = await callOpenRouter(apiKey, [{ role: "user", content: `Context: ${context}\n\nUser: ${userMsg}` }], "You are Ecogreen AI, expert in civil, mechanical, and electrical engineering. Be helpful and concise.");
-        setChatMessages(prev => [...prev, { role: "assistant", content: reply }]);
-      } catch (err) { setChatMessages(prev => [...prev, { role: "assistant", content: `⚠️ Error: ${err.message}` }]); }
-      setAiLoading(false);
-    };
-
-    const runAIAnalysis = async () => {
-      if (state.workspace.length === 0) { showToast("Add components first!", "warn"); return; }
-      if (!apiKey) { setShowKeyInput(true); showToast("Please enter OpenRouter API key", "warn"); return; }
-      setAiLoading(true);
-      const compList = state.workspace.map(w => w.name).join(", ");
-      const prompt = `You are a strict JSON generator. Return ONLY valid JSON. Analyze this ${currentField.label} project.
-Components: ${compList}. Connections: ${state.connections.length}. Renewable count: ${state.workspace.filter(w=>w.renewable).length}.
-Return: { "sustainabilityScore": 0-100, "innovationScore": 0-100, "summary": "short", "strengths": ["s1","s2"], "improvements": ["i1","i2"], "ecoTip": "tip", "verdict": "verdict" }`;
-      try {
-        const raw = await callOpenRouter(apiKey, [{ role: "user", content: prompt }], "Return ONLY valid JSON. No markdown.");
-        const cleaned = raw.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(cleaned);
-        setChatMessages(prev => [...prev, { role: "assistant", content: `📊 **Analysis Complete**\n🌿 Sustainability: ${parsed.sustainabilityScore}/100\n🚀 Innovation: ${parsed.innovationScore}/100\n\n💡 ${parsed.ecoTip}\n\n🏆 ${parsed.verdict}` }]);
-        showToast("Analysis complete!", "success");
-      } catch (err) { showToast("AI analysis failed", "warn"); }
-      setAiLoading(false);
-    };
-
-    const stats = useMemo(() => {
-      const gen = state.workspace.reduce((s, w) => s + (w.power > 0 ? w.power : 0), 0);
-      const load = state.workspace.reduce((s, w) => s + (w.load || 0), 0);
-      return { gen, load, count: state.workspace.length };
-    }, [state.workspace]);
-
-    return (
-      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#050a0f", color: "#eef2ff", overflow: "hidden" }}>
-        {/* Header */}
-        <div style={{ padding: "8px 20px", borderBottom: "1px solid #1f2a30", background: "rgba(3,7,12,0.95)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", zIndex: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ background: "linear-gradient(135deg, #00e5a0, #1b6e54)", width: 40, height: 40, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🌿</div>
-            <div><span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 18 }}>Eco Lab V6</span><span style={{ fontSize: 9, marginLeft: 8, color: "#00e5a0" }}>Civil · Mechanical · Electrical</span></div>
-          </div>
-          {!isMobile && <div style={{ display: "flex", gap: 4 }}>{["lab", "ai", "logs"].map(t => (<button key={t} className={`tab-btn ${activeTab === t ? "active" : ""}`} onClick={() => setActiveTab(t)}>{t === "lab" ? "🔬 Workspace" : t === "ai" ? "🤖 AI Assistant" : "📋 Logs"}</button>))}</div>}
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-            <button onClick={() => setShowKeyInput(!showKeyInput)} style={{ background: apiKey ? "rgba(0,229,160,0.15)" : "rgba(245,158,11,0.15)", border: "1px solid", borderColor: apiKey ? "#00e5a0" : "#f59e0b", borderRadius: 24, padding: "4px 12px", fontSize: 11, cursor: "pointer" }}>{apiKey ? "🔑 API Active" : "🔓 Add API Key"}</button>
-            <button onClick={startSimulation} style={{ background: simRunning ? "#aa2e2e" : "rgba(0,229,160,0.15)", border: "none", borderRadius: 24, padding: "5px 16px", color: simRunning ? "#ffa0a0" : "#00e5a0", cursor: "pointer" }}>{simRunning ? "⏹ Stop" : "▶ Simulate"}</button>
-            <button onClick={clearWorkspace} style={{ background: "rgba(239,68,68,0.15)", border: "none", borderRadius: 24, padding: "5px 14px", color: "#f87171", cursor: "pointer" }}>🗑 Clear</button>
-          </div>
-        </div>
-
-        {showKeyInput && (
-          <div style={{ padding: "8px 20px", background: "#0d171f", borderBottom: "1px solid #f59e0b40", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12 }}>🔑 OpenRouter API Key (<a href="https://openrouter.ai/keys" target="_blank" style={{ color: "#00e5a0" }}>get key</a>)</span>
-            <input type="password" placeholder="sk-or-v1-..." value={keyDraft} onChange={e => setKeyDraft(e.target.value)} style={{ flex: 1, minWidth: 200, background: "#111c24", border: "1px solid #475569", borderRadius: 8, padding: "6px 12px", color: "white", fontSize: 12 }} />
-            <button onClick={saveApiKey} style={{ background: "#00e5a0", border: "none", borderRadius: 6, padding: "5px 20px", fontWeight: "bold", cursor: "pointer" }}>Save</button>
-            <button onClick={() => setShowKeyInput(false)} style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer" }}>✕</button>
-          </div>
-        )}
-
-        <div className="power-badge">
-          ⚡ Gen: <strong style={{ color: "#00e5a0" }}>{stats.gen} W</strong> | 🔌 Load: <strong style={{ color: "#f59e0b" }}>{stats.load} W</strong> | 🧩 {stats.count} components | ⏱️ Tick: {state.simulationTime}
-          {physicsReport && <span style={{ marginLeft: 12 }}>🔋 Battery: {physicsReport.batteryHealth?.toFixed(0)}% | ⚡ {physicsReport.voltage?.toFixed(1)}V</span>}
-        </div>
-
-        <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
-          {/* Sidebar with THREE FIELDS */}
-          {activeTab === "lab" && !isMobile && (
-            <div style={{ width: 280, background: "#0a1117", borderRight: "1px solid #1f2a30", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-              <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 11, color: "#5b6e7c", letterSpacing: 1, marginBottom: 12 }}>🏗️ ENGINEERING FIELDS</div>
-                {Object.entries(FIELDS).map(([key, field]) => (
-                  <button key={key} className={`field-btn ${state.field === key ? "active" : ""}`} onClick={() => { dispatch({ type: "SET_FIELD", field: key }); setCatFilter("All"); setSearchTerm(""); }}>
-                    <span className="field-icon">{field.icon}</span>
-                    <div style={{ display: "inline-block", verticalAlign: "middle" }}>
-                      <div style={{ fontWeight: 700 }}>{field.label}</div>
-                      <div style={{ fontSize: 9, color: "#64748b" }}>{field.components.length} components</div>
-                    </div>
-                  </button>
-                ))}
-                <div style={{ marginTop: 16, fontSize: 10, color: "#475569", padding: 8, background: "rgba(0,229,160,0.05)", borderRadius: 8 }}>
-                  📍 {currentField.description}
-                </div>
-              </div>
-              <div style={{ padding: "8px 12px" }}><input placeholder="🔍 Search components" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ width: "100%", background: "#0f171f", border: "1px solid #2a3a2f", borderRadius: 10, padding: "7px", fontSize: 12, color: "white" }} /></div>
-              <div style={{ padding: "0 12px 8px", display: "flex", gap: 6, flexWrap: "wrap" }}>{categories.slice(0, 8).map(c => (<button key={c} onClick={() => setCatFilter(c)} style={{ fontSize: 10, background: catFilter === c ? "#00e5a0" : "#1e2a30", border: "none", borderRadius: 20, padding: "4px 12px", cursor: "pointer", color: catFilter === c ? "#050a0f" : "#b0c4de" }}>{c}</button>))}</div>
-              <div style={{ flex: 1, overflowY: "auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: 12 }}>
-                {filtered.map(c => (<div key={c.id} draggable onDragStart={e => onDragStart(e, c)} className="comp-card"><div style={{ fontSize: 28 }}>{c.icon || "🔧"}</div><div style={{ fontSize: 10, fontWeight: 600 }}>{c.name}</div><div style={{ fontSize: 8, color: "#8da0b0" }}>{c.cat}</div>{c.renewable && <span style={{ fontSize: 9, color: "#00e5a0" }}>♻</span>}</div>))}
-              </div>
-            </div>
-          )}
-
-          {/* Workspace Canvas */}
-          {activeTab === "lab" && (
-            <div ref={workspaceRef} onDrop={onDrop} onDragOver={e => e.preventDefault()} style={{ flex: 1, position: "relative", background: "#050a0f", overflow: "hidden" }}>
-              <svg style={{ position: "absolute", width: "100%", height: "100%", pointerEvents: "none" }}>
-                <defs><pattern id="dotGrid" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#2a5a4a" /></pattern></defs>
-                <rect width="100%" height="100%" fill="url(#dotGrid)" />
-                {state.connections.map(conn => { const a = getConnPos(conn.from); const b = getConnPos(conn.to); if (!a || !b) return null; return <path key={conn.id} d={`M ${a.x} ${a.y} Q ${(a.x+b.x)/2} ${a.y} ${(a.x+b.x)/2} ${b.y} ${b.x} ${b.y}`} stroke={simRunning ? "#00e5a0" : "#4f8a6f"} strokeWidth="2" fill="none" strokeDasharray="5 3" />; })}
-              </svg>
-              {state.workspace.map(item => {
-                const dragProps = { onMouseDown: (e) => { if (e.target.closest(".ws-btn")) return; let sx = e.clientX, sy = e.clientY; const move = (ev) => { moveItem(item.uid, item.x + (ev.clientX - sx), item.y + (ev.clientY - sy)); sx = ev.clientX; sy = ev.clientY; }; const up = () => { document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); }; document.addEventListener("mousemove", move); document.addEventListener("mouseup", up); } };
-                return (<div key={item.uid} {...dragProps} style={{ position: "absolute", left: item.x, top: item.y, width: 92, cursor: "grab", zIndex: 10 }} onClick={() => connectComponents(state.selected, item.uid)}>
-                  <div className="ws-item" style={{ border: "2px solid #2a5a4a", padding: "8px 4px", textAlign: "center" }}>
-                    <div style={{ fontSize: 28 }}>{item.icon || "🔧"}</div>
-                    <div style={{ fontSize: 9, fontWeight: 600 }}>{item.name}</div>
-                    {simData[item.uid] && <div style={{ fontSize: 8, color: "#00e5a0" }}>{simData[item.uid].value}{simData[item.uid].unit}</div>}
-                    <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 6 }}>
-                      <button className="ws-btn" onClick={(e) => { e.stopPropagation(); connectComponents(item.uid, state.selected); }} style={{ background: "#00e5a040", border: "none", borderRadius: 20, padding: "2px 8px", cursor: "pointer" }}>🔗</button>
-                      <button className="ws-btn" onClick={(e) => { e.stopPropagation(); removeItem(item.uid); }} style={{ background: "#ff444450", border: "none", borderRadius: 20, padding: "2px 8px", cursor: "pointer" }}>✕</button>
-                    </div>
-                  </div>
-                </div>);
-              })}
-              {state.workspace.length === 0 && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#2c6a4a", fontSize: 18, pointerEvents: "none", textAlign: "center" }}>🌿 Drag components from the sidebar<br/>⚡ Civil · Mechanical · Electrical & Electronics</div>}
-            </div>
-          )}
-
-          {/* AI Chat Panel */}
-          {activeTab === "ai" && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: 20, gap: 16, overflow: "auto", background: "#080f14" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                <h2>🤖 Ecogreen AI Assistant</h2>
-                <button onClick={runAIAnalysis} disabled={aiLoading || !apiKey} style={{ background: "rgba(139,92,246,0.2)", border: "none", borderRadius: 24, padding: "6px 20px", color: "#c4b5fd", cursor: "pointer" }}>{aiLoading ? "⏳ Analyzing..." : "📊 Analyze Project"}</button>
-              </div>
-              <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, background: "#0f171f", borderRadius: 24, padding: 16 }}>
-                {chatMessages.map((m, i) => (<div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}><div style={{ maxWidth: "80%", background: m.role === "user" ? "rgba(0,229,160,0.1)" : "#18232c", borderRadius: 20, padding: "10px 16px", fontSize: 13 }}><div style={{ whiteSpace: "pre-wrap" }}>{m.content}</div></div></div>))}
-                {aiLoading && <div className="sim-pulse" style={{ padding: 10, color: "#00e5a0" }}>⏳ AI is thinking...</div>}
-              </div>
-              <div style={{ display: "flex", gap: 10 }}><input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendAIChat()} placeholder="Ask about sustainable design, energy systems, structural analysis..." style={{ flex: 1, background: "#0f171f", border: "1px solid #2a5a4a", borderRadius: 40, padding: "12px 18px", color: "white", outline: "none" }} /><button onClick={sendAIChat} disabled={!apiKey} style={{ background: "#00e5a0", border: "none", borderRadius: 40, padding: "0 24px", fontWeight: 700, cursor: "pointer" }}>Send</button></div>
-            </div>
-          )}
-
-          {/* Logs Panel */}
-          {activeTab === "logs" && (
-            <div style={{ flex: 1, padding: 24, overflow: "auto", background: "#080f14" }}>
-              <h2>📋 System Event Logs</h2>
-              <div style={{ marginTop: 16, fontFamily: "monospace" }}>{state.logs.map((log, i) => (<div key={i} className="log-entry"><span style={{ color: "#00e5a0" }}>[Tick {log.time}]</span> AI Score: {log.ai?.score} | Energy: {log.report?.energy?.toFixed(0)}W | Load: {log.report?.load?.toFixed(0)}W | Balance: {log.report?.balance?.toFixed(0)}</div>))}{state.logs.length === 0 && <div style={{ color: "#475569", padding: 20 }}>No logs yet. Run simulation to generate data.</div>}</div>
-            </div>
-          )}
-        </div>
-
-        {toast && <div className="toast-msg" style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#0f2128", borderLeft: `4px solid ${toast.type === "success" ? "#00e5a0" : "#f59e0b"}`, padding: "8px 20px", borderRadius: 40, zIndex: 2000 }}>{toast.msg}</div>}
-        {isMobile && activeTab === "lab" && <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ position: "fixed", bottom: 20, right: 20, width: 56, height: 56, borderRadius: 30, background: "#00e5a0", border: "none", fontSize: 26, zIndex: 300 }}>📦</button>}
-        {sidebarOpen && isMobile && <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#0c1a22", borderTop: "2px solid #00e5a0", maxHeight: "60vh", overflowY: "auto", padding: 16, zIndex: 400 }}><div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>{filtered.map(c => (<div key={c.id} onClick={() => { const uid = `${c.id}_${Date.now()}`; dispatch({ type: "ADD", payload: { ...c, uid, x: Math.random() * 200 + 40, y: Math.random() * 150 + 40 } }); setSidebarOpen(false); }} style={{ background: "#1e2e32", borderRadius: 16, padding: 6, textAlign: "center" }}><div style={{ fontSize: 28 }}>{c.icon || "🔧"}</div><div style={{ fontSize: 9 }}>{c.name}</div></div>))}</div></div>}
+<!-- MEMORY PANEL -->
+<div class="mem-panel" id="mem-panel">
+  <div class="mem-head">
+    <div class="mem-title">🧠 Memory &amp; Chats</div>
+    <button class="mem-close" onclick="closeMemPanel()">✕</button>
+  </div>
+  <div class="mem-body">
+    <div class="mem-section">
+      <div class="mem-sec-title">👤 Your Profile</div>
+      <div id="profile-tags"></div>
+      <div class="mem-input-row" style="margin-top:10px">
+        <input class="mem-inp" id="profile-inp" placeholder="e.g. My name is Modou..." onkeydown="if(event.key==='Enter')addProfileNote()"/>
+        <button class="mem-add-btn" onclick="addProfileNote()">+</button>
       </div>
-    );
+    </div>
+    <div class="mem-section">
+      <div class="mem-sec-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>💬 Saved Conversations</span>
+        <button onclick="saveCurrentConv()" style="padding:4px 10px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:11px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif">Save Current</button>
+      </div>
+      <div id="conv-list" style="margin-top:10px"></div>
+    </div>
+    <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
+      <button onclick="clearAllMemory()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #fca5a5;background:#fef2f2;color:#ef4444;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">🗑️ Clear All Memory</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-logo" onclick="showPage('hero')">
+    <span class="nav-leaf"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="var(--green)" opacity="0.15"/><circle cx="11" cy="11" r="10" stroke="var(--green)" stroke-width="1.5"/><path d="M11 1C11 1 8 5.5 8 11s3 10 3 10" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/><path d="M11 1C11 1 14 5.5 14 11s-3 10-3 10" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/><path d="M1.5 8.5h19M1.5 13.5h19" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/></svg></span>
+    <div class="nav-brand">ECO <span>GREEN</span></div>
+  </a>
+  <div class="nav-links">
+    <button class="nav-btn active" id="nb-hero" onclick="showPage('hero')">Home</button>
+    <button class="nav-btn" id="nb-app" onclick="showPage('app')">Ideas</button>
+    <button class="nav-btn" id="nb-chat" onclick="showPage('chat')">AI Mentor</button>
+    <button class="nav-btn" id="nb-saved" onclick="showPage('saved')">Saved</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="profile-btn" onclick="openMemPanel()" title="Memory &amp; Conversations" id="profile-btn">🧠<div class="profile-dot" id="profile-dot" style="display:none"></div></button>
+    <button class="nav-cta" onclick="showPage('app')">Get Ideas</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero-page" class="page active">
+  <div class="hero-shapes"><div class="dots"></div><div class="shape s1"></div><div class="shape s2"></div></div>
+  <div class="hero-content">
+    <span class="hero-emoji" style="display:block;margin-bottom:28px;line-height:1;">
+      <canvas id="earth-canvas" width="100" height="100" style="display:block;margin:0 auto;border-radius:50%;box-shadow:0 0 0 4px rgba(22,160,90,0.10),0 8px 32px rgba(22,160,90,0.28),0 3px 14px rgba(0,80,200,0.20);"></canvas>
+    </span>
+    <h1 class="hero-headline"><span class="eco-word">ECO GREEN</span><br/>Build Greener.<br/><em style="font-style:italic;color:var(--text)">Engineer Smarter.</em></h1>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;background:var(--green4);border:1.5px solid var(--green3);font-size:13px;font-weight:700;color:var(--green);">🧠 AI-Powered Brain</span>
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;background:var(--surface);border:1.5px solid var(--border2);font-size:13px;font-weight:600;color:var(--text2);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #dcfce7;animation:pulse 2s infinite;"></span>Live · Serekunda, The Gambia</span>
+    </div>
+    <p class="hero-tagline">Generate sustainable project ideas, get expert guidance, and build solutions that matter — powered by AI.</p>
+    <div class="hero-btns">
+      <button class="btn-big" onclick="showPage('chat')">Start Building Now</button>
+      <button class="btn-outline" onclick="showPage('app')">Generate Project Ideas</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">3</div><div class="stat-lbl">Engineering Fields</div></div>
+      <div class="stat"><div class="stat-num">24+</div><div class="stat-lbl">Green Topics</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-lbl">AI-Powered Ideas</div></div>
+      <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always</div></div>
+    </div>
+  </div>
+
+  <div class="how-section">
+    <div class="sec-tag">How it works</div>
+    <h2 class="sec-heading">Three steps to your<br/><em>sustainable project</em></h2>
+    <div class="how-grid">
+      <div class="how-card" onclick="showPage('app')"><div class="how-num">01</div><span class="how-emoji">💡</span><div class="how-title">Pick your field</div><div class="how-desc">Choose Electrical, Civil, or Mechanical Engineering, select your level, and get AI-generated ideas instantly.</div></div>
+      <div class="how-card" onclick="showPage('chat')"><div class="how-num">02</div><span class="how-emoji">🌿</span><div class="how-title">Chat with ECO GREEN AI</div><div class="how-desc">Your AI mentor helps you plan, build, and understand your project step by step — however you need it.</div></div>
+      <div class="how-card" onclick="showPage('saved')"><div class="how-num">03</div><span class="how-emoji">📌</span><div class="how-title">Save and build</div><div class="how-desc">Bookmark your favourite ideas and return to them anytime. Your progress and conversations are always saved.</div></div>
+    </div>
+  </div>
+
+  <div class="manifesto">
+    <span class="man-emoji"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="var(--green)" opacity="0.12"/><circle cx="16" cy="16" r="14.5" stroke="var(--green)" stroke-width="1.8"/><path d="M16 1.5C16 1.5 11.5 8 11.5 16s4.5 14.5 4.5 14.5" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/><path d="M16 1.5C16 1.5 20.5 8 20.5 16s-4.5 14.5-4.5 14.5" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/><path d="M1.5 12.5h29M1.5 19.5h29" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+    <h2 class="man-title">"The energy that moves with you — <em>let's save the world</em> by saving energy, one project at a time."</h2>
+    <p class="man-body">Every engineering student has the power to make a real difference. ECO GREEN turns great ideas into solutions that matter for our planet.</p>
+    <div class="pills">
+      <span class="pill">Green Energy</span><span class="pill">Sustainability</span><span class="pill">Climate Action</span><span class="pill">Clean Tech</span><span class="pill">Smart Engineering</span>
+    </div>
+  </div>
+
+  <div class="team-section">
+    <div class="sec-tag">The founder</div>
+    <h2 class="sec-heading">Built by a student,<br/><em>for students</em></h2>
+    <div class="founder-card">
+      <div class="founder-left">
+        <div class="founder-ava">👨‍💻</div>
+        <div class="founder-role-pill">Founder</div>
+      </div>
+      <div class="founder-right">
+        <h3>Modou Jaw</h3>
+        <div class="founder-uni">Electrical &amp; Electronics Engineering · USET · Year 3</div>
+        <p class="founder-bio">Modou built ECO GREEN with one belief: that every engineering student deserves access to intelligent tools that help them build a greener world. This platform is his contribution to that future.</p>
+        <div class="founder-badges"><span class="fbadge">Electrical Engineering</span><span class="fbadge">USET</span><span class="fbadge">Year 3</span><span class="fbadge">AI Builder</span></div>
+      </div>
+    </div>
+    <div class="team-btns">
+      <button class="team-btn" onclick="showPage('app')">Explore Ideas</button>
+      <button class="team-btn" onclick="showPage('chat')">Chat with ECO GREEN AI</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="foot-logo"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:5px" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="var(--green)" opacity="0.15"/><circle cx="9" cy="9" r="8" stroke="var(--green)" stroke-width="1.4"/><path d="M9 1C9 1 6.5 4.5 6.5 9s2.5 8 2.5 8" stroke="var(--green)" stroke-width="1.1" stroke-linecap="round"/><path d="M9 1C9 1 11.5 4.5 11.5 9s-2.5 8-2.5 8" stroke="var(--green)" stroke-width="1.1" stroke-linecap="round"/><path d="M1.2 6.5h15.6M1.2 11.5h15.6" stroke="var(--green)" stroke-width="1.1" stroke-linecap="round"/></svg>ECO <span>GREEN</span></div>
+    <div class="foot-tag">"The energy that moves with you."</div>
+    <div class="foot-nav"><a onclick="showPage('app')">Ideas</a><a onclick="showPage('chat')">AI Mentor</a><a onclick="showPage('saved')">Saved</a></div>
+    <div class="foot-credit">Created by <span>Modou Jaw</span> · Electrical &amp; Electronics Engineering · <span>USET</span></div>
+    <div class="foot-copy">© 2025 ECO GREEN</div>
+  </footer>
+</section>
+
+<!-- APP -->
+<section id="app-section" class="page">
+  <div class="app-wrap">
+    <h2 class="app-title">AI Project Idea Generator</h2>
+    <p class="app-sub">Answer 3 questions and get 4 tailored, sustainable project ideas generated by AI.</p>
+    <div class="api-banner" id="api-banner" onclick="openModal()">
+      <span class="api-b-icon">🔑</span>
+      <div style="flex:1"><div class="api-b-title" id="banner-title">🔒 Password Required</div><div class="api-b-sub" id="banner-sub">Click to enter your password and unlock AI features</div></div>
+      <span class="api-b-action" id="banner-action">Set Key →</span>
+    </div>
+    <div class="step-row"><div class="step-bub">1</div><span class="step-lbl">Pick your engineering field</span></div>
+    <div class="field-grid" id="field-grid"></div>
+    <div id="step2" style="display:none">
+      <div class="step-row"><div class="step-bub">2</div><span class="step-lbl">Any specific topic? <span style="color:var(--text3);text-transform:none;font-weight:600">(optional 😊)</span></span></div>
+      <div class="topics-wrap" id="topics-wrap"></div>
+    </div>
+    <div id="step3" style="display:none">
+      <div class="step-row"><div class="step-bub">3</div><span class="step-lbl">Where are you in your studies?</span></div>
+      <div class="level-grid" id="level-grid"></div>
+    </div>
+    <div id="gen-wrap" style="display:none">
+      <button class="gen-btn" id="gen-btn" onclick="generateIdeas()">🌿 Generate Green Ideas with AI</button>
+
+      <!-- INLINE PROJECT LAB -->
+      <div style="margin-bottom:32px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">🔬</span>
+            <span style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);font-weight:400">Project Lab</span>
+            <span style="font-size:11px;color:var(--green);background:var(--green4);border:1px solid var(--green3);padding:3px 10px;border-radius:20px;font-weight:700">Beta</span>
+          </div>
+          <div style="flex:1"></div>
+          <button class="lab-action-btn" onclick="labConnect()"><span id="lab-conn-icon">🔗</span> <span id="lab-conn-label">Connect</span></button>
+          <button class="lab-action-btn" onclick="labUndo()">↩ Undo</button>
+          <button class="lab-action-btn danger" onclick="labClear()">🗑️ Clear</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="lab-field-btn active-elec" id="lf-elec" onclick="labSetField('electrical')">⚡ Electrical</button>
+            <button class="lab-field-btn" id="lf-mech" onclick="labSetField('mechanical')">⚙️ Mechanical</button>
+            <button class="lab-field-btn" id="lf-civil" onclick="labSetField('civil')">🏗️ Civil</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface);height:460px">
+          <div style="width:180px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:10px 8px;background:var(--surface2)">
+            <div style="font-size:10px;font-weight:800;letter-spacing:1px;color:var(--text3);text-transform:uppercase;padding:4px 8px 10px">Components</div>
+            <div id="lab-palette"></div>
+          </div>
+          <div style="flex:1;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%,var(--surface2) 0%,var(--bg) 100%)" id="lab-canvas-wrap">
+            <div id="lab-canvas-dots" style="position:absolute;inset:0;pointer-events:none;opacity:.4;background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:28px 28px"></div>
+            <svg id="lab-svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="lab-canvas" style="position:absolute;inset:0;width:100%;height:100%">
+              <div id="lab-empty-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+                <div style="font-size:36px;margin-bottom:10px">🧩</div>
+                <div style="font-size:13px;color:var(--text3);font-weight:600">Drag components onto the canvas</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:4px">Build and connect your project components</div>
+              </div>
+            </div>
+          </div>
+          <div style="width:210px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface)">
+            <div style="display:flex;border-bottom:1px solid var(--border)">
+              <button class="lab-rtab active" id="rt-scores" onclick="labRtab('scores')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;color:var(--text3);background:transparent;border:none;cursor:pointer;font-family:'Inter',sans-serif">Scores</button>
+              <button class="lab-rtab" id="rt-feedback" onclick="labRtab('feedback')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;color:var(--text3);background:transparent;border:none;cursor:pointer;font-family:'Inter',sans-serif">AI Feedback</button>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px" id="rp-scores">
+              <div class="score-block">
+                <div class="score-label">🌱 Sustainability</div>
+                <div class="score-bar-wrap"><div class="score-bar sustain" id="score-bar-s" style="width:0%"></div></div>
+                <div><span class="score-val" id="score-s">0</span><span class="score-max"> / 100</span></div>
+              </div>
+              <div class="score-block">
+                <div class="score-label">💡 Innovation</div>
+                <div class="score-bar-wrap"><div class="score-bar innov" id="score-bar-i" style="width:0%"></div></div>
+                <div><span class="score-val" id="score-i">0</span><span class="score-max"> / 100</span></div>
+              </div>
+              <div class="score-block" style="background:var(--surface)">
+                <div class="score-label">🔗 Connections</div>
+                <div style="font-size:13px;font-weight:700;color:var(--text)" id="score-conn">0 connections</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px" id="score-comp">0 components</div>
+              </div>
+              <button class="lab-analyse-btn" id="lab-analyse-btn" onclick="labAnalyse()">🤖 Analyse with AI</button>
+              <div style="font-size:11px;color:var(--text3);text-align:center;line-height:1.5">Add components &amp; connections, then let AI analyse your design</div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px;display:none" id="rp-feedback">
+              <div id="lab-feedback-content">
+                <div style="font-size:12px;color:var(--text3);font-style:italic;text-align:center;padding:24px 8px">Connect components and click<br/><strong>Analyse with AI</strong> to get feedback</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;font-size:11px;color:var(--text3)">
+          <span id="lab-status-field"><b style="color:var(--text2)">Field:</b> Electrical</span>
+          <span id="lab-status-mode"><b style="color:var(--text2)">Mode:</b> Drag to place</span>
+          <span id="lab-status-hint" style="flex:1">Tip: Drag a component from the left, then use Connect mode to link components</span>
+        </div>
+      </div>
+      <!-- END LAB -->
+    </div>
+    <div id="empty-prompt" style="text-align:center;padding:60px 0">
+      <div style="font-size:52px;margin-bottom:14px">👆</div>
+      <div style="color:var(--text3);font-size:15px;font-weight:600">Pick your engineering field above to get started!</div>
+    </div>
+    <div id="ideas-box" style="display:none">
+      <div class="div-lbl"><div class="div-line"></div><span class="div-txt">IDEAS READY</span><div class="div-line"></div></div>
+      <div class="ideas-grid" id="ideas-grid"></div>
+      <button class="regen-btn" onclick="generateIdeas()">Generate new ideas</button>
+    </div>
+  </div>
+</section>
+
+<!-- CHAT -->
+<section id="chat-section" class="page">
+  <div class="chat-wrap">
+    <div class="chat-head">
+      <div class="eco-ava"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="rgba(255,255,255,0.18)"/><circle cx="14" cy="14" r="12.5" stroke="white" stroke-width="1.6"/><path d="M14 1.5C14 1.5 10 7 10 14s4 12.5 4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M14 1.5C14 1.5 18 7 18 14s-4 12.5-4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10.5h25M1.5 17.5h25" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div style="flex:1">
+        <div class="eco-name">ECO GREEN AI</div>
+        <div class="eco-status"><span class="sdot"></span><span id="status-text">Always available · Remembers you</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
+        <button onclick="clearChatHistory()" title="Clear conversation" style="background:none;border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .2s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">Clear</button>
+        <div class="build-chip" id="build-chip" style="display:none"></div>
+      </div>
+    </div>
+    <div class="qprompts" id="qprompts"></div>
+    <!-- Streaming status bar -->
+    <div class="stream-status" id="stream-status">
+      <span class="stream-pulse"></span>
+      <span id="stream-status-text">Streaming response…</span>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-input-bar">
+      <div class="chat-input-inner">
+        <textarea class="chat-ta" id="chat-in" rows="1" placeholder="Message ECO GREEN AI…" onkeydown="chatKey(event)" oninput="resizeTA(this)"></textarea>
+        <button class="send-btn off" id="send-btn" onclick="sendChat()">↑</button>
+      </div>
+      <div class="chat-hint">Shift + Enter to send &nbsp;·&nbsp; Streaming mode enabled ✨</div>
+    </div>
+  </div>
+</section>
+
+<!-- SAVED -->
+<section id="saved-section" class="page">
+  <div class="saved-wrap">
+    <h2 class="saved-title">Saved Ideas</h2>
+    <p class="saved-sub">Your bookmarked projects, ready to build whenever you are.</p>
+    <div id="saved-content"></div>
+  </div>
+</section>
+
+
+<script>
+// ============================================================
+// ECO GREEN — AI Engineering Hub
+// Created by Modou Jaw · USET · Electrical Engineering Year 3
+// Streaming mode: tokens arrive live, assembled word-by-word
+// ============================================================
+
+const QUICK_PROMPTS = [
+  "I feel overwhelmed with my final year project. Can you help me figure out where to start? 😅",
+  "I have a project idea but I am not sure if it is good or realistic. Can I tell you about it?",
+  "Can you help me write a strong project proposal? What sections do I need and what should each contain?",
+  "What are the most in-demand green engineering skills I should learn right now in 2025?"
+];
+const QUICK_LABELS = [
+  "😅 I'm overwhelmed, help me start",
+  "💭 Is my idea any good?",
+  "📄 Help me write a proposal",
+  "🌱 What skills should I learn?"
+];
+
+function renderQuickPrompts() {
+  var qp = document.getElementById('qprompts'); if (!qp) return; qp.innerHTML = '';
+  QUICK_PROMPTS.forEach(function(prompt, i) {
+    var btn = document.createElement('button'); btn.className = 'qp'; btn.textContent = QUICK_LABELS[i];
+    btn.onclick = function() { sendQuick(prompt); }; qp.appendChild(btn);
+  });
+}
+
+// ===== DATA =====
+const FIELDS = {
+  electrical:{label:'Electrical & Electronics',icon:'⚡',color:'#f4a429',topics:['IoT & Smart Devices','Embedded Systems','Power Electronics','Signal Processing','Robotics','Renewable Energy','Telecommunications','PCB Design'],fact:'Did you know? The first integrated circuit was invented in 1958! 🧠'},
+  civil:{label:'Civil Engineering',icon:'🏗️',color:'#1a9e5c',topics:['Structural Design','Water Resources','Transportation','Geotechnical','Environmental','Construction Mgmt','Smart Infrastructure','Disaster Management'],fact:'Fun fact: The Great Wall of China used sticky rice as mortar! 🏯'},
+  mechanical:{label:'Mechanical Engineering',icon:'⚙️',color:'#7c6ff7',topics:['Thermodynamics','Fluid Mechanics','Manufacturing','Robotics & Automation','HVAC','Automotive','Aerospace','Materials Science'],fact:'Cool fact: Steam engines sparked the Industrial Revolution in the 1760s! 🔥'}
+};
+const LEVELS = [
+  {id:'Beginner',label:'Beginner 🌱',desc:'Year 1–2 student'},
+  {id:'Intermediate',label:'Intermediate 🌿',desc:'Year 2–3 student'},
+  {id:'Advanced',label:'Advanced 🌳',desc:'Final year student'},
+  {id:'Research Level',label:'Research 🔬',desc:'Postgrad / thesis'}
+];
+const WELCOME = "Hey! I'm really glad you're here. 💚\n\nI'm **ECO GREEN AI** — your personal sustainable engineering mentor. I'm genuinely here for you, not just to answer questions.\n\nHere's what I can help you with:\n\n## What I can do for you\n\n**💡 Project Ideas** — Tell me your field and level, I'll suggest real, buildable projects\n**🏗️ Project Planning** — I'll help you plan from idea to final submission, step by step\n**📄 Proposals & Reports** — I'll guide you through writing strong academic documents\n**⚡ Technical Questions** — Circuit design, coding, structural analysis, anything engineering\n**🌍 Sustainability** — Making your projects greener and more impactful\n**💬 Just Talking** — Feeling stuck or overwhelmed? Tell me. I'm here.\n\n**What's on your mind today?** 😊";
+
+// ===== STATE =====
+let apiKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
+let ideas = [], saved = [], chatHist = [], chatBusy = false;
+
+// ===== AI CONFIG =====
+const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OR_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'google/gemma-3-27b-it:free',
+  'google/gemma-3-12b-it:free',
+  'mistralai/devstral-small:free',
+  'nvidia/llama-3.1-nemotron-nano-8b-v1:free',
+  'allenai/olmo-3.1-32b-think:free',
+  'openrouter/auto'
+];
+let currentModel = OR_MODELS[0];
+
+// ================================================================
+// STREAMING ENGINE
+// Reads SSE chunks, assembles tokens, yields words with small delay
+// ================================================================
+
+/**
+ * Stream a chat completion from OpenRouter.
+ * @param {Array} messages  - Already-formatted messages array
+ * @param {string} sys      - System prompt
+ * @param {function} onToken - Called with each raw token string as it arrives
+ * @returns {Promise<string>} - Full assembled text
+ */
+async function streamAI(messages, sys, onToken) {
+  if (!apiKey) { openModal(); throw new Error('no_key'); }
+
+  const msgs = [];
+  if (sys) msgs.push({ role: 'system', content: sys });
+
+  // Merge & clean messages (same logic as original)
+  const filtered = messages.filter(m => m.role === 'user' || m.role === 'assistant')
+    .map(m => ({ role: m.role, content: m.content || '' }));
+  const merged = [];
+  for (const m of filtered) {
+    if (merged.length && merged[merged.length - 1].role === m.role)
+      merged[merged.length - 1].content += '\n' + m.content;
+    else merged.push({ ...m });
+  }
+  while (merged.length && merged[0].role === 'assistant') merged.shift();
+  if (!merged.length) throw new Error('Nothing to send.');
+  msgs.push(...merged);
+
+  let lastErr = '';
+  for (let mi = 0; mi < OR_MODELS.length; mi++) {
+    const model = OR_MODELS[mi];
+    let res;
+    try {
+      res = await fetch(OR_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey,
+          'HTTP-Referer': window.location.href,
+          'X-Title': 'ECO GREEN AI'
+        },
+        body: JSON.stringify({
+          model,
+          messages: msgs,
+          max_tokens: 3000,
+          temperature: 0.72,
+          top_p: 0.9,
+          stream: true   // ← STREAMING ENABLED
+        })
+      });
+    } catch (netErr) {
+      throw new Error('Network error — check your internet connection and try again.');
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus(); openModal();
+      throw new Error('bad_key');
+    }
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      lastErr = errText.toLowerCase();
+      if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 502 || res.status === 503
+          || lastErr.includes('endpoint') || lastErr.includes('not found') || lastErr.includes('overload')
+          || lastErr.includes('unavailable') || lastErr.includes('provider')) {
+        continue;
+      }
+      throw new Error(lastErr || 'API error');
+    }
+
+    // ── Read SSE stream ──
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let fullText = '';
+    let buffer = '';
+    let wordBuffer = '';        // accumulates partial word
+    const WORD_DELAY_MS = 42;  // ~24 words/sec — comfortable reading speed
+
+    // Helper: flush the word buffer through onToken with delay
+    async function flushWordBuffer() {
+      if (!wordBuffer) return;
+      const word = wordBuffer;
+      wordBuffer = '';
+      onToken(word);
+      await new Promise(r => setTimeout(r, WORD_DELAY_MS));
+    }
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed === ':' || !trimmed.startsWith('data:')) continue;
+          const data = trimmed.slice(5).trim();
+          if (data === '[DONE]') break;
+
+          let parsed;
+          try { parsed = JSON.parse(data); } catch { continue; }
+
+          // Extract token from delta
+          const token = parsed?.choices?.[0]?.delta?.content;
+          if (!token) continue;
+
+          fullText += token;
+
+          // ── Word-by-word assembly ──
+          // We want to emit whole "words" (plus their trailing space/punctuation).
+          // Strategy: accumulate into wordBuffer; flush on space or newline.
+          for (const char of token) {
+            if (char === ' ' || char === '\n' || char === '\t') {
+              wordBuffer += char;
+              await flushWordBuffer();
+            } else {
+              wordBuffer += char;
+            }
+          }
+        }
+      }
+
+      // Flush any remaining partial word
+      await flushWordBuffer();
+
+    } catch (streamErr) {
+      // If stream read fails mid-way, still return what we have
+      if (fullText) return fullText;
+      throw streamErr;
+    }
+
+    currentModel = model;
+    return fullText;
   }
 
-  ReactDOM.createRoot(document.getElementById('root')).render(<EcoLabV6 />);
+  throw new Error('Service temporarily unavailable — please try again in a moment.');
+}
+
+// Non-streaming fallback (used for idea generation JSON)
+async function aiRequest(messages, sys) {
+  if (!apiKey) { openModal(); throw new Error('no_key'); }
+  const msgs = [];
+  if (sys) msgs.push({ role: 'system', content: sys });
+  const filtered = messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({ role: m.role, content: m.content || '' }));
+  const merged = [];
+  for (const m of filtered) {
+    if (merged.length && merged[merged.length - 1].role === m.role) merged[merged.length - 1].content += '\n' + m.content;
+    else merged.push({ ...m });
+  }
+  while (merged.length && merged[0].role === 'assistant') merged.shift();
+  if (!merged.length) throw new Error('Nothing to send.');
+  msgs.push(...merged);
+  let lastErr = '';
+  for (let mi = 0; mi < OR_MODELS.length; mi++) {
+    const model = OR_MODELS[mi]; let res, data;
+    try {
+      res = await fetch(OR_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey, 'HTTP-Referer': window.location.href, 'X-Title': 'ECO GREEN AI' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 3000, temperature: 0.72, top_p: 0.9 }) });
+      data = await res.json();
+    } catch (netErr) { throw new Error('Network error — check your internet connection and try again.'); }
+    if (res.status === 401 || res.status === 403) { apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus(); openModal(); throw new Error('bad_key'); }
+    if (!res.ok || (data && data.error)) {
+      const errMsg = String((data && data.error && (data.error.message || data.error.code || data.error)) || res.statusText || '').toLowerCase();
+      lastErr = errMsg;
+      if (errMsg.includes('endpoint') || errMsg.includes('no model') || errMsg.includes('not found') || errMsg.includes('provider') || errMsg.includes('overload') || errMsg.includes('capacity') || errMsg.includes('unavailable') || errMsg.includes('error') || res.status === 404 || res.status === 429 || res.status === 500 || res.status === 502 || res.status === 503) { continue; }
+      throw new Error(errMsg || 'API error');
+    }
+    const text = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
+    if (text) { currentModel = model; return text; }
+    lastErr = 'empty response'; continue;
+  }
+  throw new Error('Service temporarily unavailable — please try again in a moment.');
+}
+
+function callAI(prompt, sys) { return aiRequest([{ role: 'user', content: prompt }], sys); }
+
+function compressMessages(messages) {
+  const filtered = messages.filter(m => m.role === 'user' || m.role === 'assistant');
+  if (filtered.length <= 24) return filtered;
+  const older = filtered.slice(0, filtered.length - 16);
+  const recent = filtered.slice(-16);
+  const summary = older.map(m => '[' + (m.role === 'user' ? 'Student' : 'ECO GREEN AI') + ']: ' + String(m.content).slice(0, 100).trim() + (m.content.length > 100 ? '...' : '')).join('\n');
+  return [
+    { role: 'user', content: '[Conversation history summary — ' + older.length + ' earlier messages]:\n' + summary + '\n\n[Continue from here with full awareness of everything above]' },
+    { role: 'assistant', content: 'I have full awareness of our entire conversation history and will continue naturally from where we left off.' },
+    ...recent
+  ];
+}
+
+// ===== THEME =====
+function applyTheme(dark, animate) {
+  if (!animate) document.body.style.transition = 'none';
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  const btn = document.getElementById('theme-btn'); if (btn) btn.textContent = dark ? '☀️' : '🌙';
+  if (!animate) setTimeout(() => { document.body.style.transition = ''; }, 50);
+}
+function toggleTheme() { const dark = document.documentElement.getAttribute('data-theme') === 'dark'; localStorage.setItem('eco-theme', dark ? 'light' : 'dark'); applyTheme(!dark, true); }
+(function() { const t = localStorage.getItem('eco-theme'); const dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; applyTheme(dark, false); })();
+
+// ===== API KEY =====
+function loadKey() { apiKey = localStorage.getItem('eco_or_key') || ''; updateStatus(); if (!apiKey) openModal(); }
+function saveApiKey() { const k = document.getElementById('api-key-input').value.trim(); if (!k) { alert('Please enter your password! 😊'); return; } apiKey = k; localStorage.setItem('eco_or_key', k); document.getElementById('api-modal').classList.add('hidden'); updateStatus(); confetti(); }
+function skipModal() { document.getElementById('api-modal').classList.add('hidden'); updateStatus(); }
+function openModal() { const inp = document.getElementById('api-key-input'); inp.value = apiKey || ''; inp.type = 'password'; document.getElementById('eye-btn').textContent = '👁️'; document.getElementById('api-modal').classList.remove('hidden'); }
+function toggleEye() { const inp = document.getElementById('api-key-input'); const eye = document.getElementById('eye-btn'); inp.type = inp.type === 'password' ? 'text' : 'password'; eye.textContent = inp.type === 'password' ? '👁️' : '🙈'; }
+function updateStatus() {
+  const title = document.getElementById('banner-title'), sub = document.getElementById('banner-sub'), action = document.getElementById('banner-action'), banner = document.getElementById('api-banner');
+  if (apiKey) { title.textContent = '✅ ECO GREEN AI Ready'; sub.textContent = 'AI features unlocked · Click to change password'; action.textContent = 'Change →'; banner.classList.add('connected'); }
+  else { title.textContent = '🔒 Password Required'; sub.textContent = 'Click to enter your password and unlock AI features'; action.textContent = 'Enter →'; banner.classList.remove('connected'); }
+}
+document.getElementById('api-key-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') saveApiKey(); });
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pMap = {hero:'hero-page',app:'app-section',chat:'chat-section',saved:'saved-section'};
+  const nMap = {hero:'nb-hero',app:'nb-app',chat:'nb-chat',saved:'nb-saved'};
+  const el = document.getElementById(pMap[name]);
+  if (el) el.classList.add('active');
+  const nb = document.getElementById(nMap[name]); if (nb) nb.classList.add('active');
+  if (name === 'saved') renderSaved();
+  if (name === 'chat') { if (!chatHist.length) initChat(); setTimeout(forceScrollDown, 60); }
+  if (name === 'app') { labInit(); }
+  window.scrollTo(0, 0);
+}
+
+// ===== APP =====
+function renderFields() {
+  const g = document.getElementById('field-grid'); g.innerHTML = '';
+  Object.entries(FIELDS).forEach(([k, f]) => {
+    const sel = selField === k; const d = document.createElement('div'); d.className = 'field-card';
+    if (sel) d.style.cssText = 'border-color:' + f.color + ';background:' + f.color + '14;box-shadow:0 4px 20px ' + f.color + '33';
+    d.innerHTML = '<span class="fi">' + f.icon + '</span><div class="fn" style="color:' + (sel ? f.color : 'var(--text)') + '">' + f.label + '</div>' + (sel ? '<div class="ff">' + f.fact + '</div>' : '');
+    d.onclick = function() { selField = k; selTopic = ''; ideas = []; document.getElementById('ideas-box').style.display = 'none'; renderFields(); renderSteps(); if (labInitDone) labSetField(k); };
+    g.appendChild(d);
+  });
+}
+
+function renderSteps() {
+  const has = !!selField;
+  document.getElementById('step2').style.display = has ? 'block' : 'none';
+  document.getElementById('step3').style.display = has ? 'block' : 'none';
+  document.getElementById('gen-wrap').style.display = has ? 'block' : 'none';
+  if (has) labInit();
+  document.getElementById('empty-prompt').style.display = has ? 'none' : 'block';
+  if (!has) return;
+  const f = FIELDS[selField];
+  const tw = document.getElementById('topics-wrap'); tw.innerHTML = '';
+  ['Any Topic'].concat(f.topics).forEach(t => {
+    const val = t === 'Any Topic' ? '' : t; const b = document.createElement('button'); b.className = 'topic-btn';
+    if (selTopic === val) b.style.cssText = 'border-color:' + f.color + ';color:' + f.color + ';background:' + f.color + '14';
+    b.textContent = (selTopic === val ? '✓ ' : '') + t; b.onclick = function() { selTopic = val; renderSteps(); }; tw.appendChild(b);
+  });
+  const lg = document.getElementById('level-grid'); lg.innerHTML = '';
+  LEVELS.forEach(l => {
+    const sel = selLevel === l.id; const c = document.createElement('div'); c.className = 'level-card';
+    if (sel) c.style.cssText = 'border-color:' + f.color + ';background:' + f.color + '14';
+    c.innerHTML = '<div><div class="lname" style="color:' + (sel ? f.color : 'var(--text)') + '">' + l.label + '</div><div class="ldesc">' + l.desc + '</div></div>';
+    c.onclick = function() { selLevel = l.id; renderSteps(); }; lg.appendChild(c);
+  });
+}
+
+async function generateIdeas() {
+  if (!selField) return;
+  if (!apiKey) { openModal(); return; }
+  const f = FIELDS[selField]; const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating with AI...';
+  const tc = selTopic ? 'specifically in the topic area of "' + selTopic + '"' : 'across any relevant green topic';
+  const prompt = 'You are an expert sustainable engineering project advisor. Generate exactly 4 creative, practical, eco-friendly project ideas for a ' + selLevel + ' student in ' + f.label + ' ' + tc + '.\n\nEach idea must be:\n- Genuinely innovative and specific (not generic)\n- Realistic for a ' + selLevel + ' student to build\n- Focused on sustainability and green impact\n- Clearly explained so a student immediately understands it\n\nReturn ONLY a valid JSON array with exactly 4 objects. Each object must have exactly these keys:\n{\n  "title": "Specific, catchy project title (max 8 words)",\n  "description": "2 clear sentences: sentence 1 = what it is and does, sentence 2 = how it works technically",\n  "technologies": ["tech1", "tech2", "tech3", "tech4"],\n  "impact": "1 specific sentence about the measurable green/sustainable impact",\n  "difficulty": 3,\n  "steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."]\n}\n\nDifficulty scale: 1=very easy, 2=easy, 3=moderate, 4=hard, 5=very advanced.\nCRITICAL: Return ONLY the raw JSON array. No markdown. No code fences. No explanation. No extra text before or after.';
+  const sys = 'You are a world-class sustainable engineering project advisor. Return ONLY a valid JSON array. No markdown. No code fences. No explanation. Nothing else.';
+  try {
+    const raw = await callAI(prompt, sys);
+    let clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const match = clean.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Response was not valid JSON. Please try again.');
+    ideas = JSON.parse(match[0]).slice(0, 4);
+    renderIdeas(); confetti();
+  } catch (e) {
+    if (e.message !== 'no_key' && e.message !== 'bad_key') alert('Could not generate ideas 😕\n\n' + e.message);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '🌿 Generate Green Ideas with AI';
+  }
+}
+
+function renderIdeas() {
+  const box = document.getElementById('ideas-box'); const g = document.getElementById('ideas-grid');
+  box.style.display = 'block'; g.innerHTML = '';
+  const f = FIELDS[selField];
+  ideas.forEach((idea, i) => {
+    const isSaved = !!saved.find(s => s.title === idea.title);
+    const diff = Math.max(1, Math.min(5, idea.difficulty || 3));
+    const diffLabel = ['','Beginner','Easy','Moderate','Advanced','Expert'][diff];
+    const diffColor = ['','#22c55e','#84cc16','#f59e0b','#ef4444','#7c3aed'][diff];
+    const steps = (idea.steps || []).slice(0, 3);
+    const d = document.createElement('div'); d.className = 'idea-card';
+    d.innerHTML = '<div class="idea-bar" style="background:linear-gradient(90deg,' + f.color + ',' + f.color + '66)"></div><div class="idea-body"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap"><span class="idea-meta" style="color:' + f.color + ';margin:0">' + f.icon + ' ' + f.label + '</span><span style="padding:3px 10px;border-radius:20px;background:' + diffColor + '18;border:1px solid ' + diffColor + '44;color:' + diffColor + ';font-size:11px;font-weight:800">' + '●'.repeat(diff) + '○'.repeat(5-diff) + ' ' + diffLabel + '</span></div><div class="idea-title">' + idea.title + '</div><div class="idea-desc">' + idea.description + '</div>' + (steps.length ? '<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:800;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">QUICK START</div>' + steps.map((s, si) => '<div style="display:flex;gap:8px;margin:5px 0;font-size:13px;color:var(--text2);font-weight:600;align-items:flex-start"><span style="background:' + f.color + ';color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">' + (si+1) + '</span><span>' + s.replace(/^Step \d+:\s*/, '') + '</span></div>').join('') + '</div>' : '') + '<div class="tech-tags">' + (idea.technologies || []).map(t => '<span class="tech-tag" style="background:' + f.color + '15;border:1.5px solid ' + f.color + '44;color:' + f.color + '">' + t + '</span>').join('') + '</div><div class="idea-impact">🌍 <strong>Green Impact:</strong> ' + idea.impact + '</div><div class="idea-actions"><button class="btn-eco" onclick="ideaToChat(' + i + ')">🌿 Build this with AI</button><button class="btn-save ' + (isSaved ? 'saved-active' : '') + '" id="sv' + i + '" onclick="toggleSave(' + i + ')">' + (isSaved ? '✓ Saved' : '📌 Save') + '</button></div></div>';
+    g.appendChild(d);
+  });
+}
+
+function toggleSave(i) { const idea = ideas[i]; const idx = saved.findIndex(s => s.title === idea.title); if (idx >= 0) saved.splice(idx, 1); else saved.push(Object.assign({}, idea, { field: selField })); updateSavedNav(); renderIdeas(); }
+function updateSavedNav() { const nb = document.getElementById('nb-saved'); if (nb) nb.textContent = saved.length ? '📌 Saved (' + saved.length + ')' : '📌 Saved'; }
+
+// ===== MEMORY =====
+let userProfile = {}, savedConvs = [];
+function loadMemory() { try { const p = localStorage.getItem('eco_profile'); if (p) userProfile = JSON.parse(p); } catch(e) { userProfile = {}; } try { const c = localStorage.getItem('eco_saved_convs'); if (c) savedConvs = JSON.parse(c); } catch(e) { savedConvs = []; } updateProfileDot(); }
+function saveProfile() { try { localStorage.setItem('eco_profile', JSON.stringify(userProfile)); } catch(e) {} updateProfileDot(); }
+function saveConvs() { try { localStorage.setItem('eco_saved_convs', JSON.stringify(savedConvs.slice(0, 20))); } catch(e) {} }
+function updateProfileDot() { const dot = document.getElementById('profile-dot'); if (dot) dot.style.display = (userProfile.notes && userProfile.notes.length) || savedConvs.length ? 'block' : 'none'; }
+function extractProfileFromMessage(text) {
+  let changed = false;
+  if (!userProfile.name) { const patterns = [/(?:my name is|i'm called|call me|i am)\s+([A-Za-z]{2,20})/i,/^(?:hi|hello|hey)[,\s]+(?:i'?m|my name is)\s+([A-Za-z]{2,20})/i]; for (const p of patterns) { const m = text.match(p); if (m && m[1] && m[1].length > 1) { const n = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase(); if (!['the','and','but','for','are','you','this','that','with','have','from'].includes(n.toLowerCase())) { userProfile.name = n; changed = true; break; } } } }
+  if (!userProfile.field) { if (/electrical|electronics|circuit|pcb|arduino|esp32|iot|embedded|power system|signal/i.test(text)) { userProfile.field = 'Electrical & Electronics Engineering'; changed = true; } else if (/civil|structural|concrete|bridge|road|foundation|soil|construction|hydraulic/i.test(text)) { userProfile.field = 'Civil Engineering'; changed = true; } else if (/mechanical|thermodynamic|fluid|hvac|engine|solidworks|manufacturing|robotic|machine/i.test(text)) { userProfile.field = 'Mechanical Engineering'; changed = true; } }
+  if (!userProfile.level) { if (/\byear[- ]?1\b|first[- ]year|1st[- ]year|100[- ]level|beginner/i.test(text)) { userProfile.level = 'Beginner (Year 1)'; changed = true; } else if (/\byear[- ]?2\b|second[- ]year|2nd[- ]year|200[- ]level/i.test(text)) { userProfile.level = 'Intermediate (Year 2)'; changed = true; } else if (/\byear[- ]?3\b|third[- ]year|3rd[- ]year|300[- ]level/i.test(text)) { userProfile.level = 'Advanced (Year 3)'; changed = true; } else if (/final[- ]year|year[- ]?4|4th[- ]year|400[- ]level|graduating/i.test(text)) { userProfile.level = 'Final Year'; changed = true; } else if (/postgrad|masters|phd|doctorate|research student|msc|meng/i.test(text)) { userProfile.level = 'Postgraduate / Research'; changed = true; } }
+  const projPatterns = [/(?:working on|building|designing|developing|my project (?:is|on|about)|project (?:is called|titled))\s+["']?([^.!?\n"']{8,70})["']?/i,/(?:i want to build|i'm making|i need to design)\s+(?:a|an)?\s*([^.!?\n]{8,70})/i];
+  for (const p of projPatterns) { const m = text.match(p); if (m && m[1]) { userProfile.project = m[1].trim().replace(/\s+/g,' '); changed = true; break; } }
+  if (changed) { saveProfile(); renderProfileTags(); }
+}
+function buildSystemWithMemory() {
+  const p = userProfile; const hasProfile = p.name || p.field || p.level || p.project || p.university || (p.notes && p.notes.length);
+  if (!hasProfile) return SYS;
+  let mem = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSTUDENT PROFILE — PERSONALISE TO THIS PERSON\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  if (p.name) mem += 'Name: ' + p.name + '\n→ Use their name naturally\n\n';
+  if (p.field) mem += 'Engineering Field: ' + p.field + '\n→ Tailor all examples to this field\n\n';
+  if (p.level) mem += 'Study Level: ' + p.level + '\n→ Calibrate technical depth accordingly\n\n';
+  if (p.university) mem += 'University: ' + p.university + '\n\n';
+  if (p.project) mem += 'Current Project: "' + p.project + '"\n→ Reference it when relevant\n\n';
+  if (p.notes && p.notes.length) mem += 'Additional Context:\n' + p.notes.map(n => '• ' + n).join('\n') + '\n\n';
+  mem += 'CRITICAL: Never say "according to your profile" — just BE naturally aware.';
+  return SYS + mem;
+}
+function openMemPanel() { document.getElementById('mem-panel').classList.add('open'); document.getElementById('mem-overlay').classList.add('open'); renderProfileTags(); renderConvList(); }
+function closeMemPanel() { document.getElementById('mem-panel').classList.remove('open'); document.getElementById('mem-overlay').classList.remove('open'); }
+function renderProfileTags() {
+  const c = document.getElementById('profile-tags'); if (!c) return;
+  const notes = userProfile.notes || []; const autoTags = [];
+  if (userProfile.name) autoTags.push({ label: '👤 ' + userProfile.name, key: 'name' });
+  if (userProfile.field) autoTags.push({ label: '⚡ ' + userProfile.field, key: 'field' });
+  if (userProfile.level) autoTags.push({ label: '🎓 ' + userProfile.level, key: 'level' });
+  if (userProfile.university) autoTags.push({ label: '🏛️ ' + userProfile.university, key: 'university' });
+  if (userProfile.project) autoTags.push({ label: '🔨 ' + userProfile.project, key: 'project' });
+  let html = '';
+  autoTags.forEach(t => { html += '<span class="mem-tag">' + t.label + '<button class="del-tag" onclick="deleteProfileKey(\'' + t.key + '\')">✕</button></span>'; });
+  notes.forEach((n, i) => { html += '<span class="mem-tag">📝 ' + n + '<button class="del-tag" onclick="deleteNote(' + i + ')">✕</button></span>'; });
+  if (!html) html = '<div class="mem-empty">No profile info yet. Chat with ECO GREEN AI and it will learn about you automatically! ✨</div>';
+  c.innerHTML = html;
+}
+function deleteProfileKey(key) { delete userProfile[key]; saveProfile(); renderProfileTags(); }
+function deleteNote(i) { if (!userProfile.notes) return; userProfile.notes.splice(i, 1); saveProfile(); renderProfileTags(); }
+function addProfileNote() { const inp = document.getElementById('profile-inp'); const val = inp.value.trim(); if (!val) return; if (!userProfile.notes) userProfile.notes = []; extractProfileFromMessage(val); if (!userProfile.notes) userProfile.notes = []; userProfile.notes.push(val); saveProfile(); renderProfileTags(); inp.value = ''; }
+function saveCurrentConv() {
+  if (chatHist.length <= 1) { alert('Start a conversation first! 😊'); return; }
+  const firstUserMsg = chatHist.find(m => m.role === 'user');
+  const title = firstUserMsg ? firstUserMsg.content.slice(0, 50) : 'Conversation';
+  const conv = { id: Date.now(), title, date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), messages: chatHist.slice() };
+  const idx = savedConvs.findIndex(c => c.id === conv.id); if (idx >= 0) savedConvs[idx] = conv; else savedConvs.unshift(conv);
+  saveConvs(); renderConvList(); updateProfileDot();
+  const btn = document.querySelector('[onclick="saveCurrentConv()"]');
+  if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => { btn.textContent = 'Save Current'; }, 1500); }
+}
+function renderConvList() {
+  const c = document.getElementById('conv-list'); if (!c) return;
+  if (!savedConvs.length) { c.innerHTML = '<div class="mem-empty">No saved conversations yet. Press "Save Current" after a chat! 💬</div>'; return; }
+  c.innerHTML = savedConvs.map((conv, i) => '<div class="conv-item"><div class="conv-item-title">' + conv.title + '</div><div class="conv-item-meta">📅 ' + conv.date + ' · ' + conv.messages.length + ' messages</div><div class="conv-item-actions"><button class="conv-load-btn" onclick="loadConv(' + i + ')">📂 Load</button><button class="conv-del-btn" onclick="deleteConv(' + i + ')">✕</button></div></div>').join('');
+}
+function loadConv(i) { chatHist = savedConvs[i].messages.slice(); closeMemPanel(); showPage('chat'); renderChat(); }
+function deleteConv(i) { savedConvs.splice(i, 1); saveConvs(); renderConvList(); updateProfileDot(); }
+function clearAllMemory() {
+  if (!confirm('Clear all memory, profile, and saved conversations?')) return;
+  userProfile = {}; savedConvs = []; localStorage.removeItem('eco_profile'); localStorage.removeItem('eco_saved_convs'); localStorage.removeItem('eco_chat_history'); localStorage.removeItem('eco_chat_last_time');
+  chatHist = [{ role: 'assistant', content: WELCOME }]; renderProfileTags(); renderConvList(); updateProfileDot(); renderChat();
+}
+
+// ===== CHAT =====
+const SYS = "You are ECO GREEN AI — an extraordinarily intelligent AI engineering mentor and companion. Created by Modou Jaw (Electrical & Electronics Engineering, Year 3, USET) as the heart of the ECO GREEN initiative.\n\nYou are a brilliant friend who genuinely knows engineering deeply and genuinely cares about the student you are talking to.\n\nYour expertise covers:\n⚡ Electrical & Electronics — circuits, PCB, Arduino, ESP32, IoT, embedded systems, power electronics, renewable energy\n🏗️ Civil Engineering — structural analysis, concrete, SAP2000, geotechnical, hydraulics, BIM\n⚙️ Mechanical Engineering — thermodynamics, CAD, SolidWorks, fluid mechanics, HVAC, manufacturing\n🌍 Sustainability — LCA, carbon footprint, solar PV, smart grids, climate tech, SDGs\n📚 Academic skills — proposals, reports, research methodology, project planning\n\nPersonality rules:\n- NEVER say 'Great question!', 'Certainly!', 'Of course!', 'Absolutely!'\n- Always read the emotional state and respond to the person, not just the question\n- Be warm, specific, and real — like a brilliant mentor who knows their stuff\n- Use **bold** for key terms. Use ## for section headings. Use ### for sub-headings.\n- Use emojis purposefully.\n- Match format to context: short answers for simple questions, structured breakdowns for technical ones\n- After answering, always add one proactive insight: a risk they haven't thought of, a next step, or a surprising fact\n\nFormatting guidance:\n- Use ## Heading for major sections\n- Use ### Sub-heading for subsections\n- Use **bold** for key terms and important points\n- Use bullet lists with - for enumerated items\n\nMission: Every student who talks to you should leave smarter, more confident, and more excited about engineering and sustainability.\n\n'The energy that moves with you — let us save the world by saving energy, one project at a time.' 🌍💚";
+
+function saveChatHistory() { try { localStorage.setItem('eco_chat_history', JSON.stringify(chatHist.slice(-60))); } catch(e) {} }
+function loadChatHistory() { try { const stored = localStorage.getItem('eco_chat_history'); if (stored) { const parsed = JSON.parse(stored); if (Array.isArray(parsed) && parsed.length > 0) return parsed; } } catch(e) {} return null; }
+function clearChatHistory() { localStorage.removeItem('eco_chat_history'); chatHist = [{ role: 'assistant', content: WELCOME }]; renderChat(); }
+function initChat() {
+  const stored = loadChatHistory();
+  if (stored) {
+    chatHist = stored;
+    const lastTime = localStorage.getItem('eco_chat_last_time');
+    if (lastTime && (Date.now() - Number(lastTime)) > 3600000) {
+      const name = userProfile.name ? ', ' + userProfile.name : '';
+      const proj = userProfile.project ? ' Still working on **' + userProfile.project + '**?' : '';
+      chatHist.push({ role: 'assistant', content: '👋 Welcome back' + name + '!' + proj + ' I remember everything — pick up right where we left off. 💚' });
+    }
+  } else {
+    const name = userProfile.name ? ', ' + userProfile.name : '';
+    const greeting = userProfile.name ? 'Hey' + name + '! 💚 Great to see you again.\n\nI\'m **ECO GREEN AI** — your personal engineering mentor. I remember you' + (userProfile.field ? ' from ' + userProfile.field : '') + '. What are we working on today? 😊' : WELCOME;
+    chatHist = [{ role: 'assistant', content: greeting }];
+  }
+  localStorage.setItem('eco_chat_last_time', Date.now());
+  renderChat();
+}
+
+// ===== MARKDOWN RENDERER =====
+function md(rawText, isUser) {
+  let s = rawText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (isUser) {
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code class="chat-code-inline">$1</code>').replace(/\n/g, '<br/>');
+    return s;
+  }
+  s = s.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => (lang ? '<div class="chat-pre-header"><span class="chat-pre-lang">' + lang + '</span></div>' : '') + '<pre class="chat-pre">' + code.trim() + '</pre>');
+  s = s.replace(/`([^`\n]+)`/g, '<code class="chat-code-inline">$1</code>');
+  s = s.replace(/^&gt;\s+(.+)$/gm, '<div class="chat-callout">$1</div>');
+  s = s.replace(/^### (.+)$/gm, '<div class="chat-h3">$1</div>');
+  s = s.replace(/^## (.+)$/gm, '<div class="chat-h2">$1</div>');
+  s = s.replace(/^# (.+)$/gm, '<div class="chat-h1">$1</div>');
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  s = s.replace(/^(\d+)\.\s+(.+)$/gm, (_, num, content) => '<div class="chat-li"><span class="chat-li-num">' + num + '</span><span>' + content + '</span></div>');
+  s = s.replace(/^[-•*]\s+(.+)$/gm, '<div class="chat-li"><span class="chat-li-bullet">✓</span><span>$1</span></div>');
+  s = s.replace(/^---+$/gm, '<hr class="chat-hr"/>');
+  s = s.replace(/\n/g, '<br/>');
+  s = s.replace(/(<\/pre>|<\/div>|<hr[^>]*\/>|<div class="chat-pre-header"[^>]*>.*?<\/div>)<br\/>/g, '$1');
+  s = s.replace(/^(<br\/>)+/, '').replace(/(<br\/>)+$/, '');
+  s = s.replace(/(<br\/>){3,}/g, '<br/><br/>');
+  return s;
+}
+
+// ===== RENDER CHAT =====
+const AI_SVG = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="8" fill="rgba(255,255,255,0.25)"/><circle cx="9" cy="9" r="8" stroke="white" stroke-width="1.5"/><path d="M9 1C9 1 6.5 4.5 6.5 9s2.5 8 2.5 8" stroke="white" stroke-width="1.2" stroke-linecap="round"/><path d="M9 1C9 1 11.5 4.5 11.5 9s-2.5 8-2.5 8" stroke="white" stroke-width="1.2" stroke-linecap="round"/><path d="M1.2 6.5h15.6M1.2 11.5h15.6" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>';
+
+function buildMsgRow(msg) {
+  const isUser = msg.role === 'user';
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + (isUser ? 'user' : 'assistant');
+  if (isUser) {
+    row.innerHTML = '<div class="bubble-wrap" style="align-items:flex-end"><div class="bubble-label">You</div><div class="bubble user">' + md(msg.content, true) + '</div></div><div class="msg-ava-user">M</div>';
+  } else {
+    row.innerHTML = '<div class="msg-ava">' + AI_SVG + '</div><div class="bubble-wrap"><div class="bubble-label">ECO GREEN AI</div><div class="bubble eco">' + md(msg.content, false) + '</div></div>';
+  }
+  return row;
+}
+
+function renderChat(loading) {
+  const c = document.getElementById('chat-msgs'); c.innerHTML = '';
+  chatHist.forEach(msg => c.appendChild(buildMsgRow(msg)));
+  if (loading) {
+    const row = document.createElement('div'); row.className = 'msg-row assistant';
+    row.innerHTML = '<div class="msg-ava">' + AI_SVG + '</div><div class="bubble-wrap"><div class="bubble-label">ECO GREEN AI</div><div class="typing-bub"><span class="typing-label">Thinking</span><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>';
+    c.appendChild(row);
+  }
+  forceScrollDown();
+  document.getElementById('qprompts').style.display = chatHist.length <= 1 ? 'flex' : 'none';
+}
+
+function scrollDown() {
+  const c = document.getElementById('chat-msgs');
+  if (!c) return;
+  // Only auto-scroll if user is within 80px of the bottom — never hijack upward scrolling
+  const distFromBottom = c.scrollHeight - c.scrollTop - c.clientHeight;
+  if (distFromBottom < 80) c.scrollTop = c.scrollHeight;
+}
+function forceScrollDown() {
+  const c = document.getElementById('chat-msgs');
+  if (c) c.scrollTop = c.scrollHeight;
+}
+function updateSendBtn() { const v = document.getElementById('chat-in').value.trim(); document.getElementById('send-btn').className = 'send-btn ' + (v && !chatBusy ? 'ready' : 'off'); }
+function chatKey(e) { if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); sendChat(); } updateSendBtn(); }
+function resizeTA(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; updateSendBtn(); }
+
+async function sendChat() {
+  const inp = document.getElementById('chat-in'); const msg = inp.value.trim();
+  if (!msg || chatBusy) return;
+  if (!apiKey) { openModal(); return; }
+  inp.value = ''; inp.style.height = 'auto'; updateSendBtn();
+  chatHist.push({ role: 'user', content: msg });
+  chatBusy = true; await doStreamChat();
+}
+
+async function sendQuick(msg) {
+  if (chatBusy) return;
+  if (!apiKey) { openModal(); return; }
+  if (!chatHist.length) initChat();
+  chatHist.push({ role: 'user', content: msg });
+  chatBusy = true; await doStreamChat();
+}
+
+// ================================================================
+// STREAMING CHAT — the core of the new experience
+// ================================================================
+async function doStreamChat() {
+  // Show the user's message immediately + typing indicator
+  renderChat(true);
+
+  // Set up status bar
+  const statusBar = document.getElementById('stream-status');
+  const statusText = document.getElementById('stream-status-text');
+  const statusEl = document.getElementById('status-text');
+  statusBar.classList.add('visible');
+  if (statusEl) statusEl.textContent = 'Streaming…';
+
+  // Create a streaming AI bubble row in the DOM
+  const chatMsgs = document.getElementById('chat-msgs');
+  // Remove the typing indicator row (last child)
+  if (chatMsgs.lastChild) chatMsgs.removeChild(chatMsgs.lastChild);
+
+  // Build an empty AI bubble we'll fill live
+  const streamRow = document.createElement('div');
+  streamRow.className = 'msg-row assistant';
+  streamRow.innerHTML = '<div class="msg-ava">' + AI_SVG + '</div><div class="bubble-wrap"><div class="bubble-label">ECO GREEN AI</div><div class="bubble eco" id="stream-bubble"></div></div>';
+  chatMsgs.appendChild(streamRow);
+
+  const bubble = document.getElementById('stream-bubble');
+  // Add blinking cursor
+  const cursor = document.createElement('span');
+  cursor.className = 'stream-cursor';
+  bubble.appendChild(cursor);
+
+  let accumulated = ''; // full raw markdown text so far
+  let tokenCount = 0;
+
+  // Throttled render: only re-render markdown at most every 80ms to avoid thrashing
+  let renderPending = false;
+  function scheduleRender() {
+    if (renderPending) return;
+    renderPending = true;
+    setTimeout(function() {
+      renderPending = false;
+      bubble.innerHTML = md(accumulated, false) + '<span class="stream-cursor"></span>';
+      statusText.textContent = 'Streaming… ' + tokenCount + ' tokens';
+      scrollDown();
+    }, 80);
+  }
+
+  try {
+    const compressed = compressMessages(chatHist.filter(m => m.role === 'user' || m.role === 'assistant'));
+
+    await streamAI(compressed, buildSystemWithMemory(), function onToken(token) {
+      accumulated += token;
+      tokenCount++;
+
+      // Use throttled render — avoids re-rendering markdown on every character
+      scheduleRender();
+    });
+
+    // Streaming done — commit to chatHist, remove cursor
+    chatHist.push({ role: 'assistant', content: accumulated || 'I got an empty response — please try again! 😊' });
+
+    const lastUser = chatHist.slice().reverse().find(m => m.role === 'user');
+    if (lastUser) extractProfileFromMessage(lastUser.content);
+
+  } catch (e) {
+    const errMsg = '⚠️ ' + (e.message || 'Something went wrong') + ' — please try again!';
+    if (e.message !== 'no_key' && e.message !== 'bad_key') {
+      chatHist.push({ role: 'assistant', content: errMsg });
+    }
+  } finally {
+    chatBusy = false;
+    statusBar.classList.remove('visible');
+    if (statusEl) statusEl.textContent = 'Always available · Remembers you';
+    updateSendBtn();
+    // Final clean render (removes cursor, formats properly)
+    renderChat(false);
+    saveChatHistory();
+    localStorage.setItem('eco_chat_last_time', Date.now());
+  }
+}
+
+async function ideaToChat(i) {
+  const idea = ideas[i]; if (!apiKey) { openModal(); return; }
+  const msg = 'Hi ECO GREEN AI! I want to build this project: **' + idea.title + '**. ' + idea.description + ' Can you help me plan it step by step with a focus on sustainability and eco-friendliness?';
+  chatHist = [{ role: 'assistant', content: WELCOME }, { role: 'user', content: msg }];
+  chatBusy = true; showPage('chat');
+  const chip = document.getElementById('build-chip');
+  chip.style.display = 'block'; chip.innerHTML = 'Building:<br/><strong>' + idea.title + '</strong>';
+  await doStreamChat();
+}
+
+// ===== SAVED =====
+function renderSaved() {
+  const c = document.getElementById('saved-content');
+  if (!saved.length) { c.innerHTML = '<div class="empty-box"><span class="empty-icon">📭</span><div class="empty-txt">No saved ideas yet — go generate some green ideas! 😊</div><button class="btn-big" onclick="showPage(\'app\')">Generate Ideas ✨</button></div>'; return; }
+  c.innerHTML = '<div class="saved-grid" id="sg"></div>';
+  const g = document.getElementById('sg');
+  saved.forEach((idea, i) => {
+    const f = FIELDS[idea.field]; const d = document.createElement('div'); d.className = 'saved-card';
+    d.innerHTML = '<div style="height:4px;background:linear-gradient(90deg,' + f.color + ',' + f.color + '55)"></div><div style="padding:20px 22px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px"><div><div style="font-size:11px;color:' + f.color + ';font-weight:800">' + f.icon + ' ' + f.label + '</div><div style="font-family:\'DM Serif Display\',serif;font-size:18px;font-weight:700;color:var(--text);margin-top:4px;line-height:1.3">' + idea.title + '</div></div><button onclick="removeSaved(' + i + ')" style="padding:6px 12px;border-radius:10px;border:1.5px solid #fca5a5;background:#fef2f2;color:#ef4444;cursor:pointer;font-size:12px;font-weight:700;font-family:\'Inter\',sans-serif;flex-shrink:0">✕ Remove</button></div><p style="color:var(--text2);font-size:13px;line-height:1.8;margin:0 0 14px;font-weight:600">' + idea.description + '</p><div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">' + (idea.technologies || []).map(t => '<span style="background:' + f.color + '15;border:1.5px solid ' + f.color + '44;color:' + f.color + ';padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">' + t + '</span>').join('') + '</div><div style="background:var(--green4);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:600;border:1px solid var(--green3)">🌍 ' + idea.impact + '</div><button class="btn-eco" onclick="savedToChat(' + i + ')" style="width:auto;padding:11px 22px">🌿 Build with Eco Green AI</button></div>';
+    g.appendChild(d);
+  });
+}
+function removeSaved(i) { saved.splice(i, 1); updateSavedNav(); renderSaved(); }
+function savedToChat(i) { ideas = [saved[i]]; ideaToChat(0); }
+
+// ===== CONFETTI =====
+function confetti() {
+  const layer = document.getElementById('confetti-layer'); layer.innerHTML = '';
+  const colors = ['#1a9e5c','#f4a429','#7c6ff7','#f0637a','#25c270','#60a5fa'];
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement('div'); p.className = 'cp';
+    const sz = 7 + Math.random() * 8;
+    p.style.cssText = 'left:' + (10 + Math.random() * 80) + '%;top:10%;width:' + sz + 'px;height:' + sz + 'px;background:' + colors[Math.floor(Math.random() * colors.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '4px') + ';animation-delay:' + (Math.random() * 0.5) + 's;animation-duration:' + (1.5 + Math.random() * 0.8) + 's';
+    layer.appendChild(p);
+  }
+  setTimeout(() => { layer.innerHTML = ''; }, 2600);
+}
+
+// ===== PWA =====
+(function() {
+  const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#16a05a"/><circle cx="256" cy="256" r="160" fill="none" stroke="white" stroke-width="18"/><path d="M256 96C256 96 200 160 200 256s56 160 56 160" stroke="white" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M256 96C256 96 312 160 312 256s-56 160-56 160" stroke="white" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M98 210h316M98 302h316" stroke="white" stroke-width="14" stroke-linecap="round"/></svg>';
+  const iconBlob = new Blob([iconSvg], { type: 'image/svg+xml' });
+  const iconUrl = URL.createObjectURL(iconBlob);
+  const manifest = { name:'ECO GREEN AI', short_name:'ECO GREEN', description:'AI-powered sustainable engineering mentor by Modou Jaw', start_url:window.location.href, display:'standalone', orientation:'portrait', background_color:'#fafcfb', theme_color:'#1a9e5c', icons:[{ src:iconUrl, sizes:'192x192', type:'image/svg+xml', purpose:'any maskable' },{ src:iconUrl, sizes:'512x512', type:'image/svg+xml', purpose:'any maskable' }] };
+  const mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(mBlob));
+  document.getElementById('apple-icon').setAttribute('href', iconUrl);
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+  if ('serviceWorker' in navigator) {
+    const swCode = "self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});";
+    navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' })), { scope: '/' }).catch(() => {});
+  }
+})();
+
+// ===== SPINNING EARTH =====
+(function initEarth() {
+  const CONTINENTS = [
+    [[-168,72],[-140,70],[-120,75],[-85,73],[-65,68],[-55,62],[-55,47],[-67,44],[-70,42],[-75,35],[-80,25],[-90,20],[-104,19],[-117,32],[-125,38],[-130,55],[-140,60],[-155,60],[-168,65],[-168,72]],
+    [[-82,12],[-75,12],[-65,11],[-62,10],[-60,5],[-50,2],[-50,-10],[-40,-15],[-38,-8],[-35,-4],[-34,-10],[-38,-18],[-45,-22],[-48,-28],[-52,-33],[-58,-38],[-65,-55],[-68,-55],[-72,-50],[-75,-42],[-75,-30],[-72,-18],[-75,-12],[-80,0],[-82,8],[-82,12]],
+    [[-10,36],[0,36],[10,38],[15,38],[20,36],[28,38],[30,42],[28,46],[15,45],[10,44],[5,43],[0,43],[-2,44],[-5,44],[-8,42],[-10,40],[-8,36],[-6,36],[-5,38],[-2,37],[0,37],[5,43],[8,44],[10,46],[14,47],[17,48],[18,50],[20,54],[18,57],[20,60],[25,60],[28,70],[20,72],[10,72],[0,68],[-8,60],[-10,56],[-6,50],[-5,48],[-2,48],[-2,46],[-6,44],[-10,44],[-10,36]],
+    [[-18,16],[-16,24],[-14,28],[-12,32],[-8,36],[0,37],[10,38],[14,36],[22,37],[30,32],[32,28],[34,24],[38,16],[42,12],[44,8],[42,2],[40,-2],[38,-6],[36,-14],[34,-20],[32,-26],[28,-30],[26,-34],[20,-36],[16,-30],[14,-24],[12,-18],[8,-8],[8,4],[4,6],[2,8],[0,8],[-4,6],[-10,6],[-14,10],[-16,12],[-18,16]],
+    [[30,42],[35,36],[36,36],[38,38],[40,38],[44,40],[48,38],[50,40],[52,44],[55,44],[60,46],[64,42],[66,38],[68,38],[72,34],[76,30],[80,28],[84,28],[88,26],[92,24],[96,22],[100,20],[104,22],[108,20],[110,22],[114,22],[118,24],[120,30],[122,32],[124,38],[130,42],[134,44],[138,44],[140,46],[140,50],[135,48],[130,50],[125,52],[120,54],[115,56],[110,60],[105,64],[100,68],[95,72],[85,74],[75,74],[60,72],[50,70],[40,70],[35,70],[28,70],[20,72],[20,68],[25,65],[28,62],[25,58],[22,56],[18,57],[20,54],[18,50],[20,46],[24,46],[28,46],[30,42]],
+    [[114,-22],[116,-20],[118,-20],[124,-18],[128,-14],[132,-14],[136,-14],[140,-18],[144,-18],[148,-20],[152,-24],[154,-26],[152,-30],[150,-36],[148,-38],[146,-38],[144,-38],[142,-38],[140,-36],[136,-34],[132,-32],[128,-32],[124,-34],[120,-34],[116,-32],[114,-28],[113,-26],[114,-22]],
+    [[-46,60],[-36,60],[-24,62],[-18,68],[-20,74],[-26,78],[-38,82],[-50,82],[-58,78],[-58,72],[-52,68],[-46,60]],
+    [[-180,-70],[-120,-68],[-60,-66],[0,-70],[60,-66],[120,-68],[180,-70],[180,-90],[-180,-90],[-180,-70]]
+  ];
+  const canvas = document.getElementById('earth-canvas'); if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, R = W/2-2;
+  let angle = 0;
+  const TILT = 23.5 * Math.PI / 180;
+  function project(lon, lat, rot) {
+    const lonR = (lon * Math.PI / 180) + rot, latR = lat * Math.PI / 180;
+    const x3 = Math.cos(latR) * Math.sin(lonR), y3 = Math.sin(latR), z3 = Math.cos(latR) * Math.cos(lonR);
+    const y4 = y3 * Math.cos(TILT) - z3 * Math.sin(TILT), z4 = y3 * Math.sin(TILT) + z3 * Math.cos(TILT);
+    if (z4 < 0) return null;
+    return { x: cx + x3 * R, y: cy - y4 * R, z: z4 };
+  }
+  function drawFrame() {
+    ctx.clearRect(0, 0, W, H); ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+    const og = ctx.createRadialGradient(cx - R*.35, cy - R*.35, R*.02, cx + R*.1, cy + R*.1, R*1.1);
+    og.addColorStop(0,'#7ed6f7'); og.addColorStop(0.3,'#1a8fc1'); og.addColorStop(0.65,'#0a5a8c'); og.addColorStop(1,'#012a4f');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = og; ctx.fill();
+    CONTINENTS.forEach(poly => {
+      ctx.beginPath(); let started = false, hasVisible = false;
+      const pts = poly.map(p => project(p[0], p[1], angle));
+      pts.forEach(p => { if (p) hasVisible = true; });
+      if (!hasVisible) return;
+      let avgZ = 0, cnt = 0;
+      pts.forEach(p => { if (!p) { started = false; return; } if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y); avgZ += p.z; cnt++; });
+      ctx.closePath();
+      const lit = cnt > 0 ? Math.pow(avgZ/cnt, 0.6) : 0.5;
+      ctx.fillStyle = `rgb(${Math.round(40+lit*90)},${Math.round(110+lit*80)},${Math.round(30+lit*40)})`;
+      ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.4; ctx.stroke();
+    });
+    const shadowGrad = ctx.createRadialGradient(cx+R*.18, cy-R*.05, R*.42, cx+R*.46, cy+R*.15, R*1.15);
+    shadowGrad.addColorStop(0,'rgba(0,0,0,0)'); shadowGrad.addColorStop(0.55,'rgba(0,0,30,0.18)'); shadowGrad.addColorStop(0.80,'rgba(0,0,20,0.52)'); shadowGrad.addColorStop(1,'rgba(0,0,10,0.75)');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = shadowGrad; ctx.fill();
+    const atmoGrad = ctx.createRadialGradient(cx, cy, R*.84, cx, cy, R);
+    atmoGrad.addColorStop(0,'rgba(80,180,255,0)'); atmoGrad.addColorStop(0.55,'rgba(80,180,255,0.09)'); atmoGrad.addColorStop(0.85,'rgba(60,160,255,0.22)'); atmoGrad.addColorStop(1,'rgba(40,130,230,0.38)');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = atmoGrad; ctx.fill();
+    const specGrad = ctx.createRadialGradient(cx-R*.42, cy-R*.42, 0, cx-R*.15, cy-R*.15, R*.72);
+    specGrad.addColorStop(0,'rgba(255,255,255,0.55)'); specGrad.addColorStop(0.18,'rgba(255,255,255,0.18)'); specGrad.addColorStop(0.45,'rgba(255,255,255,0.04)'); specGrad.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = specGrad; ctx.fill();
+    ctx.restore();
+    angle += 0.005; requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+})();
+
+// ===== INIT =====
+renderFields(); renderQuickPrompts(); loadMemory(); loadKey();
+
+// ================================================================
+// LAB ENGINE — Drag & Drop Component Circuit Builder
+// ================================================================
+const LAB_COMPONENTS = {
+  electrical: [
+    { id:'solar',   name:'Solar Panel',    icon:'☀️', cat:'Energy',    sustain:18, innov:8,  ports:2, desc:'Photovoltaic panel, converts sunlight to DC electricity' },
+    { id:'wind',    name:'Wind Turbine',   icon:'🌬️', cat:'Energy',    sustain:20, innov:10, ports:2, desc:'Horizontal-axis turbine generating AC power from wind' },
+    { id:'battery', name:'Battery Bank',   icon:'🔋', cat:'Storage',   sustain:10, innov:5,  ports:2, desc:'Lithium-ion or lead-acid energy storage module' },
+    { id:'inverter',name:'Inverter',       icon:'🔌', cat:'Power',     sustain:6,  innov:7,  ports:3, desc:'DC to AC power converter for grid/load compatibility' },
+    { id:'mppt',    name:'MPPT Controller',icon:'📡', cat:'Control',   sustain:8,  innov:12, ports:3, desc:'Maximum Power Point Tracking for optimal solar harvest' },
+    { id:'motor',   name:'Electric Motor', icon:'⚙️', cat:'Actuator',  sustain:5,  innov:6,  ports:2, desc:'Brushless DC motor for mechanical work' },
+    { id:'arduino', name:'Arduino MCU',    icon:'🤖', cat:'Control',   sustain:4,  innov:14, ports:4, desc:'Microcontroller for sensor reading & automation' },
+    { id:'sensor',  name:'Energy Sensor',  icon:'📊', cat:'Sensor',    sustain:6,  innov:10, ports:2, desc:'Current & voltage monitoring sensor for efficiency tracking' },
+    { id:'led',     name:'LED Array',      icon:'💡', cat:'Output',    sustain:8,  innov:4,  ports:2, desc:'High-efficiency LED lighting system' },
+    { id:'smartgrid',name:'Smart Grid',    icon:'🌐', cat:'Network',   sustain:15, innov:18, ports:3, desc:'Bidirectional power grid with demand-response capability' },
+    { id:'charger', name:'EV Charger',     icon:'🚗', cat:'Output',    sustain:12, innov:14, ports:2, desc:'Level-2 electric vehicle charging station' },
+    { id:'hydro',   name:'Micro-Hydro',    icon:'💧', cat:'Energy',    sustain:18, innov:12, ports:2, desc:'Run-of-river micro-hydro generation unit' },
+    { id:'fuel',    name:'Fuel Cell',      icon:'⚗️', cat:'Energy',    sustain:14, innov:16, ports:2, desc:'Hydrogen PEM fuel cell for clean electricity' },
+    { id:'bms',     name:'BMS Module',     icon:'🛡️', cat:'Control',   sustain:7,  innov:11, ports:3, desc:'Battery Management System for safety & cell balancing' },
+    { id:'transformer',name:'Transformer', icon:'🔁', cat:'Power',     sustain:3,  innov:4,  ports:2, desc:'Step-up/down voltage transformer' },
+    { id:'capacitor',name:'Supercapacitor',icon:'⚡', cat:'Storage',   sustain:9,  innov:13, ports:2, desc:'Ultracapacitor for peak power delivery' },
+    { id:'iot',     name:'IoT Gateway',    icon:'📶', cat:'Network',   sustain:5,  innov:16, ports:3, desc:'MQTT-based IoT hub for remote monitoring' },
+    { id:'display', name:'HMI Display',    icon:'🖥️', cat:'Output',    sustain:2,  innov:8,  ports:2, desc:'Touch-screen human-machine interface panel' },
+  ],
+  mechanical: [
+    { id:'pump',    name:'Water Pump',     icon:'💧', cat:'Fluid',     sustain:8,  innov:5,  ports:2, desc:'Centrifugal pump for fluid circulation' },
+    { id:'heatex',  name:'Heat Exchanger', icon:'♨️', cat:'Thermal',   sustain:12, innov:9,  ports:4, desc:'Shell-and-tube heat recovery exchanger' },
+    { id:'compressor',name:'Compressor',   icon:'🗜️', cat:'Fluid',     sustain:4,  innov:6,  ports:3, desc:'Rotary screw air compressor' },
+    { id:'turbine', name:'Steam Turbine',  icon:'🌀', cat:'Energy',    sustain:10, innov:8,  ports:3, desc:'Multi-stage steam turbine for power generation' },
+    { id:'gearpump',name:'Gear Pump',      icon:'⚙️', cat:'Fluid',     sustain:5,  innov:4,  ports:2, desc:'Positive displacement gear pump' },
+    { id:'thermostat',name:'Smart Thermo', icon:'🌡️', cat:'Control',   sustain:9,  innov:13, ports:2, desc:'Programmable thermostat with occupancy sensing' },
+    { id:'hvac',    name:'HVAC Unit',      icon:'❄️', cat:'Thermal',   sustain:7,  innov:8,  ports:4, desc:'Variable-refrigerant-flow HVAC system' },
+    { id:'boiler',  name:'Solar Boiler',   icon:'🔥', cat:'Thermal',   sustain:14, innov:10, ports:3, desc:'Solar-assisted thermal boiler' },
+    { id:'flywheel',name:'Flywheel Store', icon:'🎡', cat:'Storage',   sustain:11, innov:14, ports:2, desc:'Kinetic energy flywheel storage system' },
+    { id:'piston',  name:'Hydraulic Cyl.', icon:'⬛', cat:'Actuator',  sustain:4,  innov:5,  ports:2, desc:'Double-acting hydraulic cylinder' },
+    { id:'bearing', name:'Maglev Bearing', icon:'🧲', cat:'Mech',      sustain:8,  innov:16, ports:2, desc:'Magnetic levitation frictionless bearing' },
+    { id:'filter',  name:'Air Filter',     icon:'🌿', cat:'Clean',     sustain:14, innov:6,  ports:2, desc:'HEPA air filtration module' },
+    { id:'recycle', name:'Heat Recovery',  icon:'♻️', cat:'Thermal',   sustain:18, innov:12, ports:3, desc:'Waste heat recovery ventilation unit' },
+    { id:'3dprint', name:'3D Printer',     icon:'🖨️', cat:'Mfg',       sustain:6,  innov:18, ports:2, desc:'FDM additive manufacturing unit' },
+    { id:'robot',   name:'Robotic Arm',    icon:'🦾', cat:'Actuator',  sustain:5,  innov:17, ports:3, desc:'6-DOF collaborative robotic arm' },
+    { id:'valve',   name:'Smart Valve',    icon:'🚰', cat:'Control',   sustain:7,  innov:10, ports:2, desc:'Electronically actuated flow control valve' },
+    { id:'insul',   name:'Insulation',     icon:'🧱', cat:'Passive',   sustain:15, innov:4,  ports:0, desc:'Aerogel thermal insulation panel' },
+    { id:'cooler',  name:'Biomass Cooler', icon:'🌱', cat:'Thermal',   sustain:16, innov:11, ports:2, desc:'Evaporative biomass-powered cooling' },
+  ],
+  civil: [
+    { id:'rainharvest',name:'Rainwater Harvest',icon:'🌧️',cat:'Water',  sustain:18, innov:8,  ports:2, desc:'Rooftop collection and storage system' },
+    { id:'greenwalls',name:'Green Wall',    icon:'🌿', cat:'Bio',       sustain:16, innov:12, ports:0, desc:'Vertical living wall for insulation & air quality' },
+    { id:'permpave', name:'Porous Paving',  icon:'⬜', cat:'Infra',     sustain:14, innov:8,  ports:0, desc:'Permeable concrete for stormwater infiltration' },
+    { id:'solarpave',name:'Solar Pavement', icon:'☀️', cat:'Energy',    sustain:17, innov:18, ports:2, desc:'Photovoltaic embedded road surface panel' },
+    { id:'bioswale', name:'Bioswale',       icon:'〰️', cat:'Water',     sustain:19, innov:10, ports:2, desc:'Vegetated channel for stormwater management' },
+    { id:'bridge',   name:'Smart Bridge',   icon:'🌉', cat:'Infra',     sustain:8,  innov:14, ports:2, desc:'Sensor-embedded bridge structure with SHM' },
+    { id:'concrete', name:'Green Concrete', icon:'🏢', cat:'Material',  sustain:12, innov:10, ports:0, desc:'GGBS and fly-ash blended low-carbon concrete' },
+    { id:'retwall',  name:'Retaining Wall', icon:'🧱', cat:'Structural',sustain:5,  innov:4,  ports:0, desc:'Gabion or geogrid reinforced retaining wall' },
+    { id:'cistern',  name:'Underground Tank',icon:'🏺',cat:'Water',     sustain:13, innov:7,  ports:2, desc:'Below-grade stormwater detention cistern' },
+    { id:'solwater', name:'Solar Water Htr',icon:'🚿', cat:'Energy',    sustain:15, innov:9,  ports:2, desc:'Flat-plate solar collector for domestic hot water' },
+    { id:'windbreak',name:'Windbreak Wall', icon:'💨', cat:'Passive',   sustain:10, innov:6,  ports:0, desc:'Structural shelterbelt for wind load reduction' },
+    { id:'trench',   name:'French Drain',   icon:'💧', cat:'Water',     sustain:14, innov:5,  ports:2, desc:'Subsurface perforated pipe drainage system' },
+    { id:'ifc',      name:'BIM/IFC Model',  icon:'📐', cat:'Digital',   sustain:4,  innov:18, ports:0, desc:'Building information model for lifecycle analysis' },
+    { id:'solarroof',name:'Solar Roof',     icon:'🏠', cat:'Energy',    sustain:18, innov:14, ports:2, desc:'Integrated photovoltaic roofing tiles' },
+    { id:'greywater',name:'Greywater Reuse',icon:'♻️',cat:'Water',     sustain:17, innov:10, ports:3, desc:'Greywater treatment and recirculation system' },
+    { id:'earthworks',name:'Earthworks',    icon:'⛏️', cat:'Geo',       sustain:6,  innov:4,  ports:0, desc:'Cut-and-fill earthwork optimization' },
+    { id:'shade',    name:'Shade Structure',icon:'⛱️', cat:'Passive',   sustain:11, innov:7,  ports:0, desc:'Tensile canopy for passive cooling' },
+    { id:'monitor',  name:'Structural Monitor',icon:'📡',cat:'Sensor',  sustain:6,  innov:16, ports:2, desc:'Wireless structural health monitoring sensor node' },
+  ]
+};
+
+// Synergy bonuses when specific pairs are connected
+const LAB_SYNERGIES = {
+  'solar+mppt':     { sustain:+8,  innov:+6,  msg:'Solar + MPPT maximises energy harvest efficiency (+14 pts)' },
+  'solar+battery':  { sustain:+7,  innov:+5,  msg:'Solar + Battery creates off-grid resilience (+12 pts)' },
+  'wind+battery':   { sustain:+8,  innov:+5,  msg:'Wind + Battery smooths intermittent generation (+13 pts)' },
+  'battery+bms':    { sustain:+5,  innov:+8,  msg:'Battery + BMS extends lifespan and prevents hazards (+13 pts)' },
+  'mppt+arduino':   { sustain:+4,  innov:+10, msg:'MPPT + Arduino enables smart adaptive charging (+14 pts)' },
+  'iot+smartgrid':  { sustain:+6,  innov:+14, msg:'IoT + Smart Grid enables demand-response automation (+20 pts)' },
+  'solar+charger':  { sustain:+10, innov:+8,  msg:'Solar + EV Charger creates green transport infrastructure (+18 pts)' },
+  'fuel+motor':     { sustain:+8,  innov:+12, msg:'Fuel Cell + Motor creates zero-emission propulsion (+20 pts)' },
+  'heatex+boiler':  { sustain:+10, innov:+6,  msg:'Heat Exchanger + Solar Boiler recovers waste energy (+16 pts)' },
+  'recycle+hvac':   { sustain:+12, innov:+8,  msg:'Heat Recovery + HVAC dramatically cuts building energy (+20 pts)' },
+  'flywheel+turbine':{ sustain:+9, innov:+12, msg:'Flywheel + Turbine stabilises power output (+21 pts)' },
+  'thermostat+hvac':{ sustain:+8, innov:+9,   msg:'Smart Thermostat + HVAC reduces energy waste (+17 pts)' },
+  'rainharvest+cistern':{ sustain:+10,innov:+6, msg:'Rainwater + Cistern creates resilient water supply (+16 pts)' },
+  'bioswale+permpave':{ sustain:+14,innov:+8,  msg:'Bioswale + Porous Paving manages 100% stormwater on-site (+22 pts)' },
+  'greenwalls+shade':{ sustain:+10,innov:+7,   msg:'Green Wall + Shade creates a passive cooling microclimate (+17 pts)' },
+  'solarroof+solwater':{ sustain:+12,innov:+8, msg:'Solar Roof + Solar Water creates near net-zero buildings (+20 pts)' },
+  'greywater+rainharvest':{ sustain:+14,innov:+10, msg:'Greywater + Rainwater closes the on-site water cycle (+24 pts)' },
+  'ifc+monitor':    { sustain:+4,  innov:+16, msg:'BIM + Structural Monitor enables digital twin lifecycle management (+20 pts)' },
+  'solar+ifc':      { sustain:+6,  innov:+12, msg:'Solar + BIM model enables whole-building energy simulation (+18 pts)' },
+};
+
+let labField = 'electrical';
+let labNodes = {};        // id -> { el, x, y, compId, compData }
+let labConns = [];        // [{from, to, synergy}]
+let labNodeId = 0;
+let labSelected = null;
+let labConnMode = false;
+let labConnFrom = null;
+let labDragNode = null;
+let labDragOff  = { x:0, y:0 };
+let labHistory  = [];    // for undo
+let labInitDone = false;
+let labAnalysing = false;
+
+function labInit() {
+  if (labInitDone) return;
+  labInitDone = true;
+  // Sync lab field to whatever engineering field the user picked
+  const fieldMap = { electrical:'electrical', civil:'civil', mechanical:'mechanical' };
+  const syncField = (selField && fieldMap[selField]) ? selField : 'electrical';
+  labSetField(syncField);
+
+  const wrap = document.getElementById('lab-canvas-wrap');
+  wrap.addEventListener('dragover', e => e.preventDefault());
+  wrap.addEventListener('drop', labOnDrop);
+
+  // Global mouse-move/up for node dragging
+  document.addEventListener('mousemove', labMouseMove);
+  document.addEventListener('mouseup',   labMouseUp);
+}
+
+function labRenderPalette() {
+  const pal = document.getElementById('lab-palette');
+  const comps = LAB_COMPONENTS[labField] || [];
+  const groups = {};
+  comps.forEach(c => { if (!groups[c.cat]) groups[c.cat] = []; groups[c.cat].push(c); });
+  pal.innerHTML = '';
+  Object.entries(groups).forEach(([cat, items]) => {
+    const g = document.createElement('div'); g.className = 'lab-comp-group';
+    g.innerHTML = '<div class="lab-comp-group-label">' + cat + '</div>';
+    items.forEach(comp => {
+      const d = document.createElement('div');
+      d.className = 'lab-comp-item';
+      d.draggable = true;
+      d.dataset.compId = comp.id;
+      d.innerHTML = '<span class="lab-comp-icon">' + comp.icon + '</span><div><div class="lab-comp-name">' + comp.name + '</div><div class="lab-comp-cat">' + comp.cat + '</div></div>';
+      d.addEventListener('dragstart', e => { e.dataTransfer.setData('compId', comp.id); e.dataTransfer.setData('field', labField); });
+      d.title = comp.desc;
+      g.appendChild(d);
+    });
+    pal.appendChild(g);
+  });
+}
+
+function labSetField(f) {
+  labField = f;
+  ['elec','mech','civil'].forEach(k => document.getElementById('lf-'+k).className = 'lab-field-btn');
+  const cls = {electrical:'active-elec',mechanical:'active-mech',civil:'active-civil'};
+  const id  = {electrical:'lf-elec',mechanical:'lf-mech',civil:'lf-civil'};
+  document.getElementById(id[f]).classList.add(cls[f]);
+  document.getElementById('lab-status-field').innerHTML = '<b>Field:</b> ' + {electrical:'Electrical',mechanical:'Mechanical',civil:'Civil'}[f];
+  labRenderPalette();
+}
+
+function labOnDrop(e) {
+  e.preventDefault();
+  const compId = e.dataTransfer.getData('compId');
+  const field  = e.dataTransfer.getData('field') || labField;
+  const comp   = (LAB_COMPONENTS[field] || []).find(c => c.id === compId);
+  if (!comp) return;
+
+  const wrap = document.getElementById('lab-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const x = e.clientX - rect.left - 60;
+  const y = e.clientY - rect.top  - 30;
+
+  labPushHistory();
+  labAddNode(comp, x, y);
+  labUpdateScores();
+  document.getElementById('lab-empty-msg').style.display = 'none';
+}
+
+function labAddNode(comp, x, y) {
+  const nid = 'n' + (labNodeId++);
+  const canvas = document.getElementById('lab-canvas');
+  const el = document.createElement('div');
+  el.className = 'lab-node';
+  el.id = nid;
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+
+  el.innerHTML =
+    '<div class="lab-node-delete" onclick="labDeleteNode(\'' + nid + '\')">✕</div>' +
+    '<div class="lab-node-head"><span class="lab-node-icon">' + comp.icon + '</span>' +
+    '<div><div class="lab-node-name">' + comp.name + '</div>' +
+    '<div class="lab-node-tag">' + comp.cat + '</div></div></div>' +
+    '<div class="lab-node-ports">' +
+    '<div class="lab-port left" data-nid="' + nid + '" onclick="labPortClick(\'' + nid + '\')"></div>' +
+    '<div class="lab-port right" data-nid="' + nid + '" onclick="labPortClick(\'' + nid + '\')"></div>' +
+    '</div>';
+
+  // Drag to reposition
+  el.addEventListener('mousedown', labNodeMouseDown);
+  el.addEventListener('click', e => { if (!labConnMode) labSelectNode(nid); });
+
+  canvas.appendChild(el);
+  labNodes[nid] = { el, x, y, compId: comp.id, compData: comp, field: labField };
+  return nid;
+}
+
+function labNodeMouseDown(e) {
+  if (e.target.classList.contains('lab-port') || e.target.classList.contains('lab-node-delete')) return;
+  if (labConnMode) return;
+  const nid = e.currentTarget.id;
+  const node = labNodes[nid];
+  if (!node) return;
+  labDragNode = nid;
+  const rect = node.el.getBoundingClientRect();
+  labDragOff = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  e.preventDefault();
+}
+
+function labMouseMove(e) {
+  if (!labDragNode) return;
+  const node = labNodes[labDragNode];
+  if (!node) return;
+  const wrap = document.getElementById('lab-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const x = Math.max(0, e.clientX - rect.left - labDragOff.x);
+  const y = Math.max(0, e.clientY - rect.top  - labDragOff.y);
+  node.el.style.left = x + 'px';
+  node.el.style.top  = y + 'px';
+  node.x = x; node.y = y;
+  labRedrawConnections();
+}
+
+function labMouseUp() {
+  labDragNode = null;
+}
+
+function labSelectNode(nid) {
+  if (labSelected) document.getElementById(labSelected) && document.getElementById(labSelected).classList.remove('selected');
+  labSelected = nid;
+  const el = document.getElementById(nid);
+  if (el) el.classList.add('selected');
+}
+
+function labConnect() {
+  labConnMode = !labConnMode;
+  labConnFrom = null;
+  document.getElementById('lab-conn-icon').textContent  = labConnMode ? '✋' : '🔗';
+  document.getElementById('lab-conn-label').textContent = labConnMode ? 'Cancel' : 'Connect';
+  document.getElementById('lab-status-mode').innerHTML  = labConnMode
+    ? '<b>Mode:</b> Click two components to connect'
+    : '<b>Mode:</b> Drag to place';
+  // Remove source highlights
+  Object.keys(labNodes).forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('connecting-source'); });
+}
+
+function labPortClick(nid) {
+  if (!labConnMode) { labSelectNode(nid); return; }
+  if (!labConnFrom) {
+    labConnFrom = nid;
+    const el = document.getElementById(nid);
+    if (el) el.classList.add('connecting-source');
+  } else if (labConnFrom !== nid) {
+    const already = labConns.find(c => (c.from===labConnFrom&&c.to===nid)||(c.from===nid&&c.to===labConnFrom));
+    if (!already) {
+      labPushHistory();
+      const fromComp = labNodes[labConnFrom].compId;
+      const toComp   = labNodes[nid].compId;
+      const synergyKey = [fromComp,toComp].sort().join('+');
+      const synergy = LAB_SYNERGIES[synergyKey] || null;
+      labConns.push({ from:labConnFrom, to:nid, synergy });
+      labRedrawConnections();
+      labUpdateScores();
+      if (synergy) labShowSynergyToast(synergy.msg);
+    }
+    const el = document.getElementById(labConnFrom);
+    if (el) el.classList.remove('connecting-source');
+    labConnFrom = null;
+  }
+}
+
+function labDeleteNode(nid) {
+  labPushHistory();
+  labConns = labConns.filter(c => c.from !== nid && c.to !== nid);
+  const el = document.getElementById(nid);
+  if (el) el.remove();
+  delete labNodes[nid];
+  if (labSelected === nid) labSelected = null;
+  labRedrawConnections();
+  labUpdateScores();
+  if (Object.keys(labNodes).length === 0) document.getElementById('lab-empty-msg').style.display = '';
+}
+
+function labPushHistory() {
+  labHistory.push({ nodes: JSON.parse(JSON.stringify(Object.entries(labNodes).map(([k,v])=>({k,compId:v.compId,x:v.x,y:v.y,field:v.field})))), conns: JSON.parse(JSON.stringify(labConns)) });
+  if (labHistory.length > 30) labHistory.shift();
+}
+
+function labUndo() {
+  if (!labHistory.length) return;
+  const state = labHistory.pop();
+  // Rebuild
+  document.getElementById('lab-canvas').innerHTML = '<div id="lab-empty-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;display:none"></div>';
+  labNodes = {}; labConns = state.conns; labNodeId = 0;
+  state.nodes.forEach(({k, compId, x, y, field}) => {
+    const comp = (LAB_COMPONENTS[field]||[]).find(c=>c.id===compId);
+    if (!comp) return;
+    labNodeId = Math.max(labNodeId, parseInt(k.slice(1))+1);
+    const canvas = document.getElementById('lab-canvas');
+    const el = document.createElement('div');
+    el.className = 'lab-node'; el.id = k;
+    el.style.left = x+'px'; el.style.top = y+'px';
+    el.innerHTML = '<div class="lab-node-delete" onclick="labDeleteNode(\''+k+'\')">✕</div><div class="lab-node-head"><span class="lab-node-icon">'+comp.icon+'</span><div><div class="lab-node-name">'+comp.name+'</div><div class="lab-node-tag">'+comp.cat+'</div></div></div><div class="lab-node-ports"><div class="lab-port left" data-nid="'+k+'" onclick="labPortClick(\''+k+'\')"></div><div class="lab-port right" data-nid="'+k+'" onclick="labPortClick(\''+k+'\')"></div></div>';
+    el.addEventListener('mousedown', labNodeMouseDown);
+    canvas.appendChild(el);
+    labNodes[k] = { el, x, y, compId, compData:comp, field };
+  });
+  if (Object.keys(labNodes).length === 0) document.getElementById('lab-empty-msg').style.display = '';
+  labRedrawConnections();
+  labUpdateScores();
+}
+
+function labClear() {
+  if (!confirm('Clear the canvas?')) return;
+  labPushHistory();
+  document.getElementById('lab-canvas').innerHTML = '<div id="lab-empty-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none"><div style="font-size:36px;margin-bottom:10px">🧩</div><div style="font-size:13px;color:var(--text3);font-weight:600">Drag components onto the canvas</div><div style="font-size:11px;color:var(--text3);margin-top:4px">Build and connect your project components</div></div>';
+  labNodes = {}; labConns = [];
+  labRedrawConnections(); labUpdateScores();
+}
+
+function labRedrawConnections() {
+  const svg = document.getElementById('lab-svg');
+  svg.innerHTML = '';
+  labConns.forEach((conn, i) => {
+    const fn = labNodes[conn.from], tn = labNodes[conn.to];
+    if (!fn || !tn) return;
+    const fw = fn.el.offsetWidth  || 120, fh = fn.el.offsetHeight || 70;
+    const tw2= tn.el.offsetWidth  || 120, th = tn.el.offsetHeight || 70;
+    const x1 = fn.x + fw;
+    const y1 = fn.y + fh / 2;
+    const x2 = tn.x;
+    const y2 = tn.y + th / 2;
+    const mx = (x1 + x2) / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    path.setAttribute('d', d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke', conn.synergy ? '#25d077' : 'var(--border2)');
+    path.setAttribute('stroke-width', conn.synergy ? '2.5' : '1.8');
+    path.setAttribute('stroke-dasharray', conn.synergy ? 'none' : '5,3');
+    path.setAttribute('opacity','0.85');
+    svg.appendChild(path);
+
+    // Dot at midpoint
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', mx); circle.setAttribute('cy', (y1+y2)/2);
+    circle.setAttribute('r','4');
+    circle.setAttribute('fill', conn.synergy ? '#25d077' : 'var(--border2)');
+    svg.appendChild(circle);
+
+    if (conn.synergy) {
+      const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x', mx); label.setAttribute('y', (y1+y2)/2 - 8);
+      label.setAttribute('text-anchor','middle');
+      label.setAttribute('class','conn-label');
+      label.setAttribute('fill','#1a9e5c');
+      label.textContent = '⚡ Synergy!';
+      svg.appendChild(label);
+    }
+  });
+}
+
+function labUpdateScores() {
+  const nodes = Object.values(labNodes);
+  const nc = nodes.length, cc = labConns.length;
+  let s = 0, inn = 0;
+
+  nodes.forEach(n => { s += n.compData.sustain || 0; inn += n.compData.innov || 0; });
+  labConns.forEach(c => {
+    if (c.synergy) { s += c.synergy.sustain || 0; inn += c.synergy.innov || 0; }
+  });
+
+  // Bonus for variety
+  const cats = [...new Set(nodes.map(n => n.compData.cat))];
+  if (cats.length >= 3) { s += 5; inn += 5; }
+  if (cats.length >= 5) { s += 8; inn += 8; }
+
+  // Cap at 100
+  s   = Math.min(100, Math.round(s));
+  inn = Math.min(100, Math.round(inn));
+
+  document.getElementById('score-s').textContent = s;
+  document.getElementById('score-i').textContent = inn;
+  document.getElementById('score-bar-s').style.width = s + '%';
+  document.getElementById('score-bar-i').style.width = inn + '%';
+  document.getElementById('score-conn').textContent = cc + ' connection' + (cc===1?'':'s');
+  document.getElementById('score-comp').textContent = nc + ' component' + (nc===1?'':'s');
+}
+
+function labShowSynergyToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 18px;border-radius:12px;font-size:12px;font-weight:700;box-shadow:0 6px 24px rgba(22,160,90,.4);z-index:9000;animation:fadeIn .3s ease;max-width:320px;text-align:center;';
+  t.textContent = '⚡ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function labRtab(tab) {
+  ['scores','feedback'].forEach(t => {
+    const tabBtn = document.getElementById('rt-'+t);
+    const panel = document.getElementById('rp-'+t);
+    if (tabBtn) {
+      tabBtn.classList.toggle('active', t===tab);
+      tabBtn.style.color = (t===tab) ? 'var(--green)' : 'var(--text3)';
+      tabBtn.style.borderBottom = (t===tab) ? '2px solid var(--green)' : '';
+    }
+    if (panel) panel.style.display = (t===tab) ? 'block' : 'none';
+  });
+}
+
+async function labAnalyse() {
+  if (labAnalysing) return;
+  const nodes = Object.values(labNodes);
+  if (nodes.length < 2) { alert('Add at least 2 components before analysing! 😊'); return; }
+  if (!apiKey) { openModal(); return; }
+
+  labAnalysing = true;
+  const btn = document.getElementById('lab-analyse-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></span> Analysing…';
+
+  const compList = nodes.map(n => n.compData.name + ' (' + n.compData.cat + ')').join(', ');
+  const connList = labConns.map(c => {
+    const fn = labNodes[c.from], tn = labNodes[c.to];
+    return (fn ? fn.compData.name : '?') + ' → ' + (tn ? tn.compData.name : '?') + (c.synergy ? ' [SYNERGY]' : '');
+  }).join('\n') || 'No connections yet';
+
+  const sScore = parseInt(document.getElementById('score-s').textContent);
+  const iScore = parseInt(document.getElementById('score-i').textContent);
+
+  const prompt = `A student is building a ${labField} engineering project using the ECO GREEN Lab. Here is their design:
+
+FIELD: ${labField.toUpperCase()}
+COMPONENTS PLACED: ${compList}
+CONNECTIONS:
+${connList}
+
+SUSTAINABILITY SCORE: ${sScore}/100
+INNOVATION SCORE: ${iScore}/100
+
+As ECO GREEN AI, give them a brief, practical design review in this format:
+
+## 🌱 Design Review
+
+**What's working well:**
+[2-3 bullet points on strengths]
+
+**Suggested improvements:**
+[2-3 specific component additions or connection changes that would boost scores]
+
+**⚡ Key insight:**
+[One powerful engineering fact or principle relevant to their design]
+
+Keep it warm, specific, and actionable. Max 180 words.`;
+
+  const feedbackDiv = document.getElementById('lab-feedback-content');
+  feedbackDiv.innerHTML = '<div class="lab-feedback-bubble" style="color:var(--text3)"><span style="animation:pulse 1.5s infinite;display:inline-block">🤖</span> Analysing your design…</div>';
+  labRtab('feedback');
+
+  try {
+    const reply = await callAI(prompt, SYS);
+    feedbackDiv.innerHTML = '<div class="lab-feedback-bubble">' + md(reply, false) + '</div>';
+  } catch(e) {
+    feedbackDiv.innerHTML = '<div class="lab-feedback-bubble">⚠️ Could not get feedback. Make sure your password is set! 😊</div>';
+  } finally {
+    labAnalysing = false;
+    btn.disabled = false;
+    btn.innerHTML = '🤖 Analyse with AI';
+  }
+}
+
 </script>
 </body>
 </html>
