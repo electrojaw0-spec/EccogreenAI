@@ -861,7 +861,7 @@ const OR_MODELS = [
   'meta-llama/llama-3.1-8b-instruct',
   'openrouter/auto'
 ];
-const POLL_URL = 'https://gen.pollinations.ai/openai/chat/completions';
+const POLL_URL = 'https://text.pollinations.ai/openai';
 async function callPollinations(messages, sys) {
   const msgs = [];
   if (sys) msgs.push({ role: 'system', content: sys });
@@ -896,18 +896,21 @@ async function callPollinations(messages, sys) {
 }
 
 async function callHuggingFace(messages, sys, jsonMode = false) {
-  // Free-tier models that are reliably warm and available.
-  // Ordered: best quality first, lightweight fallbacks last.
+  // Two endpoint strategies tried in order:
+  // 1. HF Router (new, faster, warm) — no per-model URL needed
+  // 2. Per-model legacy endpoint (fallback)
+  const HF_ROUTER_URL = 'https://router.huggingface.co/hf-inference/v1/chat/completions';
+
   const HF_MODELS = [
+    'meta-llama/Llama-3.2-3B-Instruct',      // Fast, warm, free tier
     'mistralai/Mistral-7B-Instruct-v0.3',
-    'HuggingFaceH4/zephyr-7b-beta',
     'microsoft/Phi-3.5-mini-instruct',
+    'HuggingFaceH4/zephyr-7b-beta',
     'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
   ];
-  const TIMEOUT_MS  = 30000; // 30s — HF can be slow on cold starts
-  const LOAD_WAIT   = 6000;  // wait 6s if model is loading, then retry once
+  const TIMEOUT_MS = 20000; // 20s — fail faster so Pollinations gets a chance
+  const LOAD_WAIT  = 4000;  // 4s retry on cold-start 503
 
-  // For idea generation: reinforce JSON-only output so even small models comply.
   const effectiveSys = jsonMode
     ? (sys ? sys + '\n\n' : '') +
       'CRITICAL RULE: Output ONLY a raw JSON array. ' +
@@ -920,81 +923,94 @@ async function callHuggingFace(messages, sys, jsonMode = false) {
   msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
 
   for (const model of HF_MODELS) {
-    for (let attempt = 0; attempt < 2; attempt++) { // one loading-retry per model
-      try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    // Try HF Router first, then legacy per-model endpoint
+    const endpoints = [
+      HF_ROUTER_URL,
+      'https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions'
+    ];
 
-        // Model-specific endpoint — works for free and paid tokens alike.
-        const url = 'https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions';
-        const headers = { 'Content-Type': 'application/json' };
-        if (hfKey) headers['Authorization'] = 'Bearer ' + hfKey;
+    for (const url of endpoints) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        const res = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            model,
-            messages: msgs,
-            max_tokens: jsonMode ? 2000 : 1500,
-            temperature: jsonMode ? 0.55 : 0.72,
-            top_p: 0.9
-          }),
-          signal: controller.signal
-        });
-        clearTimeout(timer);
+          const headers = { 'Content-Type': 'application/json' };
+          if (hfKey) headers['Authorization'] = 'Bearer ' + hfKey;
+          // Tell HF router which model to use; also include in body
+          if (url === HF_ROUTER_URL) headers['X-Wait-For-Model'] = 'true';
 
-        // ── Model is loading (cold start) — wait and retry once ──
-        if (res.status === 503) {
-          let body = {};
-          try { body = await res.json(); } catch (_) {}
-          if (attempt === 0 && (body.error || '').toLowerCase().includes('load')) {
-            console.log('[ECO GREEN] HF ' + model + ' loading, retrying in ' + (LOAD_WAIT/1000) + 's…');
-            await new Promise(r => setTimeout(r, LOAD_WAIT));
-            continue;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              model,
+              messages: msgs,
+              max_tokens: jsonMode ? 2000 : 1200,
+              temperature: jsonMode ? 0.55 : 0.70,
+              top_p: 0.9
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timer);
+
+          // Cold start — wait and retry once
+          if (res.status === 503) {
+            let body = {};
+            try { body = await res.json(); } catch (_) {}
+            if (attempt === 0) {
+              console.log('[ECO GREEN] HF ' + model + ' loading, retrying in ' + (LOAD_WAIT/1000) + 's…');
+              await new Promise(r => setTimeout(r, LOAD_WAIT));
+              continue;
+            }
+            break;
           }
-          console.warn('[ECO GREEN] HF ' + model + ' 503 (not loading) — skipping');
+
+          // Skip PRO-only or forbidden models
+          if (res.status === 402 || res.status === 403) {
+            console.warn('[ECO GREEN] HF ' + model + ' needs PRO — skipping');
+            break;
+          }
+
+          // Rate limited — skip this model
+          if (res.status === 429) {
+            console.warn('[ECO GREEN] HF ' + model + ' rate limited — skipping');
+            break;
+          }
+
+          if (!res.ok) {
+            let errBody = '';
+            try { errBody = await res.text(); } catch (_) {}
+            console.warn('[ECO GREEN] HF ' + model + ' HTTP ' + res.status + ':', errBody.slice(0, 120));
+            break;
+          }
+
+          const data = await res.json();
+          // Handle both standard and error-wrapped responses
+          if (data?.error) {
+            console.warn('[ECO GREEN] HF ' + model + ' API error:', String(data.error).slice(0, 100));
+            break;
+          }
+          const text = (data?.choices?.[0]?.message?.content || '').trim();
+          if (!text) {
+            console.warn('[ECO GREEN] HF ' + model + ' returned empty — trying next');
+            break;
+          }
+
+          console.log('[ECO GREEN] ✅ HuggingFace OK · model:', model, '· endpoint:', url.includes('router') ? 'router' : 'legacy');
+          currentModel = 'hf/' + model.split('/')[1];
+          updateAIBadge('huggingface');
+          return text;
+
+        } catch (e) {
+          if (e.name === 'AbortError')
+            console.warn('[ECO GREEN] HF ' + model + ' timed out (' + (TIMEOUT_MS/1000) + 's)');
+          else
+            console.warn('[ECO GREEN] HF ' + model + ' error:', e.message);
           break;
         }
-
-        // ── Model requires PRO (402) or is forbidden (403) — skip silently ──
-        if (res.status === 402 || res.status === 403) {
-          console.warn('[ECO GREEN] HF ' + model + ' requires PRO (' + res.status + ') — skipping');
-          break;
-        }
-
-        // ── Rate limited (429) — skip model ──
-        if (res.status === 429) {
-          console.warn('[ECO GREEN] HF ' + model + ' rate limited — skipping');
-          break;
-        }
-
-        if (!res.ok) {
-          let errBody = '';
-          try { errBody = await res.text(); } catch (_) {}
-          console.warn('[ECO GREEN] HF ' + model + ' HTTP ' + res.status + ':', errBody.slice(0, 120));
-          break;
-        }
-
-        const data = await res.json();
-        const text = (data?.choices?.[0]?.message?.content || '').trim();
-        if (!text) {
-          console.warn('[ECO GREEN] HF ' + model + ' returned empty content');
-          break;
-        }
-
-        console.log('[ECO GREEN] ✅ HuggingFace OK · model:', model);
-        currentModel = 'hf/' + model.split('/')[1];
-        updateAIBadge('huggingface');
-        return text;
-
-      } catch (e) {
-        if (e.name === 'AbortError')
-          console.warn('[ECO GREEN] HF ' + model + ' timed out after ' + (TIMEOUT_MS/1000) + 's');
-        else
-          console.warn('[ECO GREEN] HF ' + model + ' exception:', e.message);
-        break;
       }
+      // If router worked or both failed, don't try legacy for this model
     }
   }
   throw new Error('HuggingFace: all models unavailable');
