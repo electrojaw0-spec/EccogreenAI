@@ -895,35 +895,24 @@ async function callPollinations(messages, sys) {
   throw new Error('Pollinations is not responding. Please add your ECO GREEN password for best results.');
 }
 
-// ===== HUGGING FACE ENGINE =====
-// Supports both authenticated (key) and anonymous access.
-// jsonMode=true injects a stronger JSON-only system instruction for idea generation.
 async function callHuggingFace(messages, sys, jsonMode = false) {
-  // Priority-ordered models: largest/most capable first when key is present,
-  // lighter fallbacks for anonymous (to reduce load times).
-  const HF_MODELS_KEYED = [
-    'Qwen/Qwen2.5-72B-Instruct',
-    'meta-llama/Llama-3.1-8B-Instruct',
+  // Free-tier models that are reliably warm and available.
+  // Ordered: best quality first, lightweight fallbacks last.
+  const HF_MODELS = [
     'mistralai/Mistral-7B-Instruct-v0.3',
     'HuggingFaceH4/zephyr-7b-beta',
-    'microsoft/Phi-3.5-mini-instruct'
+    'microsoft/Phi-3.5-mini-instruct',
+    'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
   ];
-  const HF_MODELS_ANON = [
-    'mistralai/Mistral-7B-Instruct-v0.3',
-    'HuggingFaceH4/zephyr-7b-beta',
-    'microsoft/Phi-3.5-mini-instruct'
-  ];
-  const HF_MODELS = hfKey ? HF_MODELS_KEYED : HF_MODELS_ANON;
-  const TIMEOUT_MS = 28000;
-  const LOAD_RETRY_WAIT = 5000; // ms to wait when a model is loading (503)
+  const TIMEOUT_MS  = 30000; // 30s — HF can be slow on cold starts
+  const LOAD_WAIT   = 6000;  // wait 6s if model is loading, then retry once
 
-  // When jsonMode is active, reinforce the JSON-only instruction so even
-  // smaller HF models reliably return a raw array with no markdown wrapping.
+  // For idea generation: reinforce JSON-only output so even small models comply.
   const effectiveSys = jsonMode
     ? (sys ? sys + '\n\n' : '') +
-      'ABSOLUTE RULE: Respond with ONLY a raw JSON array. ' +
-      'Do NOT include markdown, code fences, backticks, explanations, preamble, or any text outside the array. ' +
-      'Your entire response must start with [ and end with ].'
+      'CRITICAL RULE: Output ONLY a raw JSON array. ' +
+      'No markdown, no code fences (```), no explanations, no preamble. ' +
+      'Begin your response immediately with [ and end with ].'
     : sys;
 
   const msgs = [];
@@ -931,76 +920,84 @@ async function callHuggingFace(messages, sys, jsonMode = false) {
   msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
 
   for (const model of HF_MODELS) {
-    // Allow one automatic retry on model-loading (503) responses.
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) { // one loading-retry per model
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-        const hfHeaders = { 'Content-Type': 'application/json' };
-        if (hfKey) hfHeaders['Authorization'] = 'Bearer ' + hfKey;
 
-        // When an API key is present, use the unified /v1/chat/completions endpoint
-        // (HuggingFace Serverless Inference API — all PRO/Org models available).
-        // Without a key, use the model-specific path (anonymous, rate-limited).
-        const url = hfKey
-          ? 'https://api-inference.huggingface.co/v1/chat/completions'
-          : 'https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions';
+        // Model-specific endpoint — works for free and paid tokens alike.
+        const url = 'https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions';
+        const headers = { 'Content-Type': 'application/json' };
+        if (hfKey) headers['Authorization'] = 'Bearer ' + hfKey;
 
         const res = await fetch(url, {
           method: 'POST',
-          headers: hfHeaders,
+          headers,
           body: JSON.stringify({
             model,
             messages: msgs,
             max_tokens: jsonMode ? 2000 : 1500,
-            temperature: jsonMode ? 0.5 : 0.7,
+            temperature: jsonMode ? 0.55 : 0.72,
             top_p: 0.9
           }),
           signal: controller.signal
         });
         clearTimeout(timer);
 
-        // ── Handle model-loading state (503) ──
+        // ── Model is loading (cold start) — wait and retry once ──
         if (res.status === 503) {
-          let errBody = {};
-          try { errBody = await res.json(); } catch (_) {}
-          const isLoading = (errBody.error || '').toLowerCase().includes('load');
-          if (isLoading && attempt === 0) {
-            console.log('[ECO GREEN] HF model ' + model + ' is loading, waiting ' + (LOAD_RETRY_WAIT/1000) + 's…');
-            await new Promise(r => setTimeout(r, LOAD_RETRY_WAIT));
-            continue; // retry same model once
+          let body = {};
+          try { body = await res.json(); } catch (_) {}
+          if (attempt === 0 && (body.error || '').toLowerCase().includes('load')) {
+            console.log('[ECO GREEN] HF ' + model + ' loading, retrying in ' + (LOAD_WAIT/1000) + 's…');
+            await new Promise(r => setTimeout(r, LOAD_WAIT));
+            continue;
           }
-          console.warn('[ECO GREEN] HuggingFace model ' + model + ' unavailable (503) — trying next');
+          console.warn('[ECO GREEN] HF ' + model + ' 503 (not loading) — skipping');
+          break;
+        }
+
+        // ── Model requires PRO (402) or is forbidden (403) — skip silently ──
+        if (res.status === 402 || res.status === 403) {
+          console.warn('[ECO GREEN] HF ' + model + ' requires PRO (' + res.status + ') — skipping');
+          break;
+        }
+
+        // ── Rate limited (429) — skip model ──
+        if (res.status === 429) {
+          console.warn('[ECO GREEN] HF ' + model + ' rate limited — skipping');
           break;
         }
 
         if (!res.ok) {
-          console.warn('[ECO GREEN] HuggingFace model ' + model + ' failed — HTTP ' + res.status);
-          break; // try next model
+          let errBody = '';
+          try { errBody = await res.text(); } catch (_) {}
+          console.warn('[ECO GREEN] HF ' + model + ' HTTP ' + res.status + ':', errBody.slice(0, 120));
+          break;
         }
 
         const data = await res.json();
         const text = (data?.choices?.[0]?.message?.content || '').trim();
         if (!text) {
-          console.warn('[ECO GREEN] HuggingFace model ' + model + ' returned empty response');
+          console.warn('[ECO GREEN] HF ' + model + ' returned empty content');
           break;
         }
 
-        console.log('[ECO GREEN] ✅ HuggingFace responded · model:', model, '· jsonMode:', jsonMode);
+        console.log('[ECO GREEN] ✅ HuggingFace OK · model:', model);
         currentModel = 'hf/' + model.split('/')[1];
         updateAIBadge('huggingface');
         return text;
 
       } catch (e) {
         if (e.name === 'AbortError')
-          console.warn('[ECO GREEN] HuggingFace model ' + model + ' timed out after ' + (TIMEOUT_MS/1000) + 's');
+          console.warn('[ECO GREEN] HF ' + model + ' timed out after ' + (TIMEOUT_MS/1000) + 's');
         else
-          console.warn('[ECO GREEN] HuggingFace model ' + model + ' error:', e.message);
-        break; // try next model
+          console.warn('[ECO GREEN] HF ' + model + ' exception:', e.message);
+        break;
       }
     }
   }
-  throw new Error('HuggingFace unavailable — all models failed');
+  throw new Error('HuggingFace: all models unavailable');
 }
 
 // ================================================================
@@ -1141,6 +1138,9 @@ async function streamAI(messages, sys, onToken) {
   } catch (pollErr) {
     console.warn('[ECO GREEN] Pollinations also failed — all providers exhausted.', pollErr.message);
   }
+
+  // All providers failed — throw so the caller can surface a proper error message.
+  throw new Error('All AI providers are currently unavailable. Please check your key or try again in a moment. 🙏');
 }
 
 // Non-streaming fallback (used for idea generation JSON)
@@ -1765,9 +1765,16 @@ async function doStreamChat() {
     if (lastUser) extractProfileFromMessage(lastUser.content);
 
   } catch (e) {
-    const errMsg = '⚠️ ' + (e.message || 'Something went wrong — please try again!');
-    if (e.message !== 'no_key' && e.message !== 'bad_key') {
-      chatHist.push({ role: 'assistant', content: errMsg });
+    const msg = e.message || 'Something went wrong — please try again!';
+    if (msg !== 'no_key' && msg !== 'bad_key') {
+      // Show a friendly, actionable error in the chat bubble
+      const friendly = msg.includes('unavailable') || msg.includes('providers')
+        ? '⚠️ All AI providers are currently unreachable. This can happen when:\n\n' +
+          '• **HuggingFace** models are cold/overloaded (try again in 30s)\n' +
+          '• **Pollinations** is rate-limiting free requests\n\n' +
+          'Add an **OpenRouter key** 🔑 for the most reliable experience, or just try again in a moment! 😊'
+        : '⚠️ ' + msg;
+      chatHist.push({ role: 'assistant', content: friendly });
     }
   } finally {
     chatBusy = false;
