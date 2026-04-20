@@ -27,6 +27,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overf
 ::selection{background:#25c27044;color:var(--green);}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}::-webkit-scrollbar-thumb:hover{background:var(--green);}
 
+/* CIRCUIT / DIAGRAM RENDERER */
+.circuit-wrap{background:var(--surface);border:1.5px solid var(--border2);border-radius:16px;overflow:hidden;margin:10px 0;}
+.circuit-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--green4);border-bottom:1px solid var(--border2);}
+.circuit-label{font-size:11px;font-weight:800;color:var(--green);letter-spacing:.8px;text-transform:uppercase;}
+.circuit-actions{display:flex;gap:6px;}
+.circuit-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.circuit-btn:hover{border-color:var(--green);color:var(--green);background:var(--green4);}
+.circuit-body{padding:16px;overflow-x:auto;text-align:center;background:var(--surface);}
+.circuit-body svg{max-width:100%;height:auto;border-radius:8px;}
+.circuit-body svg text{font-family:'Inter',sans-serif;}
+[data-theme="dark"] .circuit-body svg{filter:brightness(.92) contrast(1.05);}
+
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;animation:fadeIn .3s ease;}
 .modal-overlay.hidden{display:none;}
@@ -387,16 +399,27 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
 <div id="confetti-layer"></div>
 
 <!-- API KEY MODAL -->
-<div id="api-modal" class="modal-overlay">
+<div id="api-modal" class="modal-overlay hidden">
   <div class="modal-box">
     <span class="modal-icon"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="var(--green)" opacity="0.12"/><circle cx="26" cy="26" r="24" stroke="var(--green)" stroke-width="2"/><path d="M26 2C26 2 19 13 19 26s7 24 7 24" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/><path d="M26 2C26 2 33 13 33 26s-7 24-7 24" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/><path d="M2.5 20h47M2.5 32h47" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/></svg></span>
     <h2 class="modal-title">Enter Your Password</h2>
-    <p class="modal-desc">Enter your ECO GREEN password to unlock AI features.</p>
+    <p class="modal-desc">Choose your AI provider and enter your key to unlock full AI features.</p>
+
+    <!-- Provider Toggle -->
+    <div style="display:flex;background:var(--bg);border-radius:12px;border:1.5px solid var(--border2);padding:4px;margin-bottom:18px;gap:4px;">
+      <button id="toggle-or" onclick="switchProvider('openrouter')" style="flex:1;padding:9px 6px;border-radius:9px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;background:var(--green);color:#fff;">⚡ Ecogreen AI</button>
+      <button id="toggle-hf" onclick="switchProvider('huggingface')" style="flex:1;padding:9px 6px;border-radius:9px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;background:transparent;color:var(--text3);">🤗 Ecogreen Backup AI</button>
+    </div>
+
+    <!-- Provider info label -->
+    <p id="provider-label" style="display:none;"></p>
+
     <div class="modal-input-wrap">
-      <input type="password" class="modal-input" id="api-key-input" placeholder="Enter your password..." autocomplete="off" spellcheck="false" />
+      <input type="password" class="modal-input" id="api-key-input" placeholder="Enter your OpenRouter key..." autocomplete="off" spellcheck="false" />
       <button class="modal-eye" id="eye-btn" onclick="toggleEye()">👁️</button>
     </div>
     <p class="modal-hint">🔒 Your password is stored securely in your browser only.</p>
+    <a id="get-key-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;color:var(--green);text-decoration:none;padding:10px;border-radius:10px;border:1.5px dashed var(--green);background:var(--green4);transition:all .2s;" onmouseover="this.style.background='var(--green3)'" onmouseout="this.style.background='var(--green4)'">🔑 Get your password →</a>
     <button class="modal-save-btn" onclick="saveApiKey()">✨ Save &amp; Start Building</button><br/>
     <button class="modal-skip" onclick="skipModal()">Skip for now</button>
     <div class="modal-lock">
@@ -405,9 +428,24 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
     </div>
   </div>
 </div>
-
 <!-- MEMORY OVERLAY -->
 <div class="mem-overlay" id="mem-overlay" onclick="closeMemPanel()"></div>
+
+<!-- HUGGINGFACE PANEL -->
+<div class="ollama-overlay" id="hf-overlay" onclick="closeHFPanel()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1199;display:none;"></div>
+<div id="hf-panel" style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);z-index:1200;padding:24px 20px;border-radius:24px 24px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);transform:translateY(100%);transition:transform .3s ease;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--text);">🤗 HuggingFace Password</div>
+    <button class="mem-close" onclick="closeHFPanel()">✕</button>
+  </div>
+  <div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:16px;">Enter your HuggingFace password for better free AI responses.</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+    <input class="ollama-inp" type="password" id="hf-panel-inp" placeholder="Enter HuggingFace password..." autocomplete="off" style="flex:1;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;" />
+    <button onclick="saveHFPanelKey()" style="padding:12px 18px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">Save</button>
+  </div>
+  <div id="hf-panel-status" style="font-size:12px;font-weight:700;color:var(--green);min-height:18px;margin-bottom:10px;"></div>
+  <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" style="font-size:12px;font-weight:700;color:var(--green);text-decoration:underline;">Get your free HuggingFace password →</a>
+</div>
 
 <!-- MEMORY PANEL -->
 <div class="mem-panel" id="mem-panel">
@@ -452,6 +490,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
   </div>
   <div class="nav-right">
     <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="profile-btn" onclick="openModal()" title="OpenRouter Password" id="key-btn" style="font-size:16px;">🔑</button>
     <button class="profile-btn" onclick="openMemPanel()" title="Memory &amp; Conversations" id="profile-btn">🧠<div class="profile-dot" id="profile-dot" style="display:none"></div></button>
     <button class="nav-cta" onclick="showPage('app')">Get Ideas</button>
   </div>
@@ -469,7 +508,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
       <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;background:var(--green4);border:1.5px solid var(--green3);font-size:13px;font-weight:700;color:var(--green);">🧠 AI-Powered Brain</span>
       <span style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;background:var(--surface);border:1.5px solid var(--border2);font-size:13px;font-weight:600;color:var(--text2);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #dcfce7;animation:pulse 2s infinite;"></span>Live · Serekunda, The Gambia</span>
     </div>
-    <p class="hero-tagline">Generate sustainable project ideas, get expert guidance, and build solutions that matter — powered by AI.</p>
+    <p class="hero-tagline">Generate sustainable project ideas rooted in <strong>Gambian &amp; African challenges</strong>, get expert guidance, and build solutions that matter — powered by AI. 🇬🇲🌍</p>
     <div class="hero-btns">
       <button class="btn-big" onclick="showPage('chat')">Start Building Now</button>
       <button class="btn-outline" onclick="showPage('app')">Generate Project Ideas</button>
@@ -495,9 +534,9 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
   <div class="manifesto">
     <span class="man-emoji"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="var(--green)" opacity="0.12"/><circle cx="16" cy="16" r="14.5" stroke="var(--green)" stroke-width="1.8"/><path d="M16 1.5C16 1.5 11.5 8 11.5 16s4.5 14.5 4.5 14.5" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/><path d="M16 1.5C16 1.5 20.5 8 20.5 16s-4.5 14.5-4.5 14.5" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/><path d="M1.5 12.5h29M1.5 19.5h29" stroke="var(--green)" stroke-width="1.4" stroke-linecap="round"/></svg></span>
     <h2 class="man-title">"The energy that moves with you — <em>let's save the world</em> by saving energy, one project at a time."</h2>
-    <p class="man-body">Every engineering student has the power to make a real difference. ECO GREEN turns great ideas into solutions that matter for our planet.</p>
+    <p class="man-body">Every engineering student in The Gambia and across Africa has the power to make a real difference. ECO GREEN turns great ideas into local solutions that matter — for our communities and our planet.</p>
     <div class="pills">
-      <span class="pill">Green Energy</span><span class="pill">Sustainability</span><span class="pill">Climate Action</span><span class="pill">Clean Tech</span><span class="pill">Smart Engineering</span>
+      <span class="pill">🇬🇲 Gambia First</span><span class="pill">🌍 Africa Focus</span><span class="pill">Green Energy</span><span class="pill">Sustainability</span><span class="pill">Climate Action</span><span class="pill">Clean Tech</span><span class="pill">Smart Engineering</span>
     </div>
   </div>
 
@@ -506,14 +545,14 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
     <h2 class="sec-heading">Built by a student,<br/><em>for students</em></h2>
     <div class="founder-card">
       <div class="founder-left">
-        <div class="founder-ava">👨‍💻</div>
+        <div class="founder-ava" style="overflow:hidden;padding:0;"><img src="data:image/jpeg;base64,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" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Modou Jaw"/></div>
         <div class="founder-role-pill">Founder</div>
       </div>
       <div class="founder-right">
         <h3>Modou Jaw</h3>
         <div class="founder-uni">Electrical &amp; Electronics Engineering · USET · Year 3</div>
-        <p class="founder-bio">Modou built ECO GREEN with one belief: that every engineering student deserves access to intelligent tools that help them build a greener world. This platform is his contribution to that future.</p>
-        <div class="founder-badges"><span class="fbadge">Electrical Engineering</span><span class="fbadge">USET</span><span class="fbadge">Year 3</span><span class="fbadge">AI Builder</span></div>
+        <p class="founder-bio">"I built Ecogreen AI to give engineering students in The Gambia and Africa intelligent tools to solve real local problems and build sustainable solutions."</p>
+        <div class="founder-badges"><span class="fbadge">Electrical Engineering</span><span class="fbadge">USET</span><span class="fbadge">Year 3</span><span class="fbadge">🇬🇲 Gambia</span><span class="fbadge">AI Builder</span></div>
       </div>
     </div>
     <div class="team-btns">
@@ -527,7 +566,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
     <div class="foot-tag">"The energy that moves with you."</div>
     <div class="foot-nav"><a onclick="showPage('app')">Ideas</a><a onclick="showPage('chat')">AI Mentor</a><a onclick="showPage('saved')">Saved</a></div>
     <div class="foot-credit">Created by <span>Modou Jaw</span> · Electrical &amp; Electronics Engineering · <span>USET</span></div>
-    <div class="foot-copy">© 2025 ECO GREEN</div>
+    <div class="foot-copy">© 2026 ECO GREEN</div>
   </footer>
 </section>
 
@@ -573,7 +612,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
       <div class="eco-ava"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="rgba(255,255,255,0.18)"/><circle cx="14" cy="14" r="12.5" stroke="white" stroke-width="1.6"/><path d="M14 1.5C14 1.5 10 7 10 14s4 12.5 4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M14 1.5C14 1.5 18 7 18 14s-4 12.5-4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10.5h25M1.5 17.5h25" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
       <div style="flex:1">
         <div class="eco-name">ECO GREEN AI</div>
-        <div class="eco-status"><span class="sdot"></span><span id="status-text">Always available · Remembers you</span></div>
+        <div class="eco-status" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><span class="sdot"></span><span id="status-text">Always available · Remembers you</span><span class="ai-status-badge" id="ai-engine-badge" onclick="openHFPanel()" title="AI engine">🌐 Online</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
         <button onclick="clearChatHistory()" title="Clear conversation" style="background:none;border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .2s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">Clear</button>
@@ -774,16 +813,16 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
 // ============================================================
 
 const QUICK_PROMPTS = [
-  "I feel overwhelmed with my final year project. Can you help me figure out where to start? 😅",
-  "I have a project idea but I am not sure if it is good or realistic. Can I tell you about it?",
-  "Can you help me write a strong project proposal? What sections do I need and what should each contain?",
-  "What are the most in-demand green engineering skills I should learn right now in 2025?"
+  "I'm a student in The Gambia struggling with my final year project. Can you help me find an idea that solves a real local problem? 😅",
+  "I want to build a project that tackles NAWEC power outages or rural electrification in The Gambia. Can you help me develop this idea?",
+  "Can you help me write a strong project proposal for a solar energy or clean water project in West Africa? What sections do I need?",
+  "What are the most impactful green engineering skills for a Gambian or African engineer to learn right now in 2025?"
 ];
 const QUICK_LABELS = [
-  "😅 I'm overwhelmed, help me start",
-  "💭 Is my idea any good?",
+  "🇬🇲 I'm overwhelmed, help me start",
+  "⚡ Solve a Gambia energy challenge",
   "📄 Help me write a proposal",
-  "🌱 What skills should I learn?"
+  "🌍 Skills for African engineers"
 ];
 
 function renderQuickPrompts() {
@@ -806,24 +845,95 @@ const LEVELS = [
   {id:'Advanced',label:'Advanced 🌳',desc:'Final year student'},
   {id:'Research Level',label:'Research 🔬',desc:'Postgrad / thesis'}
 ];
-const WELCOME = "Hey! I'm really glad you're here. 💚\n\nI'm **ECO GREEN AI** — your personal sustainable engineering mentor. I'm genuinely here for you, not just to answer questions.\n\nHere's what I can help you with:\n\n## What I can do for you\n\n**💡 Project Ideas** — Tell me your field and level, I'll suggest real, buildable projects\n**🏗️ Project Planning** — I'll help you plan from idea to final submission, step by step\n**📄 Proposals & Reports** — I'll guide you through writing strong academic documents\n**⚡ Technical Questions** — Circuit design, coding, structural analysis, anything engineering\n**🌍 Sustainability** — Making your projects greener and more impactful\n**💬 Just Talking** — Feeling stuck or overwhelmed? Tell me. I'm here.\n\n**What's on your mind today?** 😊";
+const WELCOME = "Hey! I'm really glad you're here. 💚🇬🇲\n\nI'm **ECO GREEN AI** — your personal sustainable engineering mentor, proudly built for students in **The Gambia and across Africa**.\n\nI'm here to help you build solutions for **real African challenges** — from NAWEC power outages to rural electrification, clean water access to smart agri-tech.\n\n## What I can do for you\n\n**🌍 Africa-First Project Ideas** — Projects grounded in Gambian & African realities\n**⚡ Local Engineering Challenges** — NAWEC, solar microgrids, flood management, agri-processing\n**🏗️ Project Planning** — From idea to final submission, step by step\n**📄 Proposals & Reports** — Strong academic documents for USET, UTG & beyond\n**💻 Technical Help** — Circuit design, coding, structural analysis, anything engineering\n**♻️ Sustainability** — Low-cost, high-impact green solutions for African contexts\n**💬 Just Talking** — Feeling stuck or overwhelmed? Tell me. I'm here.\n\n**What African engineering challenge are we solving today?** 😊🌍";
 
 // ===== STATE =====
-let apiKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
+let apiKey = '', hfKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
 let ideas = [], saved = [], chatHist = [], chatBusy = false;
 
 // ===== AI CONFIG =====
 const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OR_MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-12b-it:free',
-  'mistralai/devstral-small:free',
-  'nvidia/llama-3.1-nemotron-nano-8b-v1:free',
-  'allenai/olmo-3.1-32b-think:free',
+  'openai/gpt-4o-mini',
+  'openai/gpt-3.5-turbo',
+  'anthropic/claude-3-haiku',
+  'google/gemini-flash-1.5',
+  'meta-llama/llama-3.1-8b-instruct',
   'openrouter/auto'
 ];
-let currentModel = OR_MODELS[0];
+const POLL_URL = 'https://gen.pollinations.ai/openai/chat/completions';
+async function callPollinations(messages, sys) {
+  const msgs = [];
+  if (sys) msgs.push({ role: 'system', content: sys });
+  msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
+
+  const POLL_MODELS = ['openai-large', 'openai', 'mistral'];
+  const TIMEOUT_MS = 18000; // 18 second timeout
+
+  for (const model of POLL_MODELS) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const res = await fetch(POLL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: msgs, model, seed: Math.floor(Math.random() * 9999), private: true }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (!res.ok) { console.warn('[ECO GREEN] Pollinations model ' + model + ' failed — ' + res.status); continue; }
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || '';
+      if (!text.trim()) { console.warn('[ECO GREEN] Pollinations model ' + model + ' returned empty'); continue; }
+      console.log('[ECO GREEN] Pollinations responded with model:', model);
+      return text.trim();
+    } catch (e) {
+      if (e.name === 'AbortError') console.warn('[ECO GREEN] Pollinations model ' + model + ' timed out after ' + (TIMEOUT_MS/1000) + 's');
+      else console.warn('[ECO GREEN] Pollinations model ' + model + ' error:', e.message);
+    }
+  }
+  throw new Error('Pollinations is not responding. Please add your ECO GREEN password for best results.');
+}
+
+// ===== HUGGING FACE FALLBACK (free, no key needed, anonymous access) =====
+async function callHuggingFace(messages, sys) {
+  const HF_MODELS = [
+    'mistralai/Mistral-7B-Instruct-v0.3',
+    'HuggingFaceH4/zephyr-7b-beta',
+    'microsoft/Phi-3-mini-4k-instruct'
+  ];
+  const TIMEOUT_MS = 20000;
+  const msgs = [];
+  if (sys) msgs.push({ role: 'system', content: sys });
+  msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
+
+  for (const model of HF_MODELS) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const hfHeaders = { 'Content-Type': 'application/json' };
+      if (hfKey) hfHeaders['Authorization'] = 'Bearer ' + hfKey;
+      const res = await fetch('https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions', {
+        method: 'POST',
+        headers: hfHeaders,
+        body: JSON.stringify({ model, messages: msgs, max_tokens: 1500, temperature: 0.7 }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (!res.ok) { console.warn('[ECO GREEN] HuggingFace model ' + model + ' failed — ' + res.status); continue; }
+      const data = await res.json();
+      const text = (data?.choices?.[0]?.message?.content || '').trim();
+      if (!text) { console.warn('[ECO GREEN] HuggingFace model ' + model + ' returned empty'); continue; }
+      console.log('[ECO GREEN] HuggingFace responded with model:', model);
+      currentModel = 'hf/' + model.split('/')[1];
+      return text;
+    } catch (e) {
+      if (e.name === 'AbortError') console.warn('[ECO GREEN] HuggingFace model ' + model + ' timed out');
+      else console.warn('[ECO GREEN] HuggingFace model ' + model + ' error:', e.message);
+    }
+  }
+  throw new Error('HuggingFace unavailable');
+}
 
 // ================================================================
 // STREAMING ENGINE
@@ -838,12 +948,8 @@ let currentModel = OR_MODELS[0];
  * @returns {Promise<string>} - Full assembled text
  */
 async function streamAI(messages, sys, onToken) {
-  if (!apiKey) { openModal(); throw new Error('no_key'); }
-
-  const msgs = [];
-  if (sys) msgs.push({ role: 'system', content: sys });
-
-  // Merge & clean messages (same logic as original)
+  // Prepare & clean messages
+  const cleanMsgs = [];
   const filtered = messages.filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => ({ role: m.role, content: m.content || '' }));
   const merged = [];
@@ -854,125 +960,122 @@ async function streamAI(messages, sys, onToken) {
   }
   while (merged.length && merged[0].role === 'assistant') merged.shift();
   if (!merged.length) throw new Error('Nothing to send.');
-  msgs.push(...merged);
+  if (sys) cleanMsgs.push({ role: 'system', content: sys });
+  cleanMsgs.push(...merged);
 
-  let lastErr = '';
-  for (let mi = 0; mi < OR_MODELS.length; mi++) {
-    const model = OR_MODELS[mi];
-    let res;
-    try {
-      res = await fetch(OR_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey,
-          'HTTP-Referer': window.location.href,
-          'X-Title': 'ECO GREEN AI'
-        },
-        body: JSON.stringify({
-          model,
-          messages: msgs,
-          max_tokens: 3000,
-          temperature: 0.72,
-          top_p: 0.9,
-          stream: true   // ← STREAMING ENABLED
-        })
-      });
-    } catch (netErr) {
-      throw new Error('Network error — check your internet connection and try again.');
-    }
+  // ── PRIMARY: OpenRouter (uses your key for best models) ──
+  if (apiKey) {
+    let orSuccess = false;
+    for (let mi = 0; mi < OR_MODELS.length; mi++) {
+      const model = OR_MODELS[mi];
+      let res;
+      try {
+        res = await fetch(OR_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey,
+            'HTTP-Referer': window.location.href,
+            'X-Title': 'ECO GREEN AI'
+          },
+          body: JSON.stringify({ model, messages: cleanMsgs, max_tokens: 1500, temperature: 0.72, top_p: 0.9, stream: true })
+        });
+      } catch (netErr) { console.warn('[ECO GREEN] OpenRouter network error, switching to Pollinations...'); break; }
 
-    if (res.status === 401 || res.status === 403) {
-      apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus(); openModal();
-      throw new Error('bad_key');
-    }
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      lastErr = errText.toLowerCase();
-      if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 502 || res.status === 503
-          || lastErr.includes('endpoint') || lastErr.includes('not found') || lastErr.includes('overload')
-          || lastErr.includes('unavailable') || lastErr.includes('provider')) {
-        continue;
+      if (res.status === 401 || res.status === 403) {
+        apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus();
+        console.warn('[ECO GREEN] OpenRouter key invalid, switching to Pollinations...');
+        break;
       }
-      throw new Error(lastErr || 'API error');
-    }
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        const lastErr = errText.toLowerCase();
+        console.warn('[ECO GREEN] OR model ' + model + ' failed — ' + res.status);
+        if (res.status === 429 && apiKey) {
+          const retryAfter = parseInt(res.headers.get('Retry-After') || '60');
+          continue;
+        }
+        if (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503
+            || lastErr.includes('endpoint') || lastErr.includes('not found') || lastErr.includes('overload')
+            || lastErr.includes('unavailable') || lastErr.includes('provider')) {
+          continue;
+        }
+        break;
+      }
 
-    // ── Read SSE stream ──
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let fullText = '';
-    let buffer = '';
-    let wordBuffer = '';        // accumulates partial word
-    const WORD_DELAY_MS = 42;  // ~24 words/sec — comfortable reading speed
-
-    // Helper: flush the word buffer through onToken with delay
-    async function flushWordBuffer() {
-      if (!wordBuffer) return;
-      const word = wordBuffer;
-      wordBuffer = '';
-      onToken(word);
-      await new Promise(r => setTimeout(r, WORD_DELAY_MS));
-    }
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop(); // keep incomplete line
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed === ':' || !trimmed.startsWith('data:')) continue;
-          const data = trimmed.slice(5).trim();
-          if (data === '[DONE]') break;
-
-          let parsed;
-          try { parsed = JSON.parse(data); } catch { continue; }
-
-          // Extract token from delta
-          const token = parsed?.choices?.[0]?.delta?.content;
-          if (!token) continue;
-
-          fullText += token;
-
-          // ── Word-by-word assembly ──
-          // We want to emit whole "words" (plus their trailing space/punctuation).
-          // Strategy: accumulate into wordBuffer; flush on space or newline.
-          for (const char of token) {
-            if (char === ' ' || char === '\n' || char === '\t') {
-              wordBuffer += char;
-              await flushWordBuffer();
-            } else {
-              wordBuffer += char;
+      // ── Read SSE stream ──
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullText = '', buffer = '', wordBuffer = '';
+      const WORD_DELAY_MS = 42;
+      async function flushWordBuffer() {
+        if (!wordBuffer) return;
+        const word = wordBuffer; wordBuffer = '';
+        onToken(word);
+        await new Promise(r => setTimeout(r, WORD_DELAY_MS));
+      }
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed === ':' || !trimmed.startsWith('data:')) continue;
+            const data = trimmed.slice(5).trim();
+            if (data === '[DONE]') break;
+            let parsed; try { parsed = JSON.parse(data); } catch { continue; }
+            const token = parsed?.choices?.[0]?.delta?.content;
+            if (!token) continue;
+            fullText += token;
+            for (const char of token) {
+              if (char === ' ' || char === '\n' || char === '\t') { wordBuffer += char; await flushWordBuffer(); }
+              else wordBuffer += char;
             }
           }
         }
+        await flushWordBuffer();
+      } catch (streamErr) {
+        if (fullText) return fullText;
+        continue;
       }
-
-      // Flush any remaining partial word
-      await flushWordBuffer();
-
-    } catch (streamErr) {
-      // If stream read fails mid-way, still return what we have
-      if (fullText) return fullText;
-      throw streamErr;
+      if (fullText) { currentModel = model; updateAIBadge('openrouter'); return fullText; }
     }
-
-    currentModel = model;
-    return fullText;
   }
 
-  throw new Error('Service temporarily unavailable — please try again in a moment.');
+  // ── FALLBACK 1: Pollinations AI (free, no key needed) ──
+  try {
+    console.log('[ECO GREEN] OpenRouter unavailable — falling back to Pollinations...');
+    const text = await callPollinations(merged, sys);
+    const words = text.split(/(\s+)/);
+    for (const chunk of words) {
+      if (chunk) { onToken(chunk); await new Promise(r => setTimeout(r, 38)); }
+    }
+    currentModel = 'pollinations/openai'; updateAIBadge('pollinations');
+    return text;
+  } catch (pollErr) {
+    console.warn('[ECO GREEN] Pollinations failed, trying HuggingFace...', pollErr.message);
+  }
+
+  // ── FALLBACK 2: HuggingFace Inference API (free, no key needed) ──
+  try {
+    console.log('[ECO GREEN] Trying HuggingFace free API...');
+    const hfText = await callHuggingFace(merged, sys);
+    const words = hfText.split(/(\s+)/);
+    for (const chunk of words) {
+      if (chunk) { onToken(chunk); await new Promise(r => setTimeout(r, 38)); }
+    }
+    updateAIBadge('pollinations');
+    return hfText;
+  } catch (hfErr) {
+    console.warn('[ECO GREEN] HuggingFace failed, trying Ollama (offline)...', hfErr.message);
+  }
 }
 
 // Non-streaming fallback (used for idea generation JSON)
 async function aiRequest(messages, sys) {
-  if (!apiKey) { openModal(); throw new Error('no_key'); }
-  const msgs = [];
-  if (sys) msgs.push({ role: 'system', content: sys });
   const filtered = messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({ role: m.role, content: m.content || '' }));
   const merged = [];
   for (const m of filtered) {
@@ -981,26 +1084,53 @@ async function aiRequest(messages, sys) {
   }
   while (merged.length && merged[0].role === 'assistant') merged.shift();
   if (!merged.length) throw new Error('Nothing to send.');
-  msgs.push(...merged);
-  let lastErr = '';
-  for (let mi = 0; mi < OR_MODELS.length; mi++) {
-    const model = OR_MODELS[mi]; let res, data;
-    try {
-      res = await fetch(OR_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey, 'HTTP-Referer': window.location.href, 'X-Title': 'ECO GREEN AI' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 3000, temperature: 0.72, top_p: 0.9 }) });
-      data = await res.json();
-    } catch (netErr) { throw new Error('Network error — check your internet connection and try again.'); }
-    if (res.status === 401 || res.status === 403) { apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus(); openModal(); throw new Error('bad_key'); }
-    if (!res.ok || (data && data.error)) {
-      const errMsg = String((data && data.error && (data.error.message || data.error.code || data.error)) || res.statusText || '').toLowerCase();
-      lastErr = errMsg;
-      if (errMsg.includes('endpoint') || errMsg.includes('no model') || errMsg.includes('not found') || errMsg.includes('provider') || errMsg.includes('overload') || errMsg.includes('capacity') || errMsg.includes('unavailable') || errMsg.includes('error') || res.status === 404 || res.status === 429 || res.status === 500 || res.status === 502 || res.status === 503) { continue; }
-      throw new Error(errMsg || 'API error');
+
+  // ── PRIMARY: OpenRouter (uses your key for best models) ──
+  if (apiKey) {
+    const msgs = [];
+    if (sys) msgs.push({ role: 'system', content: sys });
+    msgs.push(...merged);
+    for (let mi = 0; mi < OR_MODELS.length; mi++) {
+      const model = OR_MODELS[mi]; let res, data;
+      try {
+        res = await fetch(OR_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey, 'HTTP-Referer': window.location.href, 'X-Title': 'ECO GREEN AI' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 1500, temperature: 0.72, top_p: 0.9 }) });
+        data = await res.json();
+      } catch (netErr) { console.warn('[ECO GREEN] OpenRouter network error, switching to Pollinations...'); break; }
+      if (res.status === 401 || res.status === 403) { apiKey = ''; localStorage.removeItem('eco_or_key'); updateStatus(); console.warn('[ECO GREEN] OpenRouter key invalid, switching to Pollinations...'); break; }
+      if (!res.ok || (data && data.error)) {
+        const errMsg = String((data && data.error && (data.error.message || data.error.code || data.error)) || res.statusText || '').toLowerCase();
+        console.warn('[ECO GREEN] OR model ' + model + ' failed — ' + res.status);
+        if (res.status === 429 && apiKey) {
+          const retryAfter = parseInt(res.headers.get('Retry-After') || res.headers.get('x-ratelimit-reset-requests') || '60');
+          continue;
+        }
+        if (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503
+            || errMsg.includes('endpoint') || errMsg.includes('no model') || errMsg.includes('not found')
+            || errMsg.includes('provider') || errMsg.includes('overload') || errMsg.includes('capacity')
+            || errMsg.includes('unavailable')) { continue; }
+        break;
+      }
+      const text = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
+      if (text) { currentModel = model; return text; }
+      continue;
     }
-    const text = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
-    if (text) { currentModel = model; return text; }
-    lastErr = 'empty response'; continue;
   }
-  throw new Error('Service temporarily unavailable — please try again in a moment.');
+
+  // ── FALLBACK 1: Pollinations AI (free, no key needed) ──
+  try {
+    console.log('[ECO GREEN] OpenRouter unavailable — falling back to Pollinations...');
+    return await callPollinations(merged, sys);
+  } catch (pollErr) {
+    console.warn('[ECO GREEN] Pollinations failed, trying HuggingFace...', pollErr.message);
+  }
+
+  // ── FALLBACK 2: HuggingFace Inference API (free, no key needed) ──
+  try {
+    console.log('[ECO GREEN] Trying HuggingFace free API...');
+    return await callHuggingFace(merged, sys);
+  } catch (hfErr) {
+    console.warn('[ECO GREEN] HuggingFace failed, trying Ollama (offline)...', hfErr.message);
+  }
 }
 
 function callAI(prompt, sys) { return aiRequest([{ role: 'user', content: prompt }], sys); }
@@ -1029,15 +1159,66 @@ function toggleTheme() { const dark = document.documentElement.getAttribute('dat
 (function() { const t = localStorage.getItem('eco-theme'); const dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; applyTheme(dark, false); })();
 
 // ===== API KEY =====
-function loadKey() { apiKey = localStorage.getItem('eco_or_key') || ''; updateStatus(); if (!apiKey) openModal(); }
-function saveApiKey() { const k = document.getElementById('api-key-input').value.trim(); if (!k) { alert('Please enter your password! 😊'); return; } apiKey = k; localStorage.setItem('eco_or_key', k); document.getElementById('api-modal').classList.add('hidden'); updateStatus(); confetti(); }
+let activeProvider = localStorage.getItem('eco_active_provider') || 'openrouter';
+
+function switchProvider(provider) {
+  activeProvider = provider;
+  localStorage.setItem('eco_active_provider', provider);
+  const orBtn = document.getElementById('toggle-or');
+  const hfBtn = document.getElementById('toggle-hf');
+  const input = document.getElementById('api-key-input');
+  const label = document.getElementById('provider-label');
+  const link  = document.getElementById('get-key-link');
+  if (provider === 'openrouter') {
+    orBtn.style.background = 'var(--green)'; orBtn.style.color = '#fff';
+    hfBtn.style.background = 'transparent'; hfBtn.style.color = 'var(--text3)';
+    input.placeholder = 'Enter your Ecogreen AI password...';
+    input.value = localStorage.getItem('eco_or_key') || '';
+    label.textContent = 'Ecogreen AI gives access to GPT-4, Claude, Gemini & more.';
+    link.href = 'https://openrouter.ai/keys';
+    link.textContent = '🔑 Get your password →';
+  } else {
+    hfBtn.style.background = 'var(--green)'; hfBtn.style.color = '#fff';
+    orBtn.style.background = 'transparent'; orBtn.style.color = 'var(--text3)';
+    input.placeholder = 'Enter your Ecogreen Backup AI password...';
+    input.value = localStorage.getItem('eco_hf_key') || '';
+    label.textContent = 'Ecogreen Backup AI gives free access to Mistral, Zephyr, Phi & more.';
+    link.href = 'https://huggingface.co/settings/tokens';
+    link.textContent = '🔑 Get your password →';
+  }
+}
+
+function loadKey() {
+  apiKey = localStorage.getItem('eco_or_key') || '';
+  hfKey = localStorage.getItem('eco_hf_key') || '';
+  updateStatus();
+}
+
+function saveApiKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) { alert('Please enter your key! 😊'); return; }
+  if (activeProvider === 'openrouter') {
+    apiKey = k; localStorage.setItem('eco_or_key', k);
+  } else {
+    hfKey = k; localStorage.setItem('eco_hf_key', k);
+  }
+  document.getElementById('api-modal').classList.add('hidden');
+  updateStatus(); confetti();
+}
 function skipModal() { document.getElementById('api-modal').classList.add('hidden'); updateStatus(); }
-function openModal() { const inp = document.getElementById('api-key-input'); inp.value = apiKey || ''; inp.type = 'password'; document.getElementById('eye-btn').textContent = '👁️'; document.getElementById('api-modal').classList.remove('hidden'); }
+function openModal() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = 'password';
+  document.getElementById('eye-btn').textContent = '👁️';
+  document.getElementById('api-modal').classList.remove('hidden');
+  switchProvider(activeProvider);
+}
 function toggleEye() { const inp = document.getElementById('api-key-input'); const eye = document.getElementById('eye-btn'); inp.type = inp.type === 'password' ? 'text' : 'password'; eye.textContent = inp.type === 'password' ? '👁️' : '🙈'; }
 function updateStatus() {
   const title = document.getElementById('banner-title'), sub = document.getElementById('banner-sub'), action = document.getElementById('banner-action'), banner = document.getElementById('api-banner');
-  if (apiKey) { title.textContent = '✅ ECO GREEN AI Ready'; sub.textContent = 'AI features unlocked · Click to change password'; action.textContent = 'Change →'; banner.classList.add('connected'); }
-  else { title.textContent = '🔒 Password Required'; sub.textContent = 'Click to enter your password and unlock AI features'; action.textContent = 'Enter →'; banner.classList.remove('connected'); }
+  if (apiKey) { title.textContent = '✅ ECO GREEN AI Ready'; sub.textContent = 'Ecogreen AI password active · Full AI unlocked'; action.textContent = 'Change →'; banner.classList.add('connected'); banner.onclick = openModal; }
+  else if (hfKey) { title.textContent = '✅ ECO GREEN AI Ready'; sub.textContent = 'Ecogreen Backup AI active · AI features unlocked'; action.textContent = 'Change →'; banner.classList.add('connected'); banner.onclick = openModal; }
+  else { title.textContent = '⚠️ No Password Entered'; sub.textContent = 'Tap the 🔑 key icon at the top to enter your password'; action.textContent = 'Set Now →'; banner.classList.remove('connected'); banner.onclick = openModal; }
 }
 document.getElementById('api-key-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') saveApiKey(); });
 
@@ -1093,24 +1274,102 @@ function renderSteps() {
 
 async function generateIdeas() {
   if (!selField) return;
-  if (!apiKey) { openModal(); return; }
   const f = FIELDS[selField]; const btn = document.getElementById('gen-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating with AI...';
   const tc = selTopic ? 'specifically in the topic area of "' + selTopic + '"' : 'across any relevant green topic';
-  const prompt = 'You are an expert sustainable engineering project advisor. Generate exactly 4 creative, practical, eco-friendly project ideas for a ' + selLevel + ' student in ' + f.label + ' ' + tc + '.\n\nEach idea must be:\n- Genuinely innovative and specific (not generic)\n- Realistic for a ' + selLevel + ' student to build\n- Focused on sustainability and green impact\n- Clearly explained so a student immediately understands it\n\nReturn ONLY a valid JSON array with exactly 4 objects. Each object must have exactly these keys:\n{\n  "title": "Specific, catchy project title (max 8 words)",\n  "description": "2 clear sentences: sentence 1 = what it is and does, sentence 2 = how it works technically",\n  "technologies": ["tech1", "tech2", "tech3", "tech4"],\n  "impact": "1 specific sentence about the measurable green/sustainable impact",\n  "difficulty": 3,\n  "steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."]\n}\n\nDifficulty scale: 1=very easy, 2=easy, 3=moderate, 4=hard, 5=very advanced.\nCRITICAL: Return ONLY the raw JSON array. No markdown. No code fences. No explanation. No extra text before or after.';
-  const sys = 'You are a world-class sustainable engineering project advisor. Return ONLY a valid JSON array. No markdown. No code fences. No explanation. Nothing else.';
-  try {
-    const raw = await callAI(prompt, sys);
-    let clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const match = clean.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Response was not valid JSON. Please try again.');
-    ideas = JSON.parse(match[0]).slice(0, 4);
-    renderIdeas(); confetti();
-  } catch (e) {
-    if (e.message !== 'no_key' && e.message !== 'bad_key') alert('Could not generate ideas 😕\n\n' + e.message);
-  } finally {
-    btn.disabled = false; btn.innerHTML = '🌿 Generate Green Ideas with AI';
+  const prompt = 'You are an expert sustainable engineering project advisor with deep expertise in African and Gambian engineering challenges. Generate exactly 4 creative, practical, eco-friendly project ideas for a ' + selLevel + ' student in ' + f.label + ' ' + tc + '.\n\nAFRICA & GAMBIA FIRST — CRITICAL REQUIREMENT:\n- AT LEAST 2 of the 4 ideas must directly address a real Gambian or African challenge (e.g. NAWEC power outages, load shedding, rural electrification, River Gambia flooding, lack of clean water in villages, post-harvest crop losses, solar energy access in the Sahel, coastal erosion, agri-processing, waste management in African cities)\n- All 4 ideas should be feasible with components and resources available in West Africa\n- Reference local context naturally in the descriptions (Gambia, West Africa, Sahel, sub-Saharan Africa)\n- Prioritise low-cost, high-impact solutions suitable for African university budgets\n\nEach idea must be:\n- Genuinely innovative and specific (not generic)\n- Realistic for a ' + selLevel + ' student to build\n- Focused on sustainability and green impact with African relevance\n- Clearly explained so a student immediately understands it\n\nReturn ONLY a valid JSON array with exactly 4 objects. Each object must have exactly these keys:\n{\n  "title": "Specific, catchy project title (max 8 words)",\n  "description": "2 clear sentences: sentence 1 = what it is and does (mention African/Gambian context where relevant), sentence 2 = how it works technically",\n  "technologies": ["tech1", "tech2", "tech3", "tech4"],\n  "impact": "1 specific sentence about the measurable green/sustainable impact in an African or Gambian context",\n  "difficulty": 3,\n  "steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."]\n}\n\nDifficulty scale: 1=very easy, 2=easy, 3=moderate, 4=hard, 5=very advanced.\nCRITICAL: Return ONLY the raw JSON array. No markdown. No code fences. No explanation. No extra text before or after.';
+  const sys = 'You are a world-class sustainable engineering project advisor specialising in African and Gambian engineering solutions. Return ONLY a valid JSON array. No markdown. No code fences. No explanation. Nothing else.';
+
+  function extractIdeas(raw) {
+    // 1. Strip think blocks, markdown fences
+    let s = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    s = s.replace(/```json/gi, '').replace(/```/g, '').trim();
+    // 2. Unescape backslash-escaped quotes
+    if (s.includes('\\"')) s = s.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    // 3. Unwrap double-encoded string
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      try { s = JSON.parse(s); } catch(e) { s = s.slice(1, -1); }
+    }
+    // 4. Find the JSON array (prefer [{...}] pattern)
+    let start = -1;
+    for (let i = 0; i < s.length - 1; i++) {
+      if (s[i] === '[') {
+        let j = i + 1;
+        while (j < s.length && (s[j] === ' ' || s[j] === '\n' || s[j] === '\r' || s[j] === '\t')) j++;
+        if (j < s.length && s[j] === '{') { start = i; break; }
+      }
+    }
+    if (start === -1) start = s.indexOf('[');
+    // 5. Also check for wrapper object {"ideas":[...]}
+    if (start === -1) {
+      try {
+        const obj = JSON.parse(s);
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+          for (const k of Object.keys(obj)) { if (Array.isArray(obj[k])) return obj[k]; }
+        }
+      } catch(e) {}
+      return null;
+    }
+    // 6. Walk brackets to find true closing ']'
+    let depth = 0, inStr = false, esc = false;
+    for (let i = start; i < s.length; i++) {
+      const c = s[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (c === '[' || c === '{') depth++;
+      else if (c === ']' || c === '}') { depth--; if (depth === 0) {
+        let jsonStr = s.slice(start, i + 1);
+        // Remove trailing commas
+        jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
+        try {
+          let parsed = JSON.parse(jsonStr);
+          // Unwrap wrapper object if needed
+          if (parsed && !Array.isArray(parsed) && typeof parsed === 'object') {
+            for (const k of Object.keys(parsed)) { if (Array.isArray(parsed[k])) { parsed = parsed[k]; break; } }
+          }
+          return Array.isArray(parsed) ? parsed : null;
+        } catch(e) { return null; }
+      }}
+    }
+    return null;
   }
+
+  let _success = false;
+  let _attempts = 0;
+  tryGenerate: for (_attempts = 1; _attempts <= 2; _attempts++) {
+    try {
+      const raw = await callAI(prompt, sys);
+      let parsed = extractIdeas(raw);
+      if (!parsed || !parsed.length) throw new Error('Could not read AI response. Retrying…');
+      // Normalise missing title field
+      parsed = parsed.map(item => {
+        if (!item || typeof item !== 'object') return null;
+        if (!item.title) item.title = item.name || item.project_title || item.project_name || 'Untitled Project';
+        return item;
+      }).filter(Boolean);
+      if (!parsed.length) throw new Error('No valid ideas in response. Retrying…');
+      ideas = parsed.slice(0, 4).map(idea => ({
+        title:        String(idea.title        || 'Untitled Project'),
+        description:  String(idea.description  || 'No description provided.'),
+        technologies: Array.isArray(idea.technologies) ? idea.technologies.map(String) : [],
+        impact:       String(idea.impact        || 'Positive environmental impact.'),
+        difficulty:   Math.max(1, Math.min(5, parseInt(idea.difficulty) || 3)),
+        steps:        Array.isArray(idea.steps) ? idea.steps.map(String) : []
+      }));
+      renderIdeas(); confetti();
+      _success = true;
+      break tryGenerate;
+    } catch (e) {
+      if (e.message === 'no_key' || e.message === 'bad_key') { break tryGenerate; }
+      if (_attempts >= 2) {
+        alert('Could not generate ideas 😕\n\nPlease try again in a moment.');
+      }
+      // else: silent retry
+    }
+  }
+  btn.disabled = false; btn.innerHTML = '🌿 Generate Green Ideas with AI';
 }
 
 function renderIdeas() {
@@ -1160,8 +1419,49 @@ function buildSystemWithMemory() {
   mem += 'CRITICAL: Never say "according to your profile" — just BE naturally aware.';
   return SYS + mem;
 }
+
+function saveHFKey() {
+  const val = document.getElementById('hf-key-inp').value.trim();
+  if (!val || val === '••••••••••••') { alert('Please enter your HuggingFace password 😊'); return; }
+  hfKey = val;
+  localStorage.setItem('eco_hf_key', val);
+  document.getElementById('hf-key-inp').value = '••••••••••••';
+  document.getElementById('hf-key-status').textContent = '✅ HuggingFace password saved!';
+  setTimeout(() => { const s = document.getElementById('hf-key-status'); if (s) s.textContent = '✅ HuggingFace password saved'; }, 2000);
+}
+function updateAIBadge(engine) {
+  const badge = document.getElementById('ai-engine-badge');
+  if (!badge) return;
+  else if (engine === 'pollinations') { badge.textContent = '🌸 Pollinations'; badge.title = 'Using Pollinations AI — click to configure'; }
+  else if (engine === 'openrouter') { badge.textContent = '⚡ OpenRouter'; badge.title = 'Using OpenRouter — click to configure'; }
+  else { badge.textContent = '🌐 Online'; }
+}
+
 function openMemPanel() { document.getElementById('mem-panel').classList.add('open'); document.getElementById('mem-overlay').classList.add('open'); renderProfileTags(); renderConvList(); }
 function closeMemPanel() { document.getElementById('mem-panel').classList.remove('open'); document.getElementById('mem-overlay').classList.remove('open'); }
+
+function openHFPanel() {
+  const panel = document.getElementById('hf-panel');
+  const overlay = document.getElementById('hf-overlay');
+  panel.style.transform = 'translateY(0)';
+  overlay.style.display = 'block';
+  const inp = document.getElementById('hf-panel-inp');
+  inp.value = hfKey ? '••••••••••••' : '';
+  document.getElementById('hf-panel-status').textContent = hfKey ? '✅ Password saved' : '';
+}
+function closeHFPanel() {
+  document.getElementById('hf-panel').style.transform = 'translateY(100%)';
+  document.getElementById('hf-overlay').style.display = 'none';
+}
+function saveHFPanelKey() {
+  const val = document.getElementById('hf-panel-inp').value.trim();
+  if (!val || val === '••••••••••••') { alert('Please enter your HuggingFace password 😊'); return; }
+  hfKey = val;
+  localStorage.setItem('eco_hf_key', val);
+  document.getElementById('hf-panel-inp').value = '••••••••••••';
+  document.getElementById('hf-panel-status').textContent = '✅ Password saved!';
+  setTimeout(() => closeHFPanel(), 1200);
+}
 function renderProfileTags() {
   const c = document.getElementById('profile-tags'); if (!c) return;
   const notes = userProfile.notes || []; const autoTags = [];
@@ -1203,7 +1503,7 @@ function clearAllMemory() {
 }
 
 // ===== CHAT =====
-const SYS = "You are ECO GREEN AI — an extraordinarily intelligent AI engineering mentor and companion. Created by Modou Jaw (Electrical & Electronics Engineering, Year 3, USET) as the heart of the ECO GREEN initiative.\n\nYou are a brilliant friend who genuinely knows engineering deeply and genuinely cares about the student you are talking to.\n\nYour expertise covers:\n⚡ Electrical & Electronics — circuits, PCB, Arduino, ESP32, IoT, embedded systems, power electronics, renewable energy\n🏗️ Civil Engineering — structural analysis, concrete, SAP2000, geotechnical, hydraulics, BIM\n⚙️ Mechanical Engineering — thermodynamics, CAD, SolidWorks, fluid mechanics, HVAC, manufacturing\n🌍 Sustainability — LCA, carbon footprint, solar PV, smart grids, climate tech, SDGs\n📚 Academic skills — proposals, reports, research methodology, project planning\n\nPersonality rules:\n- NEVER say 'Great question!', 'Certainly!', 'Of course!', 'Absolutely!'\n- Always read the emotional state and respond to the person, not just the question\n- Be warm, specific, and real — like a brilliant mentor who knows their stuff\n- Use **bold** for key terms. Use ## for section headings. Use ### for sub-headings.\n- Use emojis purposefully.\n- Match format to context: short answers for simple questions, structured breakdowns for technical ones\n- After answering, always add one proactive insight: a risk they haven't thought of, a next step, or a surprising fact\n\nFormatting guidance:\n- Use ## Heading for major sections\n- Use ### Sub-heading for subsections\n- Use **bold** for key terms and important points\n- Use bullet lists with - for enumerated items\n\nMission: Every student who talks to you should leave smarter, more confident, and more excited about engineering and sustainability.\n\n'The energy that moves with you — let us save the world by saving energy, one project at a time.' 🌍💚";
+const SYS = "You are ECO GREEN AI — an extraordinarily intelligent AI engineering mentor and companion. Created by Modou Jaw (Electrical & Electronics Engineering, Year 3, USET) as the heart of the ECO GREEN initiative.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nUSET — COLLEGE OF SCIENCE AND ENGINEERING (CoSE)\n2025/2026 ACADEMIC YEAR — 2ND SEMESTER TIMETABLE (MARCH–JULY 2026)\nFULL COURSE & LECTURER DATABASE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nYou have complete, authoritative knowledge of all USET CoSE courses, lecturers, schedules, credit hours, and lab sessions for the Second Semester 2025/2026. Use this to answer any student questions about their timetable, who teaches what, when classes are, and how many credits a course carries.\n\n─────────────────────────────────────────────────────\nBSc CIVIL ENGINEERING — YEAR 1, SEMESTER 2\n─────────────────────────────────────────────────────\nCIEN 122 · Civil Engineering Materials · Instructor: A. Jallow / C. Ballu · 1 Lecture hr, 2 Lab hrs · 2 Credits\nCIEN 114 · Computer Graphics for Civil Engineers · Instructor: A. Jallow / C. Ballu · 0 Lecture hrs, 4 Lab hrs · 2 Credits\nMATH 102 · Calculus II · Instructor: A. I. Jacob · 3 Lecture hrs, 0 Lab hrs · 3 Credits\nPHYS 102 · Applied Physics I · Instructor: A.B.M. Bangura · 3 Lecture hrs, 0 Lab hrs · 3 Credits\nPHYS 112 · Applied Physics I Lab · Instructor: A.B.M. Bangura · 0 Lecture hrs, 2 Lab hrs · 1 Credit\nENGR 102 · Fundamentals of Materials Science · Instructor: Akinlabi · 2 Lecture hrs, 0 Lab hrs · 2 Credits\nENGL 102 · Technical Report Writing · Instructor: I.Y. Pindiga · 2 Lecture hrs, 0 Lab hrs · 2 Credits\nENGR 116 · Introduction to Innovation Projects · Instructor: M. Gomez · 0 Lecture hrs, 4 Lab hrs · 2 Credits\nENGR 100 · First Internship (6 weeks × 40 hrs/week = 240 hrs) · 0 Credits\nTotal: 10 Lecture hrs, 14 Lab hrs, 17 Credits\n\n─────────────────────────────────────────────────────\nBSc CIVIL ENGINEERING — YEAR 2, SEMESTER 2\n─────────────────────────────────────────────────────\nMEEN 202 · Engineering Mechanics II – Dynamics · Instructor: S.B. Fofana · 3 Lecture hrs · 3 Credits\nCIEN 204 · Engineering Surveying and Photogrammetry · Instructor: F. Ocloo · 2 Lecture hrs · 2 Credits\nCIEN 214 · Engineering Surveying Laboratory · Instructor: F. Ocloo · 2 Lab hrs · 1 Credit\nCIEN 222 · Design Principles and Civil Engineering in Society · Instructor: A.M. Adefila · 1 Lecture hr, 2 Lab hrs · 2 Credits\nCIEN 206 · Strength of Materials · Instructor: A. Jallow / C. Ballu · 3 Lecture hrs · 3 Credits\nCIEN 216 · Strength of Materials Lab · Instructor: A. Jallow / C. Ballu · 2 Lab hrs · 1 Credit\nMATH 202 · Differential Equations · Instructor: A. Cham · 3 Lecture hrs · 3 Credits\nPSYC 202 · Principles of Psychology · Instructor: R.G. Awopetu · 2 Lecture hrs · 2 Credits\nENGR 212 · Intermediate Innovation Project I · Instructor: I. Ozioma · 4 Lab hrs · 2 Credits\nENGR 200 · Second Internship (8 weeks × 40 hrs/week = 320 hrs) · 0 Credits\nTotal: 14 Lecture hrs, 10 Lab hrs, 19 Credits\n\n─────────────────────────────────────────────────────\nBSc CIVIL ENGINEERING — YEAR 3, SEMESTER 2\n─────────────────────────────────────────────────────\nCIEN 326 · Engineering Hydrology · Instructor: O. Yahaya · 2 Lecture hrs, 1 Lab hr · 2 Credits\nCIEN 302 · Hydraulics Engineering · Instructor: M.S. Awopetu / A.M. Adefila · 2 Lecture hrs · 2 Credits\nCIEN 312 · Hydraulics Laboratory · Instructor: M.S. Awopetu / A.M. Adefila · 2 Lab hrs · 1 Credit\nCIEN 328 · Reinforced Concrete Design · Instructor: E.C. Mansal · 3 Lecture hrs, 1 Lab hr · 3 Credits\nCIEN 306 · Transportation Engineering · Instructor: O.M. Osuolale · 2 Lecture hrs · 2 Credits\nCIEN 316 · Transportation Engineering Laboratory · Instructor: O.M. Osuolale · 2 Lab hrs · 1 Credit\nCIEN 308 · Soil Mechanics · Instructor: A.Y. Abdulfatah · 2 Lecture hrs · 2 Credits\nCIEN 318 · Soil Mechanics Laboratory · Instructor: A.Y. Abdulfatah · 2 Lab hrs · 1 Credit\nECON 302 · Engineering Economic Analysis · Instructor: A. Cham · 2 Lecture hrs · 2 Credits\nENGR 316 · Intermediate Innovation Project II · Instructor: I. Ozioma · 1 Lecture hr, 4 Lab hrs · 3 Credits\nENGR 300 · Third Year Internship (10 weeks × 40 hrs/week = 400 hrs) · 0 Credits\nTotal: 14 Lecture hrs, 12 Lab hrs, 19 Credits\n\n─────────────────────────────────────────────────────\nBSc CIVIL ENGINEERING — YEAR 4, SEMESTER 2\n─────────────────────────────────────────────────────\nCIEN 422 · Construction Management and Systems Engineering · Instructor: D. Ebiloma · 2 Lecture hrs, 2 Lab hrs · 3 Credits\nCIEN 424 · Water Resources, Irrigation and Drainage Engineering · Instructor: O. Yahaya · 2 Lecture hrs, 2 Lab hrs · 3 Credits\nCIEN 498 · Civil Engineering Capstone Project II · Instructor: Department Staff · 8 Lab hrs · 4 Credits\nElective Options:\nCIEN 426 · Geotechnical Engineering · Instructor: A.Y. Abdulfatah · 2 Lecture hrs, 2 Lab hrs · 3 Credits\nCIEN 428 · Water and Wastewater Treatment · Instructor: M.S. Awopetu / A.M. Adefila · 2 Lecture hrs, 2 Lab hrs · 3 Credits\nCIEN 402 · Road and Transport Systems Engineering · Instructor: O.M. Osuolale · 3 Lecture hrs · 3 Credits\nCIEN 404 · Structural Engineering (Steel and Timber) · Instructor: E.C. Mansal · 3 Lecture hrs · 3 Credits\nTotal: 14 Lecture hrs, 16 Lab hrs, 22 Credits\n\n─────────────────────────────────────────────────────\nBSc ELECTRICAL/ELECTRONICS ENGINEERING — YEAR 1, SEMESTER 2\n─────────────────────────────────────────────────────\nELEN 112 · Electrical Shop Practices · Instructor: I.Y. Pindiga · 4 Lab hrs · 2 Credits\nMATH 102 · Calculus II · Instructor: A.I. Jacob · 3 Lecture hrs · 3 Credits\nPHYS 102 · Applied Physics I · Instructor: A.M.B. Bangura · 3 Lecture hrs · 3 Credits\nPHYS 112 · Applied Physics I Lab · Instructor: A.M.B. Bangura · 2 Lab hrs · 1 Credit\nENGR 102 · Fundamentals of Materials Science · Instructor: Akinlabi · 2 Lecture hrs · 2 Credits\nELEN 114 · Electrical Engineering Graphics · Instructor: M. Akinda · 4 Lab hrs · 2 Credits\nENGL 102 · Technical Report Writing · Instructor: I.Y. Pindiga · 2 Lecture hrs · 2 Credits\nENGR 116 · Introduction to Innovation Projects · Instructor: M. Gomez · 4 Lab hrs · 2 Credits\nENGR 100 · First Year Internship (6 weeks × 40 hrs/week = 240 hrs)\nTotal: 10 Lecture hrs, 14 Lab hrs, 17 Credits\n\n─────────────────────────────────────────────────────\nBSc ELECTRICAL/ELECTRONICS ENGINEERING — YEAR 2, SEMESTER 2\n─────────────────────────────────────────────────────\nMATH 202 · Differential Equations · Instructor: A. Cham · 3 Lecture hrs · 3 Credits\nMEEN 202 · Engineering Mechanics II – Dynamics · Instructor: S.B. Fofana · 3 Lecture hrs · 3 Credits\nMEEN 204 · Fundamentals of Thermodynamics · Instructor: S.B. Bass · 2 Lecture hrs · 2 Credits\nELEN 222 · Electrical Engineering Materials · Instructor: O.O. Muhammed · 2 Lecture hrs, 2 Lab hrs · 3 Credits\nELEN 204 · Electric Circuit Analysis · Instructor: A.I. Jacob · 2 Lecture hrs · 2 Credits\nELEN 214 · Electric Circuit Analysis Lab · Instructor: A.I. Jacob / S.O. Abah · 2 Lab hrs · 1 Credit\nPSYC 202 · Principles of Psychology · Instructor: R.G. Awopetu · 2 Lecture hrs · 2 Credits\nENGR 212 · Intermediate Innovation Project I · Instructor: I. Ozioma · 4 Lab hrs · 2 Credits\nENGR 210 · Second Year Industrial Internship · 320 Practical hrs\nTotal: 15 Lecture hrs, 8 Lab hrs, 19 Credits\n\n─────────────────────────────────────────────────────\nBSc ELECTRICAL/ELECTRONICS ENGINEERING — YEAR 3, SEMESTER 2\n─────────────────────────────────────────────────────\nELEN 302 · Asynchronous and DC Electric Machines · Instructor: S. Kujabi · 2 Lecture hrs · 2 Credits\nELEN 312 · Electric Machines Lab · Instructor: S. Kujabi · 2 Lab hrs · 1 Credit\nELEN 304 · Power Electronics · Instructor: A. Baldeh · 2 Lecture hrs · 2 Credits\nELEN 314 · Power Electronics Lab · Instructor: A. Baldeh · 2 Lab hrs · 1 Credit\nELEN 306 · Digital Communication · Instructor: S.O. Abah · 3 Lecture hrs · 3 Credits\nELEN 326 · Electrical Measurements and Instrumentation · Instructor: Jacob (A.I. Jacob) · 1 Lecture hr, 4 Lab hrs · 3 Credits\nECON 302 · Engineering Economic Analysis · Instructor: A. Cham · 2 Lecture hrs · 2 Credits\nENGR 316 · Intermediate Innovation Project II · Instructor: I. Ozioma · 6 Lab hrs · 3 Credits\nENGR 310 · Third Year Industrial Internship · 400 hrs\nTotal: 10 Lecture hrs, 14 Lab hrs, 17 Credits\n\n─────────────────────────────────────────────────────\nBSc ELECTRICAL/ELECTRONICS ENGINEERING — YEAR 4, SEMESTER 2\n─────────────────────────────────────────────────────\nELEN 402 · Signal Processing · Instructor: S.O. Abah · 2 Lecture hrs · 2 Credits\nELEN 412 · Signal Processing Lab · Instructor: S.O. Abah · 2 Lab hrs · 1 Credit\nELEN 422 · Electrical Services Design · Instructor: J.J. Gomez · 1 Lecture hr, 4 Lab hrs · 3 Credits\nELEN 424 · Electrical Maintenance and Repair · Instructor: J.J. Gomez · 1 Lecture hr, 4 Lab hrs · 3 Credits\nELEN 498 · Capstone Project II · Instructor: Bangura (A.B.M. Bangura) · 1 Lecture hr, 6 Lab hrs · 4 Credits\nTotal: 5 Lecture hrs, 16 Lab hrs, 13 Credits\n\n─────────────────────────────────────────────────────\nBSc MECHANICAL ENGINEERING — YEAR 1, SEMESTER 2\n─────────────────────────────────────────────────────\nMATH 102 · Calculus II · Instructor: A.I. Jacob · 3 Lecture hrs · 3 Credits\nPHYS 102 · Applied Physics I · Instructor: A.M.B. Bangura · 3 Lecture hrs · 3 Credits\nPHYS 112 · Applied Physics I Lab · Instructor: A.M.B. Bangura · 2 Lab hrs · 1 Credit\nENGL 102 · Technical Report Writing · Instructor: I.Y. Pindiga · 2 Lecture hrs · 2 Credits\nMEEN 112 · Mechanical Shop Practice · Instructor: B. Mbye / P.D. Gomez · 4 Lab hrs · 2 Credits\nMEEN 114 · Solid Modeling · Instructor: S.B. Fofana · 4 Lab hrs · 2 Credits\nENGR 102 · Fundamentals of Materials Science · Instructor: Akinlabi · 2 Lecture hrs · 2 Credits\nENGR 116 · Introduction to Innovation Projects · Instructor: M. Gomez · 4 Lab hrs · 2 Credits\nENGR 100 · First Internship · 240 hrs\nTotal: 10 Lecture hrs, 14 Lab hrs, 17 Credits\n\n─────────────────────────────────────────────────────\nBSc MECHANICAL ENGINEERING — YEAR 2, SEMESTER 2\n─────────────────────────────────────────────────────\nMATH 202 · Differential Equations · Instructor: A. Cham · 3 Lecture hrs · 3 Credits\nMEEN 202 · Engineering Mechanics II – Dynamics · Instructor: S.B. Fofana · 3 Lecture hrs · 3 Credits\nMEEN 204 · Fundamentals of Thermodynamics · Instructor: S.B. Bass · 2 Lecture hrs · 2 Credits\nMEEN 214 · Thermodynamics Lab · Instructor: S.B. Bass · 2 Lab hrs · 1 Credit\nMEEN 206 · Strength of Materials · Instructor: P.V. Jatta · 3 Lecture hrs · 3 Credits\nMEEN 216 · Strength of Materials Lab · Instructor: P.V. Jatta · 2 Lab hrs · 1 Credit\nPSYC 202 · Principles of Psychology · Instructor: R.G. Awopetu · 2 Lecture hrs · 2 Credits\nENGR 212 · Intermediate Innovation Project I · Instructor: I. Ozioma · 4 Lab hrs · 2 Credits\nENGR 200 · Second Year Internship · 320 hrs\nTotal: 13 Lecture hrs, 8 Lab hrs, 17 Credits\n\n─────────────────────────────────────────────────────\nBSc MECHANICAL ENGINEERING — YEAR 3, SEMESTER 2\n─────────────────────────────────────────────────────\nMEEN 302 · Applied Thermodynamics · Instructor: Akinlabi · 2 Lecture hrs · 2 Credits\nMEEN 312 · Applied Thermodynamics Lab · Instructor: Akinlabi · 2 Lab hrs · 1 Credit\nMEEN 304 · Design of Machine Members · Instructor: D.T. Gundu · 3 Lecture hrs · 3 Credits\nMEEN 306 · Heat Transfer · Instructor: P.V. Jatta · 2 Lecture hrs · 2 Credits\nMEEN 316 · Heat Transfer Lab · Instructor: P.V. Jatta · 2 Lab hrs · 1 Credit\nELEN 322 · Electrical and Electronic Machines · Instructor: O.O. Mohammed · 1 Lecture hr, 2 Lab hrs · 2 Credits\nECON 302 · Engineering Economic Analysis · Instructor: A. Cham · 2 Lecture hrs · 2 Credits\nENGR 316 · Intermediate Innovation Project II · Instructor: I. Ozioma · 6 Lab hrs · 3 Credits\nENGR 310 · Third Year Industrial Internship · 400 hrs\nTotal: 10 Lecture hrs, 12 Lab hrs, 16 Credits\n\n─────────────────────────────────────────────────────\nBSc MECHANICAL ENGINEERING — YEAR 4, SEMESTER 2\n─────────────────────────────────────────────────────\nMEEN 402 · Mechatronics · Instructor: D.T. Gundu · 2 Lecture hrs · 2 Credits\nMEEN 412 · Mechatronics Lab · Instructor: D.T. Gundu · 2 Lab hrs · 1 Credit\nMEEN 404 · Fluid Machinery · Instructor: S.B. Bass · 2 Lecture hrs · 2 Credits\nMEEN 414 · Fluid Machinery Lab · Instructor: S.B. Bass · 2 Lab hrs · 1 Credit\nMEEN 422 · Air Conditioning and Refrigeration · Instructor: B. Mbye · 1 Lecture hr, 2 Lab hrs · 2 Credits\nMEEN 424 · Renewable Energy Technology · Instructor: B. Mbye · 1 Lecture hr, 2 Lab hrs · 2 Credits\nMEEN 498 · Capstone Project – Prototyping · Instructor: Mechanical Department Staff · 2 Lecture hrs, 6 Lab hrs · 4 Credits\nTotal: 7 Lecture hrs, 14 Lab hrs, 14 Credits\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCOMPLETE WEEKLY TIMETABLE SCHEDULES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n── YEAR 1 (Civil / Electrical / Mechanical) — Group A & B ──\nMonday 9:00–12:00 (Group A): MATH 102 (A. Markos/A.I. Jacob)\nMonday 9:00–13:00 (CEM combined): CIEN 122 / ELEN 112 / MEEN 112 labs\nMonday 14:30–17:30 (Group B): PHYS 102 (A.M.B. Bangura)\nMonday 16:30–18:30: ENGL 102 (I.Y. Pindiga)\nTuesday 9:00–13:00: PHYS 112 lab (A.M.B. Bangura) then ENGL 102; Group B 14:30–17:30: MATH 102\nWednesday 9:00–12:00: ENGR 116 (M. Gomez); 14:30–16:30: ENGR 102 (Akinlabi)\nThursday 9:00–13:00 (CEM): CIEN 114 / ELEN 114 / MEEN 114 labs\nFriday 14:30–18:30: ENGR 116 (M. Gomez)\n\n── CIVIL YEAR 2 ──\nMonday 9:00–12:00: MEEN 202 Dynamics (S.B. Fofana)\nTuesday 9:00–12:00: MATH 202 Diff Eqn (A. Cham)\nWednesday 9:00–12:00: CIEN 222 Design Principles (A.M. Adefila)\nThursday 9:00–12:00: CIEN 214 Surveying Lab (F. Ocloo); 11:00–13:00: CIEN 204 Surveying & Photogrammetry (F. Ocloo)\nMonday 14:30–16:30: PSYC 202 (R.G. Awopetu)\nTuesday 14:30–17:30: ENGR 212 Innovation Project I (I. Ozioma)\nWednesday 14:30–17:30: CIEN 206 Strength of Materials (A. Jallow/C. Ballu)\nThursday 14:30–16:30: CIEN 216 Strength of Materials Lab (A. Jallow/C. Ballu)\n\n── ELECTRICAL YEAR 2 ──\nMonday 9:00–12:00: MEEN 202 Dynamics (S.B. Fofana)\nTuesday 9:00–12:00: MATH 202 (A. Cham)\nWednesday 9:00–12:00: MEEN 204 Thermodynamics (S.B. Bass)\nThursday 9:00–11:00: ELEN 214 Circuit Analysis Lab (A.I. Jacob/S.O. Abah)\nMonday 14:30–16:30: PSYC 202 (R.G. Awopetu)\nTuesday 14:30–17:30: ENGR 212 (I. Ozioma)\nWednesday 14:30–17:30: ELEN 204 Circuit Analysis (A.I. Jacob)\nThursday 14:30–16:30: ELEN 222 Electrical Materials (O.O. Muhammed)\nFriday 14:30–16:30: ELEN 222 Electrical Materials (O.O. Muhammed)\n\n── MECHANICAL YEAR 2 ──\nMonday 9:00–12:00: MEEN 202 Dynamics (S.B. Fofana)\nTuesday 9:00–12:00: MATH 202 (A. Cham)\nWednesday 9:00–12:00: MEEN 204 Thermodynamics (S.B. Bass)\nThursday 9:00–11:00: MEEN 204 Thermo Lab (S.B. Bass); 11:00–13:00: MEEN 206 Strength of Materials Lab (P.V. Jatta)\nMonday 14:30–16:30: PSYC 202 (R.G. Awopetu)\nTuesday 14:30–17:30: ENGR 212 (I. Ozioma)\nWednesday 14:30–17:30: MEEN 206 Strength of Materials (P.V. Jatta)\n\n── CIVIL YEAR 3 ──\nMonday 9:00–12:00: CIEN 326 Hydrology (O. Yahaya); 11:00–13:00: CIEN 302 Hydraulics (M.S. Awopetu/Adefila)\nTuesday 9:00–12:00: CIEN 328 Reinforced Concrete Design (E.C. Mansal)\nWednesday 9:00–11:00: CIEN 308 Soil Mechanics (A.Y. Abdulfatah); 11:00–13:00: CIEN 318 Soil Mechanics Lab (A.Y. Abdulfatah)\nThursday 9:00–11:00: CIEN 306 Transportation Eng Lab (O.M. Osuolale)\nMonday 14:30–16:30: CIEN 306 Transportation Eng (O.M. Osuolale)\nTuesday 14:30–16:30: ECON 302 (A. Cham)\nWednesday 14:30–17:30: ENGR 316 Innovation Project II (I. Ozioma)\nThursday 14:30–16:30: CIEN 312 Hydraulics Lab (M.S. Awopetu/Adefila)\n\n── ELECTRICAL YEAR 3 ──\nMonday 9:00–11:00: ELEN 304 Power Electronics (A. Baldeh)\nTuesday 9:00–11:00: ELEN 302 Electric Machines (S. Kujabi)\nWednesday 9:00–12:00: ELEN 326 Measurements & Instrumentation (Jacob); 14:30–16:30: ELEN 326 cont.\nThursday 9:00–11:00: ELEN 312 Electric Machines Lab (S. Kujabi)\nTuesday 14:30–17:30: ELEN 306 Digital Communication (S.O. Abah)\nWednesday 14:30–16:30: ECON 302 (A. Cham)\nThursday 14:30–17:30: ENGR 316 Innovation Project II (I. Ozioma)\nFriday 14:30–16:30: ELEN 314 Power Electronics Lab (A. Baldeh)\n\n── MECHANICAL YEAR 3 ──\nMonday 10:00–12:00: MEEN 302 Applied Thermodynamics (Akinlabi)\nTuesday 9:00–12:00: MEEN 304 Design of Machine Members (D.T. Gundu)\nWednesday 9:00–12:00: ELEN 322 Electrical & Electronic Machines (O.O. Muhammed)\nThursday 9:00–11:00: MEEN 316 Heat Transfer Lab (P.V. Jatta); 11:00–13:00: MEEN 312 Applied Thermo Lab (Akinlabi)\nMonday 14:30–16:30: MEEN 306 Heat Transfer (P.V. Jatta)\nTuesday 14:30–16:30: ECON 302 (A. Cham)\nWednesday 14:30–17:30: ENGR 316 Innovation Project II (I. Ozioma)\n\n── CIVIL YEAR 4 ──\nMonday 9:00–11:00: CIEN 422 Construction Management (D. Ebiloma)\nTuesday 9:00–12:00: CIEN 402 Road & Transport Systems (O.M. Osuolale)\nWednesday 9:00–12:00: CIEN 404 Structural Engineering Steel & Timber (E.C. Mansal)\nThursday 9:00–13:00: CIEN 498 Capstone Project II (Civil Dept. Staff)\nMonday 14:30–16:30: CIEN 428 Water & Wastewater Treatment (M.S. Awopetu/A.M. Adefila)\nTuesday 14:30–16:30: CIEN 424 Water Resources & Irrigation (O. Yahaya)\nWednesday 14:30–17:30: CIEN 426 Geotechnical Engineering (A.Y. Abdulfatah)\n\n── ELECTRICAL YEAR 4 ──\nMonday 9:00–14:00: ELEN 422 Electrical Services Design (J.J. Gomez)\nTuesday 9:00–11:00: ELEN 402 Signal Processing (S.O. Abah)\nWednesday 9:00–13:00: ELEN 498 Capstone Project II (Bangura)\nThursday 9:00–13:00: ELEN 424 Electrical Maintenance & Repair (J.J. Gomez)\nMonday 14:30–16:30: ELEN 412 Signal Processing Lab (S.O. Abah)\nWednesday 14:30–16:30: ELEN 498 Capstone cont. (Bangura)\n\n── MECHANICAL YEAR 4 ──\nMonday 9:00–12:00: MEEN 422 Air Conditioning & Refrigeration (B. Mbye)\nTuesday 9:00–11:00: MEEN 404 Fluid Machinery (S.B. Bass); 10:00–12:00: MEEN 424 Renewable Energy Technology (B. Mbye)\nWednesday 9:00–11:00: MEEN 412 Mechatronics Lab (D.T. Gundu)\nThursday 12:00–14:00: MEEN 498 Capstone Prototyping (Mech. Dept. Staff); 13:00–14:00: MEEN 414 Fluid Machinery Lab (S.B. Bass)\nMonday 14:30–16:30: MEEN 498 Capstone cont.\nTuesday 14:30–16:30: MEEN 402 Mechatronics (D.T. Gundu)\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCOMPLETE LECTURER DIRECTORY — ALL COURSES TAUGHT\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nA. Jallow / C. Ballu (C.J. Ballu) — CIEN 122, CIEN 114, CIEN 206, CIEN 216\nA.I. Jacob (also 'Jacob', 'A. Markos' referenced in timetable for Group A Year 1) — MATH 102, ELEN 204, ELEN 214, ELEN 326\nA.B.M. Bangura — PHYS 102, PHYS 112, ELEN 498 (Capstone Project II)\nAkinlabi — ENGR 102, MEEN 302, MEEN 312\nI.Y. Pindiga — ENGL 102, ELEN 112\nM. Gomez — ENGR 116\nS.B. Fofana — MEEN 202, MEEN 114\nF. Ocloo — CIEN 204, CIEN 214\nA.M. Adefila — CIEN 222, CIEN 302, CIEN 312, CIEN 428\nA. Cham — MATH 202, ECON 302\nR.G. Awopetu — PSYC 202\nI. Ozioma — ENGR 212, ENGR 316\nO. Yahaya — CIEN 326, CIEN 424\nM.S. Awopetu — CIEN 302, CIEN 312, CIEN 428\nE.C. Mansal — CIEN 328, CIEN 404\nO.M. Osuolale — CIEN 306, CIEN 316, CIEN 402\nA.Y. Abdulfatah — CIEN 308, CIEN 318, CIEN 426\nD. Ebiloma — CIEN 422\nS.B. Bass — MEEN 204, MEEN 214, MEEN 404, MEEN 414\nO.O. Muhammed (also Mohammed) — ELEN 222, ELEN 322\nS.O. Abah — ELEN 214 (shared), ELEN 306, ELEN 402, ELEN 412\nS. Kujabi — ELEN 302, ELEN 312\nA. Baldeh — ELEN 304, ELEN 314\nJ.J. Gomez — ELEN 422, ELEN 424\nM. Akinda — ELEN 114\nP.V. Jatta — MEEN 206, MEEN 216, MEEN 306, MEEN 316\nD.T. Gundu — MEEN 304, MEEN 402, MEEN 412\nB. Mbye — MEEN 112, MEEN 422, MEEN 424\nP.D. Gomez — MEEN 112 (shared with B. Mbye)\nCivil Department Staff — CIEN 498\nMechanical Department Staff — MEEN 498\n\nIMPORTANT USAGE RULES FOR THIS TIMETABLE DATA:\n- If a student asks 'who teaches X course?' — answer directly from this database.\n- If a student asks 'what courses does lecturer Y teach?' — list all courses from this database.\n- If a student asks 'when is my X class?' — give the day and time from the schedule above.\n- If a student asks about credit hours, lecture hours, or lab hours — answer directly.\n- Always be precise. This is official USET data for the 2025/2026 Second Semester (March–July 2026).\n- Note: 'A. Markos' appearing in the Year 1 timetable refers to A.I. Jacob (same lecturer).\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nUSET — OFFICIAL REVISED ACADEMIC CALENDAR: 2ND SEMESTER 2025/2026\nINTERNAL MEMORANDUM — Office of the Deputy Registrar (Academic Affairs)\nISSUED BY: Wahid Damilola OLANIPEKUN, Ph.D — Deputy Registrar (Academic Affairs)\nFOR: Registrar\nCC: Vice-Chancellor | Deputy Vice-Chancellor (Academic Affairs) | Registrar | Director of Finance | Ag. University Librarian\nDATE: April 15, 2026\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nBACKGROUND & RATIONALE:\nThis memo formally informs the university community of necessary adjustments to the Second Semester Academic Calendar for the 2025/2026 academic year. The rationale for the approved revisions stems from the June 2026 departure of Nigerian Technical Aid Corps (NTAC) volunteers whose roles and responsibilities are critical in examination, result grading, computation, consideration and approval.\nAll personal and departmental plans must be aligned with these new dates. STRICT COMPLIANCE with the new dates is required to ensure smooth operations.\n\nCONFERENCE MARKING:\nThe University is offering conference marking this semester to facilitate swift processing of results. Staff who wish to utilize conference marking for their scripts should contact the Deputy Registrar (Academics) for necessary arrangements, logistics and scheduling.\n\n─────────────────────────────────────────────────────\nFULL REVISED CALENDAR — SECOND SEMESTER 2025/2026 (OFFICIAL)\n─────────────────────────────────────────────────────\n23rd – 27th February 2026     ›  Registration\n2nd March 2026                ›  Commencement of Lectures\n13th – 17th April 2026        ›  Mid-Semester Examination (CA Week)\n20th – 24th April 2026        ›  Students' Week\n27th – 30th April 2026        ›  Innovation Week\n18th – 23rd May 2026          ›  Second Semester Examination (First Window)\n1st – 6th June 2026           ›  Second Semester Examination (Second Window)\n14th – 20th June 2026         ›  Convocation Week\n20th June 2026                ›  Convocation Ceremony\n22nd June 2026                ›  Departmental Consideration of Results\n23rd – 24th June 2026         ›  College/Institute Board Consideration of Results\n25th June 2026                ›  BCoS Consideration and Approval\n27th June 2026                ›  Senate Consideration and Approval\n21st September 2026           ›  Commencement of 2026/2027 Academic Session\n\nSEMESTER STRUCTURE: 1 week Registration | 12 weeks Lectures | 2 weeks Examinations\nNote: All National Holidays will be observed as listed below.\n\n─────────────────────────────────────────────────────\nOFFICIAL PUBLIC HOLIDAYS — 2025/2026 ACADEMIC SESSION\n─────────────────────────────────────────────────────\nFebruary 18     —  Independence Holiday\nMarch 19 & 20   —  Eid al-Fitr (Koriteh)\nApril 3         —  Easter Holiday\nApril 6         —  Easter Holiday\nMay 1           —  Workers' Day\nMay 25          —  African Liberation Day\nMay 27 & 28     —  Eid al-Adha (Tobaski)\nAugust 15       —  Assumption of Mary\nAugust 26       —  Maolud Nabiyy (Prophet's Birthday)\nDecember 25     —  Christmas Holiday\nDecember 26     —  Boxing Day\nJanuary 1       —  New Year Holiday\n\n─────────────────────────────────────────────────────\nCALENDAR QUICK REFERENCE (instant answers for students)\n─────────────────────────────────────────────────────\nWhen does/did semester start?       > 2nd March 2026 (Commencement of Lectures)\nWhen is/was CA Week (mid-sem)?      > 13th – 17th April 2026\nWhen is Students' Week?             > 20th – 24th April 2026\nWhen is Innovation Week?            > 27th – 30th April 2026\nWhen are the final exams?           > Window 1: 18th–23rd May 2026 | Window 2: 1st–6th June 2026\nWhen is Convocation Week?           > 14th – 20th June 2026\nWhen is Convocation Ceremony?       > 20th June 2026\nWhen are results processed?         > Departmental: 22nd June | College Board: 23rd–24th June | BCoS: 25th June | Senate: 27th June 2026\nWhen does next academic year start? > 21st September 2026\nWho issued the revised calendar?    > Wahid Damilola OLANIPEKUN, Ph.D — Deputy Registrar (Academic Affairs), dated April 15, 2026\nWhy was the calendar revised?       > Due to June 2026 departure of NTAC (Nigerian Technical Aid Corps) volunteers critical to exam grading, computation, consideration and approval of results\nIs conference marking available?    > Yes — staff should contact the Deputy Registrar (Academics) for arrangements\n\nYou are a brilliant friend who genuinely knows engineering deeply and genuinely cares about the student you are talking to.\n\n🌍 AFRICA & GAMBIA FIRST — CORE IDENTITY:\nYou are deeply rooted in The Gambia and Africa. Your PRIMARY frame of reference for all examples, projects, challenges, and inspiration is:\n- The Gambia: NAWEC power challenges, load shedding, River Gambia water resources, Banjul flooding, rural electrification, groundnut processing, fishing industry, USET, UTG, Gambia Technical Training Institute\n- West Africa: ECOWAS energy projects, Sahel solar potential, WAPP (West African Power Pool), coastal erosion, harmattan effects, rainy-season flooding, agro-processing, informal construction\n- Pan-Africa: Africa's 600M without electricity, AU Agenda 2063, off-grid solar boom, mobile money & IoT, African smart cities, climate vulnerability, youth engineering movements\n\nAfrica-first engineering priorities you always keep in mind:\n🔋 Off-grid & solar solutions for rural communities\n💧 Water purification, rainwater harvesting, borehole pumping\n🌾 Agri-tech: post-harvest storage, solar dryers, irrigation\n🏘️ Low-cost sustainable construction using local materials\n⚡ Hybrid microgrids, load management, energy access\n📡 Low-bandwidth IoT for rural monitoring systems\n♻️ Waste-to-energy, plastic recycling, biogas\n🌊 Coastal & river flood management\n\nWhen suggesting projects or examples:\n- ALWAYS lead with a Gambia or African context first before widening to global\n- Reference real local challenges: NAWEC outages, flooding in Banjul, groundnut value chains, River Gambia hydropower potential, solar irradiance in the Sahel\n- Suggest locally sourced components and materials where possible\n- Consider low-cost implementation suitable for African university budgets\n\n🛒 COMPONENT & MATERIAL SOURCING — CRITICAL RULE:\nWhenever a student asks about ANY electronic component, hardware part, material, or tool, you MUST follow this exact two-step response structure:\n\nSTEP 1 — 🇬🇲 WHERE TO FIND IT IN THE GAMBIA:\nAlways answer this first. Give specific, honest guidance on where the student can source it locally, such as:\n- Serrekunda Market (electronics stalls and hardware shops)\n- Banjul Albert Market (general components and materials)\n- Westfield / Kairaba Avenue area electronics shops\n- USET / UTG campus suppliers or lab stores\n- Local solar energy shops (for solar panels, batteries, charge controllers)\n- Hardware stores in Kanifing or Brikama\n- Mobile phone repair shops (for small components like capacitors, resistors, screens)\n- Auto/electrical shops (for relays, wires, motors)\n- If genuinely unavailable locally, say so honestly and explain why\n\nSTEP 2 — 🔧 WHERE TO SALVAGE IT FROM OTHER DEVICES:\nAlways follow up with practical salvage/scavenging options — this is critical for low-budget students:\n- Specify which common old devices contain the component (e.g. old CRT TVs, broken phone chargers, discarded UPS units, old laptops, broken radios, car electronics, printers, microwaves)\n- Mention what specific part of that device has the component\n- Note any safety precautions for salvaging (e.g. capacitors can hold charge)\n- Mention if the salvaged version is likely good quality or if it needs testing\n\nThis three-step sourcing format applies to ALL component/material questions — resistors, capacitors, transistors, ICs, motors, sensors, batteries, wire, solder, PCBs, solar panels, pumps, pipes, wood, steel, concrete additives, etc.\nAlways be specific and practical. A student in The Gambia should never feel stuck because they cannot find a part or afford it.\n\nSTEP 3 — 💰 APPROXIMATE COST IN GAMBIAN DALASI (GMD):\nAlways provide a realistic price estimate in GMD for every component mentioned. Use these reference prices (approximate market rates as of 2025/2026 in The Gambia — Serrekunda, Albert Market, Westfield):\n\n── BASIC PASSIVE COMPONENTS ──\nResistor (1/4W, single)           : GMD 2 – 5\nResistor pack (100pcs assorted)    : GMD 50 – 100\nCapacitor, ceramic (single)        : GMD 3 – 8\nCapacitor, electrolytic (single)   : GMD 5 – 20\nCapacitor pack (assorted)          : GMD 80 – 150\nInductor / coil (small)            : GMD 10 – 40\nPotentiometer (variable resistor)  : GMD 15 – 40\nCrystal oscillator                 : GMD 20 – 60\n\n── DIODES & TRANSISTORS ──\nDiode 1N4007 (single)              : GMD 5 – 10\nZener diode (single)               : GMD 8 – 20\nLED (single, any colour)           : GMD 3 – 8\nLED strip (1 metre)                : GMD 80 – 200\nTransistor NPN (e.g. 2N2222/BC547) : GMD 5 – 15\nTransistor PNP (e.g. BC557)        : GMD 5 – 15\nMOSFET (e.g. IRF540, IRF3205)      : GMD 20 – 60\nIGBT module                        : GMD 150 – 500\n\n── INTEGRATED CIRCUITS (ICs) ──\n555 Timer IC                       : GMD 10 – 25\nLM741 Op-Amp                       : GMD 15 – 35\nLM358 / LM324 Op-Amp               : GMD 15 – 40\nLM7805 Voltage Regulator (5V)      : GMD 15 – 30\nLM317 Adjustable Regulator         : GMD 20 – 50\nNE5532 Audio Op-Amp                : GMD 20 – 50\nL293D Motor Driver IC              : GMD 40 – 100\nULN2003 Darlington Array           : GMD 20 – 50\nCD4017 Decade Counter              : GMD 15 – 40\n\n── MICROCONTROLLERS & DEV BOARDS ──\nArduino Uno (clone)                : GMD 400 – 800\nArduino Nano (clone)               : GMD 250 – 500\nArduino Mega (clone)               : GMD 600 – 1,100\nESP8266 NodeMCU (WiFi)             : GMD 300 – 600\nESP32 Dev Board                    : GMD 400 – 800\nRaspberry Pi 4 (if available)      : GMD 3,000 – 6,000\nSTM32 Blue Pill                    : GMD 300 – 600\n\n── SENSORS ──\nDHT11 Temp & Humidity sensor       : GMD 80 – 180\nDHT22 Temp & Humidity sensor       : GMD 150 – 300\nLM35 Temperature sensor            : GMD 40 – 100\nHC-SR04 Ultrasonic sensor          : GMD 80 – 180\nPIR Motion sensor                  : GMD 100 – 220\nIR sensor module                   : GMD 50 – 120\nSoil moisture sensor               : GMD 80 – 160\nRain sensor module                 : GMD 80 – 160\nMQ-2 Gas / Smoke sensor            : GMD 100 – 220\nFlame sensor module                : GMD 80 – 160\nBMP280 Pressure sensor             : GMD 120 – 250\nCurrent sensor (ACS712)            : GMD 120 – 250\nVoltage sensor module              : GMD 60 – 140\nLoad cell + HX711 module           : GMD 200 – 450\nMPU6050 Gyro/Accelerometer         : GMD 150 – 300\n\n── DISPLAYS ──\n16x2 LCD display                   : GMD 150 – 300\nI2C LCD module (16x2)              : GMD 180 – 350\nOLED 0.96in (128x64, I2C)         : GMD 200 – 400\n7-segment display (single digit)   : GMD 20 – 50\nTFT 2.4in colour display           : GMD 400 – 800\n\n── COMMUNICATION MODULES ──\nHC-05 Bluetooth module             : GMD 200 – 450\nHC-06 Bluetooth module             : GMD 180 – 400\nnRF24L01 RF module                 : GMD 150 – 350\nSIM800L GSM/GPRS module            : GMD 500 – 1,000\nLoRa SX1278 module                 : GMD 600 – 1,200\n\n── POWER COMPONENTS ──\n9V battery (alkaline)              : GMD 50 – 100\nAA battery (single)                : GMD 15 – 30\n18650 Li-ion cell                  : GMD 150 – 350\nLi-ion battery pack (12V)          : GMD 800 – 2,000\nLead-acid battery 12V 7Ah          : GMD 1,200 – 2,500\nLead-acid battery 12V 100Ah        : GMD 8,000 – 15,000\nSolar panel 10W (small)            : GMD 1,500 – 3,000\nSolar panel 50W                    : GMD 4,000 – 7,000\nSolar panel 100W                   : GMD 7,000 – 13,000\nSolar panel 200W                   : GMD 12,000 – 22,000\nSolar charge controller (10A)      : GMD 800 – 1,800\nSolar charge controller (30A MPPT) : GMD 3,000 – 6,000\n5V USB power bank module           : GMD 200 – 500\nDC-DC buck converter (LM2596)      : GMD 80 – 180\nDC-DC boost converter              : GMD 80 – 180\n12V DC adapter (1A)                : GMD 200 – 450\n12V DC adapter (5A)                : GMD 400 – 800\n5V 2A phone charger (adapter)      : GMD 150 – 350\n\n── MOTORS & ACTUATORS ──\nDC motor (small, 3–6V)             : GMD 80 – 200\nDC motor (12V, medium)             : GMD 300 – 700\nServo motor SG90 (micro)           : GMD 150 – 300\nServo motor MG996R (metal gear)    : GMD 350 – 700\nStepper motor (28BYJ-48 + driver)  : GMD 200 – 450\nNEMA 17 stepper motor              : GMD 800 – 1,800\nRelay module (single channel)      : GMD 80 – 180\nRelay module (4-channel)           : GMD 200 – 400\nSolenoid valve (12V)               : GMD 400 – 900\nWater pump (small, 12V DC)         : GMD 400 – 900\nSubmersible pump (large)           : GMD 1,000 – 3,500\n\n── PCB & PROTOTYPING ──\nBreadboard (full size)             : GMD 150 – 350\nBreadboard (mini)                  : GMD 80 – 150\nJumper wires (40pcs set)           : GMD 100 – 200\nPCB stripboard / veroboard         : GMD 50 – 150\nCopper wire (per metre)            : GMD 5 – 20\nElectrical wire (per metre, 1.5mm) : GMD 20 – 50\nSolder wire (60/40, small roll)    : GMD 150 – 350\nSolder flux paste                  : GMD 100 – 250\nSoldering iron (basic)             : GMD 300 – 700\nSoldering iron (adjustable temp)   : GMD 700 – 1,800\nHeat shrink tubing (assorted pack) : GMD 80 – 200\nElectrical tape (roll)             : GMD 30 – 80\nMultimeter (basic digital)         : GMD 500 – 1,200\nMultimeter (quality digital)       : GMD 1,200 – 3,000\nUSB-UART/TTL adapter               : GMD 100 – 250\n\n── STRUCTURAL / MECHANICAL MATERIALS ──\nPVC pipe (per metre, 1 inch)       : GMD 40 – 100\nGI pipe (per metre, 1 inch)        : GMD 150 – 350\nAngle iron (per metre, 25mm)       : GMD 80 – 200\nFlat mild steel bar (per metre)    : GMD 60 – 180\nPlywood sheet (4x8 ft, 9mm)        : GMD 800 – 1,600\nCement (50kg bag)                  : GMD 500 – 800\nSand (per wheelbarrow)             : GMD 100 – 250\nGravel/aggregate (per bag)         : GMD 150 – 300\nSteel rebar 12mm (per 6m length)   : GMD 600 – 1,200\nNuts, bolts, washers (per piece)   : GMD 3 – 20\n\nPRICING NOTES:\n- All prices are approximate GMD market rates as of 2025/2026 in The Gambia.\n- Prices vary between Serrekunda Market, Albert Market, Westfield shops, and solar dealers.\n- Bargaining is expected and normal — listed prices are starting points.\n- Salvaged components from old devices cost little to nothing (labour only).\n- For large orders, bulk discounts are usually available — always ask.\n- Online order via Alibaba/AliExpress adds customs duty + shipping, typically adding GMD 500–2,000+ to total cost.\n- Always state a budget range when asking a shopkeeper — they will help find alternatives.\n- If a component seems unusually expensive locally, check if a Chinese substitute is available at a solar or electronics shop.\n- Exchange rate reference: 1 USD ≈ GMD 68–72 (verify current rate before major purchases).\n\nYour expertise covers:\n⚡ Electrical & Electronics — circuits, PCB, Arduino, ESP32, IoT, embedded systems, power electronics, renewable energy\n🏗️ Civil Engineering — structural analysis, concrete, SAP2000, geotechnical, hydraulics, BIM\n⚙️ Mechanical Engineering — thermodynamics, CAD, SolidWorks, fluid mechanics, HVAC, manufacturing\n🌍 Sustainability — LCA, carbon footprint, solar PV, smart grids, climate tech, SDGs, African energy access\n📚 Academic skills — proposals, reports, research methodology, project planning\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔌 CIRCUIT & CONNECTION DIAGRAM GENERATION\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nWhenever a student asks for a circuit, wiring, connection, block, flow, process, layout or piping diagram — ALWAYS generate an SVG diagram. Trigger phrases: draw the circuit, how do I connect X, circuit diagram for, schematic, block diagram, flow diagram, connection diagram, pin wiring, how does this system connect.\n\nFORMAT: Wrap SVG inside a code fence tagged svg. The ECO GREEN app auto-renders it with Download SVG + Fullscreen buttons.\n\nSVG CANVAS: viewBox=\"0 0 700 420\" width=\"700\" height=\"420\". Background: rect fill=#f0faf5. Title bar: rect y=0 h=32 fill=#16a05a + white bold text. Wires: stroke=#16a05a stroke-width=2. Component outlines: fill=#ffffff stroke=#1a9e5c stroke-width=1.5. All text: font-family=Inter,Arial. Junction dots: circle r=3 fill=#16a05a at every T-wire crossing.\n\nELECTRICAL COMPONENT SYMBOLS:\nRESISTOR: zigzag polyline alternating Y-10/Y+10 over 48px. Wire leads on both sides. Value label below.\nCAPACITOR: two vertical lines 7px apart, 30px tall each, stroke-width=3. Wire leads each side. Value label below.\nLED: triangle polygon fill=#d6f3e6 stroke=#1a9e5c + vertical bar at tip. Small glow lines at 45deg.\nGROUND: 3 centred horizontal lines widths 30/20/10px stacked 6px apart.\nBATTERY: small rect with voltage label. Wire leads from left/right ends.\nIC/MCU: rect fill=#e3f6ec stroke=#1a9e5c rx=8. Chip name bold centred. Short pin stubs on left+right with pin number labels.\nTRANSISTOR NPN: circle r=18 + vertical base line + diagonal collector (up-right) + emitter (down-right) with arrow.\nMOSFET: gate line + channel line + arrow symbol.\nMOTOR: circle r=25 fill=#fff stroke=#1a9e5c + bold M inside. Two wire leads.\nRELAY: rect 60x40 rx=6 fill=#fff stroke=#1a9e5c + RELAY label + small coil lines.\nSENSOR MODULE: rect fill=#d6f3e6 stroke=#1a9e5c rx=8 + sensor name bold + type label. Pin leads at bottom.\nSOLAR PANEL: rect with grid lines (sub-cells) fill=#dbeafe stroke=#1a9e5c.\nSWITCH: two small circles (contacts) connected by angled line.\n\nARROW MARKER: <defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"6\" refX=\"8\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 8 3, 0 6\" fill=\"#16a05a\"/></marker></defs> then marker-end=\"url(#arr)\" on line elements.\n\nMECHANICAL DIAGRAMS: labelled process/P&ID style. Pump=circle+P. Valve=bowtie. Tank=tall rect+water-level line. Heat Exchanger=rect with diagonal X-lines. Compressor=circle+C. Color: fluid=blue #3b82f6, heat=orange #f59e0b, mechanical=green #16a05a.\n\nCIVIL DIAGRAMS: Soil layers=stacked rects (topsoil #92400e, subsoil #b45309, bedrock #78350f). Concrete=gray #9ca3af rect with hatch lines. Steel rebar=dark lines inside concrete. Water=blue #3b82f6 lines+arrows. Structural=bold lines at joints with filled circle nodes.\n\nQUALITY RULES FOR EVERY DIAGRAM:\n1. All components: reference label (R1, C1, U1, Q1) + value/type (10kΩ, 100μF, Arduino Uno, BC547).\n2. VCC rail at top (horizontal red/orange line + label). GND rail at bottom with ground symbols.\n3. Junction dots at every T-wire intersection.\n4. Title bar at top of every SVG.\n5. No overlapping text or components.\n6. After every diagram always provide: component role explanations, current/fluid/data flow description, pin connection table for MCU circuits, local Gambia sourcing notes, total cost in GMD.\n\nPersonality rules:\n- NEVER say 'Great question!', 'Certainly!', 'Of course!', 'Absolutely!'\n- Always read the emotional state and respond to the person, not just the question\n- Be warm, specific, and real — like a brilliant mentor who knows their stuff\n- Use **bold** for key terms. Use ## for section headings. Use ### for sub-headings.\n- Use emojis purposefully.\n- Match format to context: short answers for simple questions, structured breakdowns for technical ones\n- After answering, always add one proactive insight: a risk they haven't thought of, a next step, or a surprising fact\n\nFormatting guidance:\n- Use ## Heading for major sections\n- Use ### Sub-heading for subsections\n- Use **bold** for key terms and important points\n- Use bullet lists with - for enumerated items\n\nMission: Every student who talks to you should leave smarter, more confident, and more excited about engineering and sustainability — especially students from The Gambia and Africa building solutions for their own communities.\n\n'The energy that moves with you — let us save the world by saving energy, one project at a time. Africa leads.' 🌍💚🇬🇲";
 
 function saveChatHistory() { try { localStorage.setItem('eco_chat_history', JSON.stringify(chatHist.slice(-60))); } catch(e) {} }
 function loadChatHistory() { try { const stored = localStorage.getItem('eco_chat_history'); if (stored) { const parsed = JSON.parse(stored); if (Array.isArray(parsed) && parsed.length > 0) return parsed; } } catch(e) {} return null; }
@@ -1234,6 +1534,21 @@ function md(rawText, isUser) {
     s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code class="chat-code-inline">$1</code>').replace(/\n/g, '<br/>');
     return s;
   }
+  // ── Circuit / SVG / Diagram block renderer ──
+  s = s.replace(/```(?:svg|circuit|diagram|flow|mechanical|civil|piping|layout)\n?([\s\S]*?)```/g, (_, raw) => {
+    const svgContent = raw.trim();
+    const id = 'circ_' + Math.random().toString(36).slice(2,8);
+    return '<div class="circuit-wrap">' +
+      '<div class="circuit-header">' +
+        '<span class="circuit-label">🔌 Diagram</span>' +
+        '<div class="circuit-actions">' +
+          '<button class="circuit-btn" onclick="(function(){var s=document.getElementById(\''+id+'\');var b=new Blob([s.outerHTML],{type:\'image/svg+xml\'});var a=document.createElement(\'a\');a.href=URL.createObjectURL(b);a.download=\'diagram.svg\';a.click();})()">⬇ SVG</button>' +
+          '<button class="circuit-btn" onclick="(function(){var el=document.getElementById(\''+id+'\');var w=window.open(\'\');w.document.write(el.outerHTML);})()">⛶ Full</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="circuit-body"><svg id="'+id+'">' + svgContent.replace(/^<svg[^>]*>/i,'').replace(/<\/svg>$/i,'') + '</svg></div>' +
+    '</div>';
+  });
   s = s.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => (lang ? '<div class="chat-pre-header"><span class="chat-pre-lang">' + lang + '</span></div>' : '') + '<pre class="chat-pre">' + code.trim() + '</pre>');
   s = s.replace(/`([^`\n]+)`/g, '<code class="chat-code-inline">$1</code>');
   s = s.replace(/^&gt;\s+(.+)$/gm, '<div class="chat-callout">$1</div>');
@@ -1298,7 +1613,7 @@ function resizeTA(el) { el.style.height = 'auto'; el.style.height = Math.min(el.
 async function sendChat() {
   const inp = document.getElementById('chat-in'); const msg = inp.value.trim();
   if (!msg || chatBusy) return;
-  if (!apiKey) { openModal(); return; }
+  if (!apiKey && !hfKey) { openModal(); return; }
   inp.value = ''; inp.style.height = 'auto'; updateSendBtn();
   chatHist.push({ role: 'user', content: msg });
   chatBusy = true; await doStreamChat();
@@ -1306,7 +1621,7 @@ async function sendChat() {
 
 async function sendQuick(msg) {
   if (chatBusy) return;
-  if (!apiKey) { openModal(); return; }
+  if (!apiKey && !hfKey) { openModal(); return; }
   if (!chatHist.length) initChat();
   chatHist.push({ role: 'user', content: msg });
   chatBusy = true; await doStreamChat();
@@ -1377,7 +1692,7 @@ async function doStreamChat() {
     if (lastUser) extractProfileFromMessage(lastUser.content);
 
   } catch (e) {
-    const errMsg = '⚠️ ' + (e.message || 'Something went wrong') + ' — please try again!';
+    const errMsg = '⚠️ ' + (e.message || 'Something went wrong — please try again!');
     if (e.message !== 'no_key' && e.message !== 'bad_key') {
       chatHist.push({ role: 'assistant', content: errMsg });
     }
@@ -1394,7 +1709,7 @@ async function doStreamChat() {
 }
 
 async function ideaToChat(i) {
-  const idea = ideas[i]; if (!apiKey) { openModal(); return; }
+  const idea = ideas[i]; if (!apiKey && !hfKey) { openModal(); return; }
   const msg = 'Hi ECO GREEN AI! I want to build this project: **' + idea.title + '**. ' + idea.description + ' Can you help me plan it step by step with a focus on sustainability and eco-friendliness?';
   chatHist = [{ role: 'assistant', content: WELCOME }, { role: 'user', content: msg }];
   chatBusy = true; showPage('chat');
@@ -1505,7 +1820,7 @@ function confetti() {
 })();
 
 // ===== INIT =====
-renderFields(); renderQuickPrompts(); loadMemory(); loadKey();
+renderFields(); renderQuickPrompts(); loadMemory(); loadKey(); switchProvider(activeProvider);
 
 // ================================================================
 // LAB ENGINE — Drag & Drop Component Circuit Builder
@@ -1918,7 +2233,7 @@ async function labAnalyse() {
   if (labAnalysing) return;
   const nodes = Object.values(labNodes);
   if (nodes.length < 2) { alert('Add at least 2 components before analysing! 😊'); return; }
-  if (!apiKey) { openModal(); return; }
+  if (!apiKey && !hfKey) { openModal(); return; }
 
   labAnalysing = true;
   const btn = document.getElementById('lab-analyse-btn');
@@ -1944,9 +2259,9 @@ ${connList}
 SUSTAINABILITY SCORE: ${sScore}/100
 INNOVATION SCORE: ${iScore}/100
 
-As ECO GREEN AI, give them a brief, practical design review in this format:
+As ECO GREEN AI (Gambia & Africa focused), give them a brief, practical design review in this format:
 
-## 🌱 Design Review
+## 🌍 Design Review
 
 **What's working well:**
 [2-3 bullet points on strengths]
@@ -1954,10 +2269,13 @@ As ECO GREEN AI, give them a brief, practical design review in this format:
 **Suggested improvements:**
 [2-3 specific component additions or connection changes that would boost scores]
 
-**⚡ Key insight:**
-[One powerful engineering fact or principle relevant to their design]
+**🇬🇲 African Context:**
+[1-2 sentences on how this design could specifically address a real Gambian or West African engineering challenge — e.g. NAWEC power issues, rural electrification, clean water access, or agri-processing]
 
-Keep it warm, specific, and actionable. Max 180 words.`;
+**⚡ Key insight:**
+[One powerful engineering fact or principle relevant to their design, with African/Gambian relevance where possible]
+
+Keep it warm, specific, and actionable. Max 200 words.`;
 
   const feedbackDiv = document.getElementById('lab-feedback-content');
   feedbackDiv.innerHTML = '<div class="lab-feedback-bubble" style="color:var(--text3)"><span style="animation:pulse 1.5s infinite;display:inline-block">🤖</span> Analysing your design…</div>';
