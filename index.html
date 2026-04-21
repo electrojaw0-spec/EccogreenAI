@@ -431,20 +431,62 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
 <!-- MEMORY OVERLAY -->
 <div class="mem-overlay" id="mem-overlay" onclick="closeMemPanel()"></div>
 
-<!-- HUGGINGFACE PANEL -->
+<!-- AI KEYS PANEL -->
 <div class="ollama-overlay" id="hf-overlay" onclick="closeHFPanel()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1199;display:none;"></div>
-<div id="hf-panel" style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);z-index:1200;padding:24px 20px;border-radius:24px 24px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);transform:translateY(100%);transition:transform .3s ease;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-    <div style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--text);">🤗 HuggingFace Password</div>
+<div id="hf-panel" style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);z-index:1200;padding:24px 20px 32px;border-radius:24px 24px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);transform:translateY(100%);transition:transform .3s ease;max-height:90vh;overflow-y:auto;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--text);">🔑 AI Keys</div>
     <button class="mem-close" onclick="closeHFPanel()">✕</button>
   </div>
-  <div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:16px;">Enter your HuggingFace password for better free AI responses.</div>
-  <div style="display:flex;gap:8px;margin-bottom:10px;">
-    <input class="ollama-inp" type="password" id="hf-panel-inp" placeholder="Enter HuggingFace password..." autocomplete="off" style="flex:1;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;" />
-    <button onclick="saveHFPanelKey()" style="padding:12px 18px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">Save</button>
+  <div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:18px;">Enter one or both keys to unlock AI features. Keys are stored on your device only. 🔒</div>
+
+  <!-- OpenRouter -->
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+      <span style="font-size:15px;">⚡</span>
+      <span style="font-size:13px;font-weight:800;color:var(--text);">OpenRouter Key</span>
+      <span style="font-size:10px;font-weight:700;color:var(--green);background:var(--green4);border:1px solid var(--green3);padding:2px 8px;border-radius:20px;">Best Quality</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:10px;">Access GPT-4, Claude, Gemini &amp; more via OpenRouter.</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input type="password" id="or-panel-inp" placeholder="sk-or-v1-..." autocomplete="off" style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;" />
+      <button onclick="saveORPanelKey()" style="padding:10px 16px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Save</button>
+    </div>
+    <div id="or-panel-status" style="font-size:11px;font-weight:700;color:var(--green);min-height:16px;margin-bottom:6px;"></div>
+    <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style="font-size:11px;font-weight:700;color:var(--green);text-decoration:underline;">Get your free OpenRouter key →</a>
   </div>
-  <div id="hf-panel-status" style="font-size:12px;font-weight:700;color:var(--green);min-height:18px;margin-bottom:10px;"></div>
-  <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" style="font-size:12px;font-weight:700;color:var(--green);text-decoration:underline;">Get your free HuggingFace password →</a>
+
+  <!-- HuggingFace -->
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+      <span style="font-size:15px;">🤗</span>
+      <span style="font-size:13px;font-weight:800;color:var(--text);">HuggingFace Key</span>
+      <span style="font-size:10px;font-weight:700;color:#7c6ff7;background:#f3f0ff;border:1px solid #c4b5fd;padding:2px 8px;border-radius:20px;">Free Backup</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:10px;">Access Mistral, Zephyr, Phi &amp; more for free.</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input type="password" id="hf-panel-inp" placeholder="hf_..." autocomplete="off" style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;" />
+      <button onclick="saveHFPanelKey()" style="padding:10px 16px;border-radius:10px;border:none;background:#7c6ff7;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Save</button>
+    </div>
+    <div id="hf-panel-status" style="font-size:11px;font-weight:700;color:var(--green);min-height:16px;margin-bottom:6px;"></div>
+    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" style="font-size:11px;font-weight:700;color:var(--green);text-decoration:underline;">Get your free HuggingFace key →</a>
+  </div>
+
+  <!-- Groq -->
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:12px;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+      <span style="font-size:15px;">🚀</span>
+      <span style="font-size:13px;font-weight:800;color:var(--text);">Groq Key</span>
+      <span style="font-size:10px;font-weight:700;color:#e07b30;background:#fff3e0;border:1px solid #fcd9a8;padding:2px 8px;border-radius:20px;">Ultra-Fast · Free</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:10px;">Access Llama 4, DeepSeek R1, Mixtral at blazing speed. 100% free tier.</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input type="password" id="groq-panel-inp" placeholder="gsk_..." autocomplete="off" style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;font-weight:600;" />
+      <button onclick="saveGroqPanelKey()" style="padding:10px 16px;border-radius:10px;border:none;background:#e07b30;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Save</button>
+    </div>
+    <div id="groq-panel-status" style="font-size:11px;font-weight:700;color:var(--green);min-height:16px;margin-bottom:6px;"></div>
+    <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" style="font-size:11px;font-weight:700;color:var(--green);text-decoration:underline;">Get your free Groq key →</a>
+  </div>
 </div>
 
 <!-- MEMORY PANEL -->
@@ -490,7 +532,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
   </div>
   <div class="nav-right">
     <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙</button>
-    <button class="profile-btn" onclick="openModal()" title="OpenRouter Password" id="key-btn" style="font-size:16px;">🔑</button>
+    <button class="profile-btn" onclick="openHFPanel()" title="Enter AI Password" id="key-btn" style="font-size:16px;">🔑</button>
     <button class="profile-btn" onclick="openMemPanel()" title="Memory &amp; Conversations" id="profile-btn">🧠<div class="profile-dot" id="profile-dot" style="display:none"></div></button>
     <button class="nav-cta" onclick="showPage('app')">Get Ideas</button>
   </div>
@@ -612,7 +654,7 @@ footer{border-top:1px solid var(--border);padding:48px 40px 40px;text-align:cent
       <div class="eco-ava"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="rgba(255,255,255,0.18)"/><circle cx="14" cy="14" r="12.5" stroke="white" stroke-width="1.6"/><path d="M14 1.5C14 1.5 10 7 10 14s4 12.5 4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M14 1.5C14 1.5 18 7 18 14s-4 12.5-4 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10.5h25M1.5 17.5h25" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
       <div style="flex:1">
         <div class="eco-name">ECO GREEN AI</div>
-        <div class="eco-status" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><span class="sdot"></span><span id="status-text">Always available · Remembers you</span><span class="ai-status-badge" id="ai-engine-badge" onclick="openHFPanel()" title="AI engine">🌐 Online</span></div>
+        <div class="eco-status" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><span class="sdot"></span><span id="status-text">Always available · Remembers you</span><span class="ai-status-badge" id="ai-engine-badge" title="AI engine">🌐 Online</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
         <button onclick="clearChatHistory()" title="Clear conversation" style="background:none;border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .2s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">Clear</button>
@@ -848,18 +890,77 @@ const LEVELS = [
 const WELCOME = "Hey! I'm really glad you're here. 💚🇬🇲\n\nI'm **ECO GREEN AI** — your personal sustainable engineering mentor, proudly built for students in **The Gambia and across Africa**.\n\nI'm here to help you build solutions for **real African challenges** — from NAWEC power outages to rural electrification, clean water access to smart agri-tech.\n\n## What I can do for you\n\n**🌍 Africa-First Project Ideas** — Projects grounded in Gambian & African realities\n**⚡ Local Engineering Challenges** — NAWEC, solar microgrids, flood management, agri-processing\n**🏗️ Project Planning** — From idea to final submission, step by step\n**📄 Proposals & Reports** — Strong academic documents for USET, UTG & beyond\n**💻 Technical Help** — Circuit design, coding, structural analysis, anything engineering\n**♻️ Sustainability** — Low-cost, high-impact green solutions for African contexts\n**💬 Just Talking** — Feeling stuck or overwhelmed? Tell me. I'm here.\n\n**What African engineering challenge are we solving today?** 😊🌍";
 
 // ===== STATE =====
-let apiKey = '', hfKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
+let apiKey = '', hfKey = '', groqKey = '', selField = null, selTopic = '', selLevel = 'Intermediate';
 let ideas = [], saved = [], chatHist = [], chatBusy = false;
 
 // ===== AI CONFIG =====
 const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OR_MODELS = [
+  // ── Free ":free" models — no credits needed ──
+  'deepseek/deepseek-r1:free',
+  'deepseek/deepseek-chat-v3-0324:free',
+  'deepseek/deepseek-r1-zero:free',
+  'google/gemini-2.5-pro-exp-03-25:free',
+  'google/gemini-2.0-flash-exp:free',
+  'google/gemini-2.0-flash-thinking-exp:free',
+  'meta-llama/llama-4-maverick:free',
+  'meta-llama/llama-4-scout:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'meta-llama/llama-3.2-11b-vision-instruct:free',
+  'meta-llama/llama-3.2-3b-instruct:free',
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'qwen/qwen3-235b-a22b:free',
+  'qwen/qwen3-30b-a3b:free',
+  'qwen/qwen3-14b:free',
+  'qwen/qwen3-8b:free',
+  'qwen/qwen3-4b:free',
+  'qwen/qwen2.5-vl-72b-instruct:free',
+  'qwen/qwen-2.5-72b-instruct:free',
+  'qwen/qwen-2.5-7b-instruct:free',
+  'mistralai/mistral-small-3.1-24b-instruct:free',
+  'mistralai/mistral-7b-instruct:free',
+  'mistralai/mistral-nemo:free',
+  'nvidia/llama-3.1-nemotron-70b-instruct:free',
+  'nvidia/llama-3.3-nemotron-super-49b-v1:free',
+  'microsoft/phi-4-multimodal-instruct:free',
+  'microsoft/phi-3-medium-128k-instruct:free',
+  'microsoft/phi-3-mini-128k-instruct:free',
+  'google/gemma-3-27b-it:free',
+  'google/gemma-3-12b-it:free',
+  'google/gemma-3-4b-it:free',
+  'google/gemma-3-1b-it:free',
+  'google/gemma-2-9b-it:free',
+  'nousresearch/hermes-3-llama-3.1-405b:free',
+  'tngtech/deepseek-r1t-chimera:free',
+  'moonshotai/moonlight-16a-a3b-instruct:free',
+  'rekaai/reka-flash-3:free',
+  'featherless/qwerky-72b:free',
+  'liquid/lfm-40b:free',
+  'openchat/openchat-7b:free',
+  'huggingfaceh4/zephyr-7b-beta:free',
+  // ── Paid low-cost fallbacks ──
   'openai/gpt-4o-mini',
-  'openai/gpt-3.5-turbo',
   'anthropic/claude-3-haiku',
   'google/gemini-flash-1.5',
-  'meta-llama/llama-3.1-8b-instruct',
   'openrouter/auto'
+];
+
+// ── Groq — free tier, ultra-fast inference ──
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODELS = [
+  'meta-llama/llama-4-maverick-17b-128e-instruct',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'llama-3.3-70b-versatile',
+  'deepseek-r1-distill-llama-70b',
+  'qwen-qwq-32b',
+  'llama-3.1-70b-versatile',
+  'llama3-70b-8192',
+  'mixtral-8x7b-32768',
+  'gemma2-9b-it',
+  'llama3-8b-8192',
+  'llama-3.1-8b-instant',
+  'compound-beta',
+  'compound-beta-mini',
 ];
 const POLL_URL     = 'https://text.pollinations.ai/openai';   // POST – OpenAI-compat
 const POLL_GET_URL = 'https://text.pollinations.ai/';          // GET  – plain text, no CORS issues
@@ -869,7 +970,25 @@ async function callPollinations(messages, sys) {
   if (sys) msgs.push({ role: 'system', content: sys });
   msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
 
-  const POLL_MODELS = ['openai-large', 'openai', 'mistral'];
+  const POLL_MODELS = [
+    'openai-large',       // GPT-4o
+    'openai',             // GPT-4o-mini
+    'openai-reasoning',   // o1-mini
+    'deepseek',           // DeepSeek-V3
+    'deepseek-r1',        // DeepSeek-R1
+    'llama',              // Llama 3.3 70B
+    'mistral',            // Mistral Nemo
+    'qwen-coder',         // Qwen2.5-Coder-32B
+    'phi',                // Phi-4
+    'gemini',             // Gemini 2.0 Flash
+    'unity',              // Unity (Mistral-based)
+    'sur',                // Sur (multilingual)
+    'mireille',           // Mireille
+    'searchgpt',          // SearchGPT
+    'claude-hybridspace', // Claude-based
+    'bidara',             // Bidara
+    'evil',               // No-filter fallback
+  ];
   const TIMEOUT_MS  = 22000;
 
   // ── Strategy 1: POST /openai (OpenAI-compatible JSON response) ──
@@ -932,11 +1051,42 @@ async function callHuggingFace(messages, sys, jsonMode = false) {
   // Only open (non-gated) models that work on the free HF Inference API.
   // Ordered: most capable first, lightest last.
   const HF_MODELS = [
-    { id: 'mistralai/Mistral-7B-Instruct-v0.3',   label: 'Mistral-7B'   },
-    { id: 'HuggingFaceH4/zephyr-7b-beta',          label: 'Zephyr-7B'    },
-    { id: 'microsoft/Phi-3.5-mini-instruct',        label: 'Phi-3.5-mini' },
-    { id: 'Qwen/Qwen2.5-1.5B-Instruct',            label: 'Qwen2.5-1.5B' },
-    { id: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0',   label: 'TinyLlama'    }
+    // ── Flagship open models ──
+    { id: 'Qwen/Qwen2.5-72B-Instruct',                    label: 'Qwen2.5-72B'        },
+    { id: 'Qwen/QwQ-32B',                                 label: 'QwQ-32B'            },
+    { id: 'Qwen/Qwen2.5-32B-Instruct',                    label: 'Qwen2.5-32B'        },
+    { id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',     label: 'DS-R1-32B'          },
+    { id: 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B',    label: 'DS-R1-Llama-70B'    },
+    { id: 'deepseek-ai/DeepSeek-V2-Lite-Chat',            label: 'DeepSeek-V2-Lite'   },
+    { id: 'mistralai/Mixtral-8x7B-Instruct-v0.1',         label: 'Mixtral-8x7B'       },
+    { id: 'mistralai/Mixtral-8x22B-Instruct-v0.1',        label: 'Mixtral-8x22B'      },
+    { id: 'mistralai/Mistral-Nemo-Instruct-2407',         label: 'Mistral-Nemo'       },
+    { id: 'mistralai/Mistral-7B-Instruct-v0.3',           label: 'Mistral-7B'         },
+    { id: 'NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO',  label: 'Hermes-2-Mixtral'   },
+    // ── Mid-range models ──
+    { id: 'Qwen/Qwen2.5-14B-Instruct',                    label: 'Qwen2.5-14B'        },
+    { id: 'Qwen/Qwen2.5-7B-Instruct',                     label: 'Qwen2.5-7B'         },
+    { id: 'Qwen/Qwen2.5-Coder-32B-Instruct',              label: 'Qwen2.5-Coder-32B'  },
+    { id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B',     label: 'DS-R1-14B'          },
+    { id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B',      label: 'DS-R1-7B'           },
+    { id: 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',  label: 'DS-Coder-V2-Lite'   },
+    { id: 'google/gemma-2-27b-it',                        label: 'Gemma-2-27B'        },
+    { id: 'google/gemma-2-9b-it',                         label: 'Gemma-2-9B'         },
+    { id: 'google/gemma-2-2b-it',                         label: 'Gemma-2-2B'         },
+    { id: 'HuggingFaceH4/zephyr-7b-beta',                 label: 'Zephyr-7B'          },
+    { id: 'microsoft/Phi-4',                              label: 'Phi-4'              },
+    { id: 'microsoft/Phi-3.5-mini-instruct',               label: 'Phi-3.5-mini'       },
+    { id: 'microsoft/Phi-3-small-8k-instruct',             label: 'Phi-3-small-8k'     },
+    { id: 'microsoft/Phi-3-mini-4k-instruct',              label: 'Phi-3-mini-4k'      },
+    { id: '01-ai/Yi-1.5-34B-Chat',                        label: 'Yi-1.5-34B'         },
+    { id: '01-ai/Yi-1.5-9B-Chat',                         label: 'Yi-1.5-9B'          },
+    { id: 'openchat/openchat-3.5-0106',                    label: 'OpenChat-3.5'       },
+    { id: 'teknium/OpenHermes-2.5-Mistral-7B',             label: 'OpenHermes-2.5'     },
+    // ── Lightweight fast models ──
+    { id: 'Qwen/Qwen2.5-3B-Instruct',                     label: 'Qwen2.5-3B'         },
+    { id: 'Qwen/Qwen2.5-1.5B-Instruct',                   label: 'Qwen2.5-1.5B'       },
+    { id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B',    label: 'DS-R1-1.5B'         },
+    { id: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0',           label: 'TinyLlama'          },
   ];
 
   // Official HF Inference API — unified chat completions endpoint.
@@ -1055,7 +1205,12 @@ async function callHuggingFace(messages, sys, jsonMode = false) {
 async function callHuggingFaceAnon(messages, sys, jsonMode = false) {
   const HF_BASE_URL = 'https://api-inference.huggingface.co/v1/chat/completions';
   const ANON_MODELS = [
+    'Qwen/Qwen2.5-7B-Instruct',
+    'Qwen/Qwen2.5-3B-Instruct',
+    'Qwen/Qwen2.5-1.5B-Instruct',
+    'google/gemma-2-2b-it',
     'microsoft/Phi-3.5-mini-instruct',
+    'microsoft/Phi-3-mini-4k-instruct',
     'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
   ];
 
@@ -1091,7 +1246,46 @@ async function callHuggingFaceAnon(messages, sys, jsonMode = false) {
   }
   throw new Error('Anonymous HF: all models unavailable or rate-limited');
 }
-// Reads SSE chunks, assembles tokens, yields words with small delay
+// ══════════════════════════════════════════════════════════════
+// GROQ — free tier, ultra-fast inference (Llama 4, DeepSeek, etc.)
+// ══════════════════════════════════════════════════════════════
+async function callGroq(messages, sys, jsonMode = false) {
+  if (!groqKey) throw new Error('Groq: no key set');
+  const TIMEOUT_MS = 20000;
+  const msgs = [];
+  const effectiveSys = jsonMode
+    ? (sys ? sys + '\n\n' : '') + 'Output ONLY a raw JSON array starting with [ and ending with ].'
+    : sys;
+  if (effectiveSys) msgs.push({ role: 'system', content: effectiveSys });
+  msgs.push(...messages.filter(m => m.role === 'user' || m.role === 'assistant'));
+  for (const model of GROQ_MODELS) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const res = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + groqKey },
+        body: JSON.stringify({ model, messages: msgs, max_tokens: jsonMode ? 2000 : 1500, temperature: 0.72 }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.status === 401) { groqKey = ''; localStorage.removeItem('eco_groq_key'); updateStatus(); throw new Error('bad_key'); }
+      if (res.status === 429 || res.status === 503) { console.warn('[ECO GREEN] Groq ' + model + ' rate-limited — skipping'); continue; }
+      if (!res.ok) { console.warn('[ECO GREEN] Groq ' + model + ' HTTP ' + res.status); continue; }
+      let data; try { data = await res.json(); } catch(_) { continue; }
+      const text = (data?.choices?.[0]?.message?.content || '').trim();
+      if (!text) continue;
+      console.log('[ECO GREEN] ✅ Groq OK · model:', model);
+      currentModel = 'groq/' + model; updateAIBadge('groq');
+      return text;
+    } catch(e) {
+      if (e.message === 'bad_key') throw e;
+      console.warn('[ECO GREEN] Groq ' + model + ':', e.name === 'AbortError' ? 'timeout' : e.message);
+    }
+  }
+  throw new Error('Groq: all models unavailable');
+}
+
 // ================================================================
 
 /**
@@ -1215,6 +1409,24 @@ async function streamAI(messages, sys, onToken) {
   }
 
   // ══════════════════════════════════════════════════════════════
+  // PRIMARY 3 — Groq  (free tier, ultra-fast)
+  // ══════════════════════════════════════════════════════════════
+  if (groqKey) {
+    try {
+      console.log('[ECO GREEN] Groq PRIMARY — running…');
+      const groqText = await callGroq(merged, sys);
+      const words = groqText.split(/(\s+)/);
+      for (const chunk of words) {
+        if (chunk) { onToken(chunk); await new Promise(r => setTimeout(r, 30)); }
+      }
+      return groqText;
+    } catch (groqErr) {
+      if (groqErr.message !== 'bad_key')
+        console.warn('[ECO GREEN] Groq failed, trying free fallback…', groqErr.message);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
   // FREE FALLBACK 1 — Pollinations  (no key needed)
   // ══════════════════════════════════════════════════════════════
   try {
@@ -1300,6 +1512,19 @@ async function aiRequest(messages, sys, jsonMode = false) {
   }
 
   // ══════════════════════════════════════════════════════════════
+  // PRIMARY 3 — Groq  (free tier, ultra-fast)
+  // ══════════════════════════════════════════════════════════════
+  if (groqKey) {
+    try {
+      console.log('[ECO GREEN] Groq PRIMARY (aiRequest) — running…');
+      return await callGroq(merged, sys, jsonMode);
+    } catch (groqErr) {
+      if (groqErr.message === 'bad_key') { /* already cleared */ }
+      else console.warn('[ECO GREEN] Groq failed, trying free fallback…', groqErr.message);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
   // FREE FALLBACK 1 — Pollinations  (no key needed)
   // ══════════════════════════════════════════════════════════════
   try {
@@ -1378,8 +1603,9 @@ function switchProvider(provider) {
 }
 
 function loadKey() {
-  apiKey = localStorage.getItem('eco_or_key') || '';
-  hfKey = localStorage.getItem('eco_hf_key') || '';
+  apiKey  = localStorage.getItem('eco_or_key')   || '';
+  hfKey   = localStorage.getItem('eco_hf_key')   || '';
+  groqKey = localStorage.getItem('eco_groq_key') || '';
   updateStatus();
 }
 
@@ -1623,9 +1849,10 @@ function saveHFKey() {
 function updateAIBadge(engine) {
   const badge = document.getElementById('ai-engine-badge');
   if (!badge) return;
-  if (engine === 'openrouter')    { badge.textContent = '⚡ OpenRouter';    badge.title = 'Using OpenRouter — click to configure'; }
-  else if (engine === 'huggingface') { badge.textContent = '🤗 HuggingFace'; badge.title = 'Using HuggingFace Inference API — click to configure'; }
-  else if (engine === 'pollinations') { badge.textContent = '🌸 Pollinations'; badge.title = 'Using Pollinations AI (free fallback)'; }
+  if (engine === 'openrouter')    { badge.textContent = '⚡ OpenRouter';    badge.title = 'Using OpenRouter'; }
+  else if (engine === 'groq')     { badge.textContent = '🚀 Groq';          badge.title = 'Using Groq (ultra-fast)'; }
+  else if (engine === 'huggingface') { badge.textContent = '🤗 HuggingFace'; badge.title = 'Using HuggingFace'; }
+  else if (engine === 'pollinations') { badge.textContent = '🌸 Pollinations'; badge.title = 'Using Pollinations AI (free)'; }
   else { badge.textContent = '🌐 Online'; }
 }
 
@@ -1637,22 +1864,44 @@ function openHFPanel() {
   const overlay = document.getElementById('hf-overlay');
   panel.style.transform = 'translateY(0)';
   overlay.style.display = 'block';
-  const inp = document.getElementById('hf-panel-inp');
-  inp.value = hfKey ? '••••••••••••' : '';
-  document.getElementById('hf-panel-status').textContent = hfKey ? '✅ Password saved' : '';
+  document.getElementById('or-panel-inp').value = apiKey || '';
+  document.getElementById('or-panel-status').textContent = apiKey ? '✅ OpenRouter key saved' : '';
+  document.getElementById('hf-panel-inp').value = hfKey || '';
+  document.getElementById('hf-panel-status').textContent = hfKey ? '✅ HuggingFace key saved' : '';
+  document.getElementById('groq-panel-inp').value = groqKey || '';
+  document.getElementById('groq-panel-status').textContent = groqKey ? '✅ Groq key saved' : '';
 }
 function closeHFPanel() {
   document.getElementById('hf-panel').style.transform = 'translateY(100%)';
   document.getElementById('hf-overlay').style.display = 'none';
 }
+function saveORPanelKey() {
+  const val = document.getElementById('or-panel-inp').value.trim();
+  if (!val) { alert('Please enter your OpenRouter key 😊'); return; }
+  apiKey = val;
+  localStorage.setItem('eco_or_key', val);
+  document.getElementById('or-panel-status').textContent = '✅ OpenRouter key saved!';
+  updateStatus();
+  setTimeout(() => { const s = document.getElementById('or-panel-status'); if (s) s.textContent = '✅ OpenRouter key saved'; }, 2000);
+}
 function saveHFPanelKey() {
   const val = document.getElementById('hf-panel-inp').value.trim();
-  if (!val || val === '••••••••••••') { alert('Please enter your HuggingFace password 😊'); return; }
+  if (!val) { alert('Please enter your HuggingFace key 😊'); return; }
   hfKey = val;
   localStorage.setItem('eco_hf_key', val);
-  document.getElementById('hf-panel-inp').value = '••••••••••••';
-  document.getElementById('hf-panel-status').textContent = '✅ Password saved!';
-  setTimeout(() => closeHFPanel(), 1200);
+  document.getElementById('hf-panel-status').textContent = '✅ HuggingFace key saved!';
+  updateStatus();
+  setTimeout(() => { const s = document.getElementById('hf-panel-status'); if (s) s.textContent = '✅ HuggingFace key saved'; }, 2000);
+}
+function saveGroqPanelKey() {
+  const val = document.getElementById('groq-panel-inp').value.trim();
+  if (!val) { alert('Please enter your Groq key 😊'); return; }
+  groqKey = val;
+  localStorage.setItem('eco_groq_key', val);
+  document.getElementById('groq-panel-inp').value = val;
+  document.getElementById('groq-panel-status').textContent = '✅ Groq key saved!';
+  updateStatus();
+  setTimeout(() => { const s = document.getElementById('groq-panel-status'); if (s) s.textContent = '✅ Groq key saved'; }, 2000);
 }
 function renderProfileTags() {
   const c = document.getElementById('profile-tags'); if (!c) return;
